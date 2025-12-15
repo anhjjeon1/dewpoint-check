@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>청개구리 샤시 결로 진단기</title>
+    <style>
+        :root {
+            /* 테마 색상 */
+            --primary-color: #81C784; 
+            --secondary-color: #A5D6A7; 
+            --bg-color: #F1F8E9; 
+            --btn-color: #4FC3F7; 
+            --btn-hover: #29B6F6; 
+            --text-color: #333;
+            --white: #ffffff;
+            --accent-color: #C8E6C9;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 900px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 0;
+        }
+
+        /* 헤더 디자인 변경: 좌우 배치 (Flexbox) */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #1b5e20;
+            padding: 15px 20px;
+            
+            /* 여기부터 좌우 배치를 위한 설정 */
+            display: flex;
+            align-items: center; /* 세로 중앙 정렬 */
+            justify-content: center; /* 가로 중앙 정렬 (필요시 space-between으로 변경 가능) */
+            gap: 15px; /* 그림과 글자 사이 간격 */
+            
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 로고 이미지 스타일 */
+        .header-logo {
+            height: 50px; /* 로고 높이 설정 (글자 크기와 어울리게) */
+            width: auto;  /* 비율 유지 */
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 우측 텍스트 스타일 */
+        .header-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1b5e20;
+            margin: 0;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+            white-space: nowrap; /* 줄바꿈 방지 */
+        }
+
+        main {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .card-label {
+            font-size: 15px;
+            font-weight: bold;
+            color: #2E7D32;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        input[type="range"] {
+            flex: 1;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .unit { font-weight: bold; color: #777; }
+
+        .calc-btn {
+            background-color: var(--btn-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .calc-btn:active {
+            transform: scale(0.98);
+            background-color: var(--btn-hover);
+        }
+
+        .result-section {
+            background-color: #f8fcf8;
+            border: 2px solid var(--accent-color);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .dew-point-display {
+            font-size: 42px;
+            font-weight: 900;
+            color: #2E7D32;
+            margin: 10px 0;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+        }
+
+        .analysis-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .analysis-table th, .analysis-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .analysis-table th { color: #666; font-weight: normal; }
+        .analysis-table td { font-weight: bold; color: #333; text-align: right;}
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .footer-info {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        @media (min-width: 450px) {
+            .app-container {
+                height: auto;
+                border-radius: 20px;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <img src="logo.jpg" alt="청개구리 로고" class="header-logo">
+        
+        <div class="header-title">창호결로 계산기</div>
+    </header>
+
+    <main>
+        <div class="card">
+            <label class="card-label">1. 실내 온도 (Air Temp)</label>
+            <div class="input-wrapper">
+                <input type="number" id="tempInput" value="24" oninput="syncRange('temp')">
+                <span class="unit">℃</span>
+                <input type="range" id="tempRange" min="0" max="40" value="24" oninput="syncInput('temp')">
+            </div>
+
+            <label class="card-label" style="margin-top:20px;">2. 실내 습도 (Humidity)</label>
+            <div class="input-wrapper">
+                <input type="number" id="humInput" value="55" oninput="syncRange('hum')">
+                <span class="unit">%</span>
+                <input type="range" id="humRange" min="0" max="100" value="55" oninput="syncInput('hum')">
+            </div>
+        </div>
+
+        <button class="calc-btn" onclick="calculate()">진단하기 (Calculate)</button>
+
+        <div class="result-section">
+            <div class="result-title">이슬점 (결로 발생 온도)</div>
+            <div class="dew-point-display" id="resultDewPoint">14.2℃</div>
+            
+            <div style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                창틀 표면 온도가 위 온도보다 낮으면<br>
+                <strong>100% 물방울이 맺힙니다.</strong>
+            </div>
+
+            <table class="analysis-table">
+                <tr>
+                    <th>진단 결과</th>
+                    <td><span id="riskBadge" class="status-badge" style="background-color: #FF9800;">주의</span></td>
+                </tr>
+                <tr>
+                    <th>권장 조치</th>
+                    <td id="adviceText">환기가 필요합니다.</td>
+                </tr>
+            </table>
+        </div>
+    </main>
+
+    <div class="footer-info">
+        Professional Window Solution<br>
+        © 청개구리 샤시
+    </div>
+</div>
+
+<script>
+    function syncInput(type) {
+        document.getElementById(type + 'Input').value = document.getElementById(type + 'Range').value;
+        calculate();
+    }
+    function syncRange(type) {
+        document.getElementById(type + 'Range').value = document.getElementById(type + 'Input').value;
+        calculate();
+    }
+
+    function calculate() {
+        const T = parseFloat(document.getElementById('tempInput').value);
+        const RH = parseFloat(document.getElementById('humInput').value);
+
+        if (isNaN(T) || isNaN(RH)) return;
+
+        const a = 17.62;
+        const b = 243.12;
+        const alpha = Math.log(RH / 100) + (a * T) / (b + T);
+        const dewPoint = (b * alpha) / (a - alpha);
+
+        const dpFixed = dewPoint.toFixed(1);
+        document.getElementById('resultDewPoint').innerText = dpFixed + "℃";
+
+        const badge = document.getElementById('riskBadge');
+        const advice = document.getElementById('adviceText');
+        
+        if (dewPoint < 8) {
+            badge.innerText = "안전 (Good)";
+            badge.style.backgroundColor = "#4CAF50"; 
+            advice.innerText = "현재 상태 양호합니다.";
+        } else if (dewPoint < 14) {
+            badge.innerText = "주의 (Caution)";
+            badge.style.backgroundColor = "#FF9800"; 
+            advice.innerText = "약간의 환기가 필요합니다.";
+        } else {
+            badge.innerText = "위험 (Danger)";
+            badge.style.backgroundColor = "#F44336"; 
+            advice.innerText = "전문가에게 문의하기 1599-7380";
+        }
+    }
+
+    calculate();
+</script>
+
+</body>
+</html>
