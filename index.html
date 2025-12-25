@@ -13,13 +13,25 @@
         body { font-family: 'Noto Sans KR', sans-serif; }
         .loader {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #0d9488; /* 결로 테마색 (Teal) */
+            border-top: 4px solid #0d9488;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .custom-checkbox:checked {
+            background-color: #0d9488;
+            border-color: #0d9488;
+        }
+        .custom-checkbox:checked + span {
+            font-weight: 700;
+            color: #0f766e;
+        }
+        
+        .pdf-visible { display: none; }
+        .print\:hidden { display: grid; }
     </style>
 </head>
 <body class="bg-teal-50 min-h-screen">
@@ -27,9 +39,12 @@
         
         <header class="bg-teal-600 p-4 text-white text-center shadow-lg relative">
             <h1 class="text-xl font-bold flex items-center justify-center gap-2">
-                <i class="fas fa-temperature-low text-2xl"></i> 청개구리 결로/곰팡이 진단
+                <img src="image_1.png" alt="청개구리 로고" class="h-8 w-auto bg-white rounded-full p-1">
+                청개구리 결로/곰팡이 진단
             </h1>
-            <p class="text-xs mt-1 text-teal-100">AI 이슬점(Dew Point) 정밀 분석 Ver 1.1</p>
+            <div class="flex justify-end mt-1">
+                <p class="text-xs text-teal-100 font-medium">AI 이슬점(Dew Point) 정밀 분석 Ver 1.4</p>
+            </div>
         </header>
 
         <main class="p-5 pb-24">
@@ -64,14 +79,32 @@
                     <input type="text" id="location" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 transition" placeholder="예: 안방 베란다 벽면">
                 </div>
                 
-                <label class="block text-sm font-bold text-gray-700 mb-1"><i class="fas fa-map-marker-alt mr-2 text-teal-600"></i>발생 부위 선택</label>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="selectType(this, '베란다/발코니')" class="type-btn p-2 border rounded-lg text-sm font-medium hover:bg-teal-50 transition">베란다</button>
-                    <button onclick="selectType(this, '창문/창호주변')" class="type-btn p-2 border rounded-lg text-sm font-medium hover:bg-teal-50 transition">창문 주변</button>
-                    <button onclick="selectType(this, '벽 모서리/코너')" class="type-btn p-2 border rounded-lg text-sm font-medium hover:bg-teal-50 transition">벽 모서리</button>
-                    <button onclick="selectType(this, '현관/대피소')" class="type-btn p-2 border rounded-lg text-sm font-medium hover:bg-teal-50 transition">현관/대피소</button>
-                    <button onclick="selectType(this, '가구/붙박이장 뒤')" class="type-btn p-2 border rounded-lg text-sm font-medium hover:bg-teal-50 transition">가구 뒤</button>
-                    <button onclick="selectType(this, '천장/기타')" class="type-btn p-2 border rounded-lg text-sm font-medium hover:bg-teal-50 transition">천장/기타</button>
+                <label class="block text-sm font-bold text-gray-700 mb-1"><i class="fas fa-map-marker-alt mr-2 text-teal-600"></i>발생 부위 선택 (다중 선택)</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-teal-50 transition">
+                        <input type="checkbox" value="베란다/발코니" class="custom-checkbox w-5 h-5 text-teal-600 border-2 border-gray-300 rounded focus:ring-teal-500" onchange="updateDefectType()">
+                        <span class="ml-3 text-sm text-gray-700">베란다/발코니</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-teal-50 transition">
+                        <input type="checkbox" value="창문/창호주변" class="custom-checkbox w-5 h-5 text-teal-600 border-2 border-gray-300 rounded focus:ring-teal-500" onchange="updateDefectType()">
+                        <span class="ml-3 text-sm text-gray-700">창문 주변</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-teal-50 transition">
+                        <input type="checkbox" value="벽 모서리/코너" class="custom-checkbox w-5 h-5 text-teal-600 border-2 border-gray-300 rounded focus:ring-teal-500" onchange="updateDefectType()">
+                        <span class="ml-3 text-sm text-gray-700">벽 모서리</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-teal-50 transition">
+                        <input type="checkbox" value="현관/대피소" class="custom-checkbox w-5 h-5 text-teal-600 border-2 border-gray-300 rounded focus:ring-teal-500" onchange="updateDefectType()">
+                        <span class="ml-3 text-sm text-gray-700">현관/대피소</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-teal-50 transition">
+                        <input type="checkbox" value="가구/붙박이장 뒤" class="custom-checkbox w-5 h-5 text-teal-600 border-2 border-gray-300 rounded focus:ring-teal-500" onchange="updateDefectType()">
+                        <span class="ml-3 text-sm text-gray-700">가구 뒤</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-teal-50 transition">
+                        <input type="checkbox" value="천장/기타" class="custom-checkbox w-5 h-5 text-teal-600 border-2 border-gray-300 rounded focus:ring-teal-500" onchange="updateDefectType()">
+                        <span class="ml-3 text-sm text-gray-700">천장/기타</span>
+                    </label>
                 </div>
                 <input type="hidden" id="defectType">
 
@@ -81,36 +114,42 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-md mb-6 border border-gray-100 group hover:shadow-lg transition relative overflow-hidden">
+            <div class="bg-gray-100 p-6 rounded-2xl shadow-md mb-6 border border-gray-200 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
                 <h3 class="text-lg font-bold mb-4 flex items-center text-teal-700">
                     📸 1. 결로/곰팡이 현장 (필수)
                 </h3>
-                <img id="preview1" src="placeholder.png" alt="현장 사진" class="w-full h-64 object-cover rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-80 transition" onclick="triggerUpload(1)">
+                <div class="w-full h-80 bg-white rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-90 transition flex items-center justify-center overflow-hidden" onclick="triggerUpload(1)">
+                    <img id="preview1" src="placeholder.png" alt="사진 입력" class="w-1/2 h-1/2 object-contain">
+                </div>
                 <input type="file" id="fileInput1" accept="image/*" class="hidden" onchange="previewImage(event, 1)">
                 <button onclick="triggerUpload(1)" class="w-full bg-teal-100 text-teal-700 py-3 rounded-xl font-bold hover:bg-teal-200 transition flex items-center justify-center">
                     <i class="fas fa-camera mr-2"></i> 사진 촬영/업로드
                 </button>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-md mb-6 border border-gray-100 group hover:shadow-lg transition relative overflow-hidden">
+            <div class="bg-gray-100 p-6 rounded-2xl shadow-md mb-6 border border-gray-200 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
                 <h3 class="text-lg font-bold mb-4 flex items-center text-cyan-700">
                     📸 2. 확대/상세 사진 (선택)
                 </h3>
-                <img id="preview2" src="placeholder.png" alt="상세 사진" class="w-full h-64 object-cover rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-80 transition" onclick="triggerUpload(2)">
+                <div class="w-full h-80 bg-white rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-90 transition flex items-center justify-center overflow-hidden" onclick="triggerUpload(2)">
+                    <img id="preview2" src="placeholder.png" alt="사진 입력" class="w-1/2 h-1/2 object-contain">
+                </div>
                 <input type="file" id="fileInput2" accept="image/*" class="hidden" onchange="previewImage(event, 2)">
                 <button onclick="triggerUpload(2)" class="w-full bg-cyan-100 text-cyan-700 py-3 rounded-xl font-bold hover:bg-cyan-200 transition flex items-center justify-center">
                     <i class="fas fa-camera mr-2"></i> 사진 촬영/업로드
                 </button>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-md mb-6 border border-gray-100 group hover:shadow-lg transition relative overflow-hidden">
+            <div class="bg-gray-100 p-6 rounded-2xl shadow-md mb-6 border border-gray-200 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full bg-sky-500"></div>
                 <h3 class="text-lg font-bold mb-4 flex items-center text-sky-700">
                     📸 3. 주변 환경/기타 사진 (선택)
                 </h3>
-                <img id="preview3" src="placeholder.png" alt="추가 사진" class="w-full h-64 object-cover rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-80 transition" onclick="triggerUpload(3)">
+                <div class="w-full h-80 bg-white rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-90 transition flex items-center justify-center overflow-hidden" onclick="triggerUpload(3)">
+                    <img id="preview3" src="placeholder.png" alt="사진 입력" class="w-1/2 h-1/2 object-contain">
+                </div>
                 <input type="file" id="fileInput3" accept="image/*" class="hidden" onchange="previewImage(event, 3)">
                 <button onclick="triggerUpload(3)" class="w-full bg-sky-100 text-sky-700 py-3 rounded-xl font-bold hover:bg-sky-200 transition flex items-center justify-center">
                     <i class="fas fa-camera mr-2"></i> 사진 촬영/업로드
@@ -126,20 +165,27 @@
                 <p class="text-gray-600 animate-pulse font-medium">💧 습도와 온도를 분석하고 있습니다...</p>
             </div>
 
-            <div id="result" class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-teal-500 hidden">
-                <h3 class="text-xl font-bold mb-4 flex items-center text-gray-800 border-b pb-2">
-                    <i class="fas fa-clipboard-check text-teal-500 mr-2"></i> 진단 결과 및 해결책
+            <div id="result" class="bg-gray-100 p-6 rounded-2xl shadow-lg border-t-4 border-teal-500 mb-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center text-gray-800 border-b border-gray-300 pb-2">
+                    <i class="fas fa-clipboard-check text-teal-500 mr-2"></i> 결로발생의 원인과 해결방안
                 </h3>
-                <div id="resultContent" class="prose max-w-none text-gray-700 leading-relaxed text-sm"></div>
+                <div id="resultContent" class="prose max-w-none text-gray-700 leading-relaxed text-sm bg-white p-4 rounded-lg border border-gray-200">
+                    진단 시작 버튼을 누르면 AI 전문가의 분석 결과가 여기에 표시됩니다.
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mt-6 print:hidden">
-                <a href="tel:1599-7380" class="flex items-center justify-center bg-teal-600 text-white px-6 py-3 rounded-xl hover:bg-teal-700 transition shadow-lg font-bold">
-                    <i class="fas fa-phone-alt mr-2"></i> 문의하기
-                </a>
-                <button onclick="savePDF()" class="flex items-center justify-center bg-gray-600 text-white px-6 py-3 rounded-xl hover:bg-gray-700 transition shadow-lg font-bold">
-                    <i class="fas fa-file-pdf mr-2"></i> PDF 저장
-                </button>
+            <div class="print:hidden">
+                <div class="grid grid-cols-[2fr_1fr] gap-4 mt-6">
+                    <a href="tel:1599-7380" class="flex items-center justify-center bg-teal-600 text-white px-2 py-3 rounded-xl hover:bg-teal-700 transition shadow-lg font-bold whitespace-nowrap overflow-hidden">
+                        <i class="fas fa-phone-alt mr-2"></i> 문의하기(1599-7380)
+                    </a>
+                    <button onclick="savePDF()" class="flex items-center justify-center bg-gray-600 text-white px-2 py-3 rounded-xl hover:bg-gray-700 transition shadow-lg font-bold whitespace-nowrap">
+                        <i class="fas fa-file-pdf mr-2"></i> PDF 저장
+                    </button>
+                </div>
+                <div class="pdf-visible text-center text-gray-500 text-sm mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    더 자세한 정밀진단과 수리를 원하시면 청개구리(1599-7380)로 문의하시길 원하시면 문의하기 버튼을 누르시면 자동으로 통화가 연결됩니다.
+                </div>
             </div>
             
         </main>
@@ -174,21 +220,18 @@
             }
         }
 
-        // 부위 선택 버튼 로직
-        function selectType(btn, type) {
-            document.querySelectorAll('.type-btn').forEach(b => {
-                b.classList.remove('bg-teal-600', 'text-white', 'border-transparent');
-                b.classList.add('border-gray-200');
-            });
-            btn.classList.add('bg-teal-600', 'text-white', 'border-transparent');
-            btn.classList.remove('border-gray-200');
-            document.getElementById('defectType').value = type;
+        // 체크박스 값 업데이트
+        function updateDefectType() {
+            const checkedTypes = Array.from(document.querySelectorAll('.custom-checkbox:checked'))
+                .map(input => input.value);
+            document.getElementById('defectType').value = checkedTypes.join(', ');
         }
 
         function triggerUpload(num) {
             document.getElementById(`fileInput${num}`).click();
         }
 
+        // 이미지 미리보기 (크기 고정 방식)
         function previewImage(event, num) {
             const file = event.target.files[0];
             if (file) {
@@ -196,16 +239,21 @@
                 reader.onload = function(e) {
                     const img = document.getElementById(`preview${num}`);
                     img.src = e.target.result;
-                    img.classList.remove('border-dashed');
-                    // 색상을 각 섹션에 맞게 다르게 설정 (teal, cyan, sky)
+                    // 이미지 입력 시 꽉 차게 변경
+                    img.classList.remove('w-1/2', 'h-1/2', 'object-contain');
+                    img.classList.add('w-full', 'h-full', 'object-cover');
+                    
+                    // 테두리 색상 변경
+                    const container = img.parentElement;
+                    container.classList.remove('border-dashed', 'border-gray-300');
                     const colors = ['border-teal-500', 'border-cyan-500', 'border-sky-500'];
-                    img.classList.add('border-solid', colors[num-1]);
+                    container.classList.add('border-solid', 'border-4', colors[num-1]);
                 }
                 reader.readAsDataURL(file);
             }
         }
 
-        // AI 분석 실행 (사진 3장 처리)
+        // AI 분석 실행
         async function analyzeImages() {
             const apiKey = localStorage.getItem('openai_api_key');
             if (!apiKey) {
@@ -221,11 +269,9 @@
 
             document.getElementById('analyzeBtn').disabled = true;
             document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('result').classList.add('hidden');
 
             try {
                 const images = [];
-                // 3장 모두 Base64 변환 시도
                 if (img1) images.push(await toBase64(img1));
                 const img2 = document.getElementById('fileInput2').files[0];
                 if (img2) images.push(await toBase64(img2));
@@ -233,12 +279,11 @@
                 if (img3) images.push(await toBase64(img3));
 
                 const location = document.getElementById('location').value;
-                const type = document.getElementById('defectType').value || "일반";
+                const type = document.getElementById('defectType').value || "미선택";
                 const desc = document.getElementById('description').value;
-                const temp = document.getElementById('temp').value; // 온도
-                const humid = document.getElementById('humidity').value; // 습도
+                const temp = document.getElementById('temp').value; 
+                const humid = document.getElementById('humidity').value;
 
-                // 프롬프트 구성
                 let promptText = `장소: ${location}, 부위: ${type}, 증상: ${desc}`;
                 if (temp && humid) {
                     promptText += `\n[환경정보] 실내온도: ${temp}도, 습도: ${humid}% (이 정보를 바탕으로 이슬점 발생 가능성을 계산하고 분석에 포함해줘)`;
@@ -278,7 +323,6 @@
 
                 const answer = data.choices[0].message.content;
                 document.getElementById('resultContent').innerHTML = answer.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                document.getElementById('result').classList.remove('hidden');
                 document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
 
             } catch (error) {
@@ -300,7 +344,11 @@
 
         async function savePDF() {
             const buttons = document.querySelector('.print\\:hidden');
+            const pdfVisible = document.querySelector('.pdf-visible');
+            
             if(buttons) buttons.style.display = 'none';
+            if(pdfVisible) pdfVisible.style.display = 'block';
+
             window.scrollTo(0, 0);
             
             try {
@@ -332,6 +380,7 @@
                 alert('PDF 저장 오류: ' + e.message);
             } finally {
                 if(buttons) buttons.style.display = 'grid';
+                if(pdfVisible) pdfVisible.style.display = 'none';
             }
         }
     </script>
