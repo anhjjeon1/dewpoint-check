@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로/곰팡이 AI 진단</title>
+    <title>청개구리 결로진단 AI앱</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -38,9 +38,9 @@
     <div id="capture-area" class="max-w-md mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative">
         
         <header class="bg-teal-600 p-4 text-white text-center shadow-lg relative">
-            <h1 class="text-2xl font-bold flex items-center justify-center gap-3">
-                <img src="image_1.png" alt="청개구리 로고" class="h-16 w-auto object-contain mix-blend-multiply">
-                청개구리 결로/곰팡이 진단 AI앱
+            <h1 class="text-xl sm:text-2xl font-bold flex items-center justify-center gap-2 whitespace-nowrap">
+                <img src="image_1.png" alt="청개구리 로고" class="h-14 w-auto object-contain mix-blend-multiply">
+                청개구리 결로진단 AI앱
             </h1>
             <div class="flex justify-end mt-1">
                 <p class="text-xs text-white font-medium">
@@ -263,12 +263,12 @@
             });
         }
 
-        // [수정된 부분] API 키 저장 함수
+        // [수정 완료] API 키 저장 함수 (공백 제거 및 조건 완화)
         function saveApiKey() {
             const keyInput = document.getElementById('apiKey');
             const key = keyInput.value.trim(); // 공백 제거
 
-            if (key) { // 단순히 값이 있는지만 확인
+            if (key) { // 값이 있는지 확인
                 localStorage.setItem('openai_api_key', key);
                 alert('API 키가 저장되었습니다.');
                 document.getElementById('apiKeySection').style.display = 'none';
