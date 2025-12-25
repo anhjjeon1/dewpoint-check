@@ -263,9 +263,12 @@
             });
         }
 
+        // [수정된 부분] API 키 저장 함수
         function saveApiKey() {
-            const key = document.getElementById('apiKey').value;
-            if (key.startsWith('sk-')) {
+            const keyInput = document.getElementById('apiKey');
+            const key = keyInput.value.trim(); // 공백 제거
+
+            if (key) { // 단순히 값이 있는지만 확인
                 localStorage.setItem('openai_api_key', key);
                 alert('API 키가 저장되었습니다.');
                 document.getElementById('apiKeySection').style.display = 'none';
