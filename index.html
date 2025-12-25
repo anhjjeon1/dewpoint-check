@@ -38,12 +38,12 @@
     <div id="capture-area" class="max-w-md mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative">
         
         <header class="bg-teal-600 p-4 text-white text-center shadow-lg relative">
-            <h1 class="text-xl font-bold flex items-center justify-center gap-2">
-                <img src="image_1.png" alt="청개구리 로고" class="h-8 w-auto bg-white rounded-full p-1">
-                청개구리 결로/곰팡이 진단
+            <h1 class="text-2xl font-bold flex items-center justify-center gap-2">
+                <img src="image_1.png" alt="청개구리 로고" class="h-12 w-auto">
+                청개구리 결로/곰팡이 진단 AI앱
             </h1>
             <div class="flex justify-end mt-1">
-                <p class="text-xs text-teal-100 font-medium">AI 이슬점(Dew Point) 정밀 분석 Ver 1.4</p>
+                <p class="text-xs text-yellow-300 font-medium">AI 이슬점(Dew Point) 정밀 분석 Ver 1.4</p>
             </div>
         </header>
 
@@ -120,7 +120,7 @@
                     📸 1. 결로/곰팡이 현장 (필수)
                 </h3>
                 <div class="w-full h-80 bg-white rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-90 transition flex items-center justify-center overflow-hidden" onclick="triggerUpload(1)">
-                    <img id="preview1" src="placeholder.png" alt="사진 입력" class="w-1/2 h-1/2 object-contain">
+                    <img id="preview1" src="placeholder.png" alt="사진 입력" class="w-1/4 h-1/4 object-contain opacity-50">
                 </div>
                 <input type="file" id="fileInput1" accept="image/*" class="hidden" onchange="previewImage(event, 1)">
                 <button onclick="triggerUpload(1)" class="w-full bg-teal-100 text-teal-700 py-3 rounded-xl font-bold hover:bg-teal-200 transition flex items-center justify-center">
@@ -134,7 +134,7 @@
                     📸 2. 확대/상세 사진 (선택)
                 </h3>
                 <div class="w-full h-80 bg-white rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-90 transition flex items-center justify-center overflow-hidden" onclick="triggerUpload(2)">
-                    <img id="preview2" src="placeholder.png" alt="사진 입력" class="w-1/2 h-1/2 object-contain">
+                    <img id="preview2" src="placeholder.png" alt="사진 입력" class="w-1/4 h-1/4 object-contain opacity-50">
                 </div>
                 <input type="file" id="fileInput2" accept="image/*" class="hidden" onchange="previewImage(event, 2)">
                 <button onclick="triggerUpload(2)" class="w-full bg-cyan-100 text-cyan-700 py-3 rounded-xl font-bold hover:bg-cyan-200 transition flex items-center justify-center">
@@ -148,7 +148,7 @@
                     📸 3. 주변 환경/기타 사진 (선택)
                 </h3>
                 <div class="w-full h-80 bg-white rounded-lg border-2 border-dashed border-gray-300 mb-4 cursor-pointer hover:opacity-90 transition flex items-center justify-center overflow-hidden" onclick="triggerUpload(3)">
-                    <img id="preview3" src="placeholder.png" alt="사진 입력" class="w-1/2 h-1/2 object-contain">
+                    <img id="preview3" src="placeholder.png" alt="사진 입력" class="w-1/4 h-1/4 object-contain opacity-50">
                 </div>
                 <input type="file" id="fileInput3" accept="image/*" class="hidden" onchange="previewImage(event, 3)">
                 <button onclick="triggerUpload(3)" class="w-full bg-sky-100 text-sky-700 py-3 rounded-xl font-bold hover:bg-sky-200 transition flex items-center justify-center">
@@ -239,8 +239,8 @@
                 reader.onload = function(e) {
                     const img = document.getElementById(`preview${num}`);
                     img.src = e.target.result;
-                    // 이미지 입력 시 꽉 차게 변경
-                    img.classList.remove('w-1/2', 'h-1/2', 'object-contain');
+                    // 이미지 입력 시 꽉 차게 변경하고 투명도 제거
+                    img.classList.remove('w-1/4', 'h-1/4', 'object-contain', 'opacity-50');
                     img.classList.add('w-full', 'h-full', 'object-cover');
                     
                     // 테두리 색상 변경
