@@ -32,9 +32,39 @@
         
         .pdf-visible { display: none; }
         .print\:hidden { display: grid; }
+
+        /* 사이드바 스타일 */
+        #historySidebar {
+            transition: transform 0.3s ease-in-out;
+            z-index: 50; /* 최상단 노출 */
+        }
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(100%); }
     </style>
 </head>
-<body class="bg-teal-50 min-h-screen">
+<body class="bg-teal-50 min-h-screen overflow-x-hidden">
+    
+    <button onclick="toggleSidebar()" class="fixed top-20 right-0 z-40 bg-teal-700 text-white p-3 rounded-l-xl shadow-lg hover:bg-teal-800 transition">
+        <i class="fas fa-history text-xl"></i>
+    </button>
+
+    <div id="historySidebar" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl sidebar-closed flex flex-col border-l border-gray-200">
+        <div class="p-4 bg-teal-600 text-white flex justify-between items-center">
+            <h2 class="font-bold text-lg"><i class="fas fa-list-alt mr-2"></i>이전 진단 기록</h2>
+            <button onclick="toggleSidebar()" class="text-white hover:text-gray-200">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="historyList" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <p class="text-center text-gray-400 text-sm mt-10">저장된 기록이 없습니다.</p>
+        </div>
+        <div class="p-4 border-t border-gray-200 bg-white">
+            <button onclick="clearHistory()" class="w-full py-2 border border-red-300 text-red-500 rounded-lg hover:bg-red-50 text-sm">
+                <i class="fas fa-trash-alt mr-1"></i> 기록 전체 삭제
+            </button>
+        </div>
+    </div>
+
     <div id="capture-area" class="max-w-md mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative">
         
         <header class="bg-teal-600 p-4 text-white text-center shadow-lg relative">
@@ -45,7 +75,7 @@
             <div class="flex justify-end mt-1">
                 <p class="text-xs text-white font-medium">
                     AI 이슬점(Dew Point) 정밀 분석 
-                    <span class="text-red-400 font-bold ml-1">Ver 1.4d</span>
+                    <span class="text-red-400 font-bold ml-1">Ver 1.5 (History)</span>
                 </p>
             </div>
         </header>
@@ -229,6 +259,8 @@
             }
             // 날씨 가져오기
             fetchOutdoorWeather();
+            // 기록 불러오기
+            renderHistory();
         };
 
         // 실외 날씨 가져오기
@@ -263,12 +295,12 @@
             });
         }
 
-        // [수정 완료] API 키 저장 함수 (공백 제거 및 조건 완화)
+        // API 키 저장 함수
         function saveApiKey() {
             const keyInput = document.getElementById('apiKey');
-            const key = keyInput.value.trim(); // 공백 제거
+            const key = keyInput.value.trim();
 
-            if (key) { // 값이 있는지 확인
+            if (key) {
                 localStorage.setItem('openai_api_key', key);
                 alert('API 키가 저장되었습니다.');
                 document.getElementById('apiKeySection').style.display = 'none';
@@ -305,6 +337,73 @@
                 reader.readAsDataURL(file);
             }
         }
+
+        // ==========================================
+        // [신규] 사이드바 및 히스토리 관리 함수들
+        // ==========================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('historySidebar');
+            if (sidebar.classList.contains('sidebar-closed')) {
+                sidebar.classList.remove('sidebar-closed');
+                sidebar.classList.add('sidebar-open');
+                renderHistory(); // 열 때마다 최신화
+            } else {
+                sidebar.classList.remove('sidebar-open');
+                sidebar.classList.add('sidebar-closed');
+            }
+        }
+
+        function saveHistory(location, resultText) {
+            let history = JSON.parse(localStorage.getItem('diagnosis_history') || '[]');
+            const newEntry = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                location: location || "장소 미정",
+                result: resultText
+            };
+            history.unshift(newEntry); // 최신순 저장
+            localStorage.setItem('diagnosis_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('diagnosis_history') || '[]');
+            const listEl = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                listEl.innerHTML = '<p class="text-center text-gray-400 text-sm mt-10">저장된 기록이 없습니다.</p>';
+                return;
+            }
+
+            listEl.innerHTML = history.map(item => `
+                <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-teal-50 transition" onclick="loadHistoryItem(${item.id})">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-bold text-teal-700 text-sm truncate w-2/3">${item.location}</span>
+                        <span class="text-xs text-gray-400">${item.date.slice(0, 10)}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 line-clamp-2">${item.result.substring(0, 50)}...</p>
+                </div>
+            `).join('');
+        }
+
+        function loadHistoryItem(id) {
+            const history = JSON.parse(localStorage.getItem('diagnosis_history') || '[]');
+            const item = history.find(h => h.id === id);
+            if (item) {
+                document.getElementById('location').value = item.location;
+                document.getElementById('resultContent').innerHTML = item.result.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+                toggleSidebar(); // 사이드바 닫기
+            }
+        }
+
+        function clearHistory() {
+            if(confirm('모든 진단 기록을 삭제하시겠습니까?')) {
+                localStorage.removeItem('diagnosis_history');
+                renderHistory();
+            }
+        }
+        // ==========================================
 
         async function analyzeImages() {
             const apiKey = localStorage.getItem('openai_api_key');
@@ -382,6 +481,10 @@
                 if (data.error) throw new Error(data.error.message);
 
                 const answer = data.choices[0].message.content;
+                
+                // [신규] 기록 저장 호출
+                saveHistory(location, answer);
+
                 document.getElementById('resultContent').innerHTML = answer.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
 
@@ -405,8 +508,10 @@
         async function savePDF() {
             const buttons = document.querySelector('.print\\:hidden');
             const pdfVisible = document.querySelector('.pdf-visible');
-            
+            const historyBtn = document.querySelector('button[onclick="toggleSidebar()"]'); // 사이드바 버튼 숨김
+
             if(buttons) buttons.style.display = 'none';
+            if(historyBtn) historyBtn.style.display = 'none';
             if(pdfVisible) pdfVisible.style.display = 'block';
 
             window.scrollTo(0, 0);
@@ -440,6 +545,7 @@
                 alert('PDF 저장 오류: ' + e.message);
             } finally {
                 if(buttons) buttons.style.display = 'grid';
+                if(historyBtn) historyBtn.style.display = 'block';
                 if(pdfVisible) pdfVisible.style.display = 'none';
             }
         }
