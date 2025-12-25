@@ -39,11 +39,11 @@
         
         <header class="bg-teal-600 p-4 text-white text-center shadow-lg relative">
             <h1 class="text-2xl font-bold flex items-center justify-center gap-3">
-                <img src="image_1.png" alt="청개구리 로고" class="h-16 w-auto object-contain">
+                <img src="image_1.png" alt="청개구리 로고" class="h-16 w-auto object-contain mix-blend-multiply">
                 청개구리 결로/곰팡이 진단 AI앱
             </h1>
             <div class="flex justify-end mt-1">
-                <p class="text-xs text-yellow-300 font-medium">AI 이슬점(Dew Point) 정밀 분석 Ver 1.4</p>
+                <p class="text-xs text-pink-300 font-medium">AI 이슬점(Dew Point) 정밀 분석 Ver 1.4d</p>
             </div>
         </header>
 
@@ -61,15 +61,30 @@
 
             <div class="space-y-4 mb-6">
                 <div class="bg-teal-50 p-4 rounded-xl border border-teal-100">
-                    <h3 class="font-bold text-teal-800 mb-3"><i class="fas fa-thermometer-half mr-2"></i>현재 환경 정보 (권장)</h3>
-                    <div class="flex gap-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-teal-800"><i class="fas fa-thermometer-half mr-2"></i>현재 환경정보</h3>
+                        <span id="weatherStatus" class="text-xs text-teal-600 animate-pulse">📍 위치 확인 중...</span>
+                    </div>
+                    
+                    <div class="flex gap-4 mb-3">
                         <div class="flex-1">
                             <label class="block text-xs font-bold text-gray-600 mb-1">실내온도 (℃)</label>
-                            <input type="number" id="temp" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="예: 22">
+                            <input type="number" id="temp" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-teal-500 bg-white" placeholder="직접입력">
                         </div>
                         <div class="flex-1">
                             <label class="block text-xs font-bold text-gray-600 mb-1">실내습도 (%)</label>
-                            <input type="number" id="humidity" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-teal-500" placeholder="예: 60">
+                            <input type="number" id="humidity" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-teal-500 bg-white" placeholder="직접입력">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <label class="block text-xs font-bold text-gray-500 mb-1">실외온도 (자동)</label>
+                            <input type="number" id="outdoorTemp" class="w-full p-2 border rounded-lg bg-gray-100 text-gray-600" readonly placeholder="자동감지">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-bold text-gray-500 mb-1">실외습도 (자동)</label>
+                            <input type="number" id="outdoorHumidity" class="w-full p-2 border rounded-lg bg-gray-100 text-gray-600" readonly placeholder="자동감지">
                         </div>
                     </div>
                 </div>
@@ -190,7 +205,7 @@
             
         </main>
 
-        <footer class="bg-gray-800 text-gray-400 py-8 px-4 text-center text-xs mt-8">
+        <footer class="bg-gray-800 text-gray-400 py-4 px-4 text-center text-xs mt-8">
             <h3 class="text-white text-lg font-bold mb-2">청개구리샤시</h3>
             <div class="space-y-1">
                 <p>상호 : 청개구리샤시 | 사업자등록번호 : 123-36-31426 | 대표 : 전영웅</p>
@@ -202,11 +217,48 @@
     </div>
 
     <script>
-        // 초기화
-        const savedKey = localStorage.getItem('openai_api_key');
-        if (savedKey) {
-            document.getElementById('apiKey').value = savedKey;
-            document.getElementById('apiKeySection').style.display = 'none';
+        // 초기화 및 날씨 자동 실행
+        window.onload = function() {
+            // API 키 확인
+            const savedKey = localStorage.getItem('openai_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+                document.getElementById('apiKeySection').style.display = 'none';
+            }
+            // 날씨 가져오기
+            fetchOutdoorWeather();
+        };
+
+        // 실외 날씨 가져오기 (Open-Meteo API 사용)
+        function fetchOutdoorWeather() {
+            if (!navigator.geolocation) {
+                document.getElementById('weatherStatus').innerText = "❌ 위치정보 미지원";
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                document.getElementById('weatherStatus').innerText = "🔄 날씨 가져오는 중...";
+                
+                try {
+                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&timezone=auto`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    if (data.current) {
+                        document.getElementById('outdoorTemp').value = data.current.temperature_2m;
+                        document.getElementById('outdoorHumidity').value = data.current.relative_humidity_2m;
+                        document.getElementById('weatherStatus').innerText = "✅ 실외 날씨 업데이트 완료";
+                        document.getElementById('weatherStatus').classList.remove('animate-pulse');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    document.getElementById('weatherStatus').innerText = "⚠️ 날씨 불러오기 실패";
+                }
+            }, (err) => {
+                console.error(err);
+                document.getElementById('weatherStatus').innerText = "⚠️ 위치 권한 필요";
+            });
         }
 
         function saveApiKey() {
@@ -220,7 +272,6 @@
             }
         }
 
-        // 체크박스 값 업데이트
         function updateDefectType() {
             const checkedTypes = Array.from(document.querySelectorAll('.custom-checkbox:checked'))
                 .map(input => input.value);
@@ -231,7 +282,6 @@
             document.getElementById(`fileInput${num}`).click();
         }
 
-        // 이미지 미리보기 (크기 고정 방식)
         function previewImage(event, num) {
             const file = event.target.files[0];
             if (file) {
@@ -239,11 +289,9 @@
                 reader.onload = function(e) {
                     const img = document.getElementById(`preview${num}`);
                     img.src = e.target.result;
-                    // 이미지 입력 시 꽉 차게 변경하고 투명도 제거
                     img.classList.remove('w-1/4', 'h-1/4', 'object-contain', 'opacity-40');
                     img.classList.add('w-full', 'h-full', 'object-cover');
                     
-                    // 테두리 색상 변경
                     const container = img.parentElement;
                     container.classList.remove('border-dashed', 'border-gray-300');
                     const colors = ['border-teal-500', 'border-cyan-500', 'border-sky-500'];
@@ -253,7 +301,6 @@
             }
         }
 
-        // AI 분석 실행
         async function analyzeImages() {
             const apiKey = localStorage.getItem('openai_api_key');
             if (!apiKey) {
@@ -283,10 +330,20 @@
                 const desc = document.getElementById('description').value;
                 const temp = document.getElementById('temp').value; 
                 const humid = document.getElementById('humidity').value;
+                const outTemp = document.getElementById('outdoorTemp').value;
+                const outHumid = document.getElementById('outdoorHumidity').value;
 
                 let promptText = `장소: ${location}, 부위: ${type}, 증상: ${desc}`;
-                if (temp && humid) {
-                    promptText += `\n[환경정보] 실내온도: ${temp}도, 습도: ${humid}% (이 정보를 바탕으로 이슬점 발생 가능성을 계산하고 분석에 포함해줘)`;
+                
+                // 프롬프트에 실내/실외 날씨 정보 추가
+                let envInfo = "";
+                if (temp) envInfo += `실내온도: ${temp}도, `;
+                if (humid) envInfo += `실내습도: ${humid}%, `;
+                if (outTemp) envInfo += `실외온도: ${outTemp}도, `;
+                if (outHumid) envInfo += `실외습도: ${outHumid}%`;
+                
+                if (envInfo) {
+                    promptText += `\n[환경정보] ${envInfo} (이 정보를 바탕으로 이슬점 발생 가능성을 계산하고 분석에 포함해줘)`;
                 } else {
                     promptText += `\n(온습도 정보 없음. 사진의 물방울, 곰팡이 패턴을 보고 원인을 추론해줘)`;
                 }
