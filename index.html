@@ -26,28 +26,26 @@
             position: relative;
         }
         
-        /* [헤더 스타일 변경] */
+        /* 헤더 스타일 */
         .header { 
             width: 100%; 
             background: #009688; 
-            padding: 15px 0 10px 0; /* 상하 여백 조절 */
+            padding: 15px 0 10px 0; 
             box-sizing: border-box;
             color: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             position: relative;
         }
         
-        /* 상단 영역: 이미지(좌) + 메인타이틀(중앙) */
         .header-top-row {
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 60px; /* 높이 고정 */
+            height: 60px; 
             margin-bottom: 5px;
         }
 
-        /* [수정] 이미지 위치: 왼쪽에서 20px 떨어지게 배치 (우측 이동 효과) */
         .logo-img {
             position: absolute;
             left: 20px; 
@@ -62,29 +60,28 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* [수정] 메인 타이틀: 중앙 배치 & 글자 키움 */
+        /* [수정] 메인 타이틀: 글자 크기 1.5배 확대 (1.4rem -> 2.2rem) */
         .header-title {
-            font-size: 1.4rem; 
+            font-size: 2.2rem; 
             font-weight: bold; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
             text-align: center;
             width: 100%;
-            padding: 0 60px; /* 이미지와 겹치지 않게 여백 */
+            padding: 0 70px; /* 이미지와 겹치지 않게 여백 조정 */
             word-break: keep-all;
+            line-height: 1.2;
         }
 
-        /* [수정] 부제(AI 이슬점...): 우측 끝 배치 */
         .header-subtitle {
             text-align: right;
             font-size: 0.8rem; 
             color: #E0F2F1; 
-            padding-right: 20px; /* 우측 여백 */
+            padding-right: 20px; 
             letter-spacing: -0.5px;
         }
         
-        /* [요청] 버전 텍스트 빨간색 */
         .version-text {
-            color: #D32F2F; /* 진한 빨간색 */
+            color: #D32F2F; 
             font-weight: bold;
             background: rgba(255, 255, 255, 0.8);
             padding: 1px 4px;
@@ -137,7 +134,6 @@
         
         input[readonly] { background: #e9ecef; color: #555; text-align: center; }
 
-        /* [복원] 체크박스 6개 */
         .checkbox-group { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -153,15 +149,22 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
+        /* [수정] 미리보기 영역에 placeholder.png 중앙 배치 */
         .preview-area { 
             width: 100%; height: 200px; 
             background-color: #f1f8e9; 
             border: 2px dashed #a5d6a7;
             border-radius: 8px;
             display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 10px; overflow: hidden; 
+            margin-bottom: 10px; overflow: hidden;
+            
+            /* 배경 이미지 설정 */
+            background-image: url('placeholder.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 60px; /* 아이콘 크기 조절 */
         }
-        .preview-area img { width: 100%; height: 100%; object-fit: contain; display: none; }
+        .preview-area img { width: 100%; height: 100%; object-fit: contain; display: none; z-index: 10; background: #f1f8e9; }
         
         button.main-btn { 
             width: 100%; padding: 15px; 
@@ -181,26 +184,26 @@
         button.sub-btn.call { background:#2E7D32; }
         button.sub-btn.save { background:#1c3664; }
 
+        /* [수정] 사진입력 버튼 좌측 정렬 (float: left) */
         .custom-file-upload {
             display: inline-block; padding: 8px 20px; cursor: pointer;
             background: #546e7a; color: white; border-radius: 20px;
-            font-size: 0.85rem; border: none; font-weight: bold; float: right;
+            font-size: 0.85rem; border: none; font-weight: bold; 
+            float: left; /* 좌측으로 변경 */
         }
         input[type="file"] { display: none; }
         
-        /* [수정] 하단 사업자 정보: 높이 줄임(padding 10px), 글자 작게, 2줄 처리 */
         .business-info {
             background: #102e52; color: #cfd8dc; 
-            padding: 12px 10px; /* 높이 줄임 */
+            padding: 12px 10px;
             text-align: center;
             font-size: 0.7rem; line-height: 1.5;
         }
         .business-info strong { 
-            color: white; font-size: 0.75rem; /* 상호 크기 줄임 */
+            color: white; font-size: 0.75rem;
             margin-right: 5px;
         }
 
-        /* 사이드바 */
         #historySidebar {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100%;
             background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.2);
@@ -216,6 +219,7 @@
         
         body.pdf-mode button, body.pdf-mode #historyToggleBtn, body.pdf-mode .custom-file-upload { display: none !important; }
         body.pdf-mode .container { box-shadow: none; max-width: 100%; }
+        body.pdf-mode .header { justify-content: space-between; } 
     </style>
 </head>
 <body>
