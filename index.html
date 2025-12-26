@@ -46,9 +46,10 @@
             margin-bottom: 5px;
         }
 
+        /* [수정] 이미지 위치: 왼쪽 여백을 20px -> 50px로 늘려서 우측으로 이동 */
         .logo-img {
             position: absolute;
-            left: 20px; 
+            left: 50px; 
             top: 50%;
             transform: translateY(-50%);
             width: 50px; 
@@ -60,15 +61,16 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* [수정] 메인 타이틀: 글자 크기 1.5배 확대 (1.4rem -> 2.2rem) */
+        /* [수정] 메인 타이틀: 글자 크기 축소 (한 줄 유지) */
         .header-title {
-            font-size: 2.2rem; 
+            font-size: 1.6rem; /* 2.2rem에서 축소 */
             font-weight: bold; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
             text-align: center;
             width: 100%;
-            padding: 0 70px; /* 이미지와 겹치지 않게 여백 조정 */
+            padding: 0 40px; /* 이미지와 겹치지 않게 여백 */
             word-break: keep-all;
+            white-space: nowrap; /* 강제로 한 줄 유지 */
             line-height: 1.2;
         }
 
@@ -149,7 +151,6 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* [수정] 미리보기 영역에 placeholder.png 중앙 배치 */
         .preview-area { 
             width: 100%; height: 200px; 
             background-color: #f1f8e9; 
@@ -158,11 +159,10 @@
             display: flex; align-items: center; justify-content: center; 
             margin-bottom: 10px; overflow: hidden;
             
-            /* 배경 이미지 설정 */
             background-image: url('placeholder.png');
             background-repeat: no-repeat;
             background-position: center;
-            background-size: 60px; /* 아이콘 크기 조절 */
+            background-size: 60px; 
         }
         .preview-area img { width: 100%; height: 100%; object-fit: contain; display: none; z-index: 10; background: #f1f8e9; }
         
@@ -184,12 +184,11 @@
         button.sub-btn.call { background:#2E7D32; }
         button.sub-btn.save { background:#1c3664; }
 
-        /* [수정] 사진입력 버튼 좌측 정렬 (float: left) */
         .custom-file-upload {
             display: inline-block; padding: 8px 20px; cursor: pointer;
             background: #546e7a; color: white; border-radius: 20px;
             font-size: 0.85rem; border: none; font-weight: bold; 
-            float: left; /* 좌측으로 변경 */
+            float: left;
         }
         input[type="file"] { display: none; }
         
@@ -419,7 +418,6 @@
         const outHum = document.getElementById('outHum').value;
         
         // 🟢 [중요] API 키 분리 입력 (GitHub 경고 방지)
-        // 본인의 키를 아래 따옴표 안에 나누어 입력하세요.
         const part1 = "AIzaSyAZRYWwExOUfQSZ";  // 키 앞부분
         const part2 = "O6uC9pmDzvRsWckIDw";      // 키 뒷부분
         const API_KEY = part1 + part2;
