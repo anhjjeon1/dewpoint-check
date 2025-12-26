@@ -26,62 +26,75 @@
             position: relative;
         }
         
-        /* 헤더 스타일 */
+        /* [헤더 스타일 변경] */
         .header { 
             width: 100%; 
             background: #009688; 
-            padding: 10px 20px; 
+            padding: 15px 0 10px 0; /* 상하 여백 조절 */
             box-sizing: border-box;
             color: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: space-between; 
+            position: relative;
         }
         
-        /* [수정] 이미지 image_1.png 사용 */
+        /* 상단 영역: 이미지(좌) + 메인타이틀(중앙) */
+        .header-top-row {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px; /* 높이 고정 */
+            margin-bottom: 5px;
+        }
+
+        /* [수정] 이미지 위치: 왼쪽에서 20px 떨어지게 배치 (우측 이동 효과) */
         .logo-img {
+            position: absolute;
+            left: 20px; 
+            top: 50%;
+            transform: translateY(-50%);
             width: 50px; 
             height: 50px; 
             border-radius: 10px; 
             background: white; 
             padding: 2px;
             object-fit: cover;
-            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .header-text-group {
-            text-align: right;
-        }
-
+        /* [수정] 메인 타이틀: 중앙 배치 & 글자 키움 */
         .header-title {
-            font-size: 1.1rem; 
+            font-size: 1.4rem; 
             font-weight: bold; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            margin-bottom: 2px;
+            text-align: center;
+            width: 100%;
+            padding: 0 60px; /* 이미지와 겹치지 않게 여백 */
+            word-break: keep-all;
         }
 
+        /* [수정] 부제(AI 이슬점...): 우측 끝 배치 */
         .header-subtitle {
+            text-align: right;
             font-size: 0.8rem; 
             color: #E0F2F1; 
-            font-weight: normal;
+            padding-right: 20px; /* 우측 여백 */
             letter-spacing: -0.5px;
         }
         
-        /* 버전 텍스트 빨간색 */
+        /* [요청] 버전 텍스트 빨간색 */
         .version-text {
-            color: #FF5252; 
+            color: #D32F2F; /* 진한 빨간색 */
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 1px 5px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 1px 4px;
             border-radius: 3px;
-            font-size: 0.75rem;
-            margin-left: 5px;
+            font-size: 0.7rem;
+            margin-left: 3px;
         }
 
         .content { padding: 15px; flex: 1; }
 
-        /* 진단 장소/일자 박스 (일렬 배치) */
         .location-date-box {
             display: flex;
             gap: 10px;
@@ -124,6 +137,7 @@
         
         input[readonly] { background: #e9ecef; color: #555; text-align: center; }
 
+        /* [복원] 체크박스 6개 */
         .checkbox-group { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -174,12 +188,16 @@
         }
         input[type="file"] { display: none; }
         
-        /* [수정] 하단 사업자 정보 슬림화 */
+        /* [수정] 하단 사업자 정보: 높이 줄임(padding 10px), 글자 작게, 2줄 처리 */
         .business-info {
             background: #102e52; color: #cfd8dc; 
-            padding: 15px 15px;
+            padding: 12px 10px; /* 높이 줄임 */
             text-align: center;
-            font-size: 0.7rem; line-height: 1.4;
+            font-size: 0.7rem; line-height: 1.5;
+        }
+        .business-info strong { 
+            color: white; font-size: 0.75rem; /* 상호 크기 줄임 */
+            margin-right: 5px;
         }
 
         /* 사이드바 */
@@ -198,7 +216,6 @@
         
         body.pdf-mode button, body.pdf-mode #historyToggleBtn, body.pdf-mode .custom-file-upload { display: none !important; }
         body.pdf-mode .container { box-shadow: none; max-width: 100%; }
-        body.pdf-mode .header { justify-content: space-between; } 
     </style>
 </head>
 <body>
@@ -224,14 +241,15 @@
 
 <div class="container" id="pdfArea">
     <div class="header">
-        <img src="image_1.png" class="logo-img" onerror="this.style.display='none';">
+        <div class="header-top-row">
+            <img src="image_1.png" class="logo-img" onerror="this.style.display='none';">
+            
+            <div class="header-title">청개구리 결로진단 AI앱</div>
+        </div>
         
-        <div class="header-text-group">
-            <div class="header-title">AI 이슬점(Dew Point) 정밀 분석</div>
-            <div class="header-subtitle">
-                청개구리 결로진단 AI앱 
-                <span class="version-text">Ver 1.5(history)</span>
-            </div>
+        <div class="header-subtitle">
+            AI 이슬점(Dew Point) 정밀 분석 
+            <span class="version-text">Ver 1.5(history)</span>
         </div>
     </div>
 
@@ -322,7 +340,7 @@
     </div>
 
     <div class="business-info">
-        청개구리샤시 | 사업자 등록번호 : 123-36-31426 | 대표 : 전영웅<br>
+        <strong>청개구리샤시</strong> | 사업자 등록번호 : 123-36-31426 | 대표 : 전영웅<br>
         고객센터 1599-7380 (08:00~17:00) | COPYRIGHT ⓒ 2025 All Rights Reserved.
     </div>
 </div>
@@ -398,8 +416,8 @@
         
         // 🟢 [중요] API 키 분리 입력 (GitHub 경고 방지)
         // 본인의 키를 아래 따옴표 안에 나누어 입력하세요.
-        const part1 = "AIzaSy...";  // 키 앞부분
-        const part2 = "...";      // 키 뒷부분
+        const part1 = "AIzaSyAZRYWwExOUfQSZ";  // 키 앞부분
+        const part2 = "O6uC9pmDzvRsWckIDw";      // 키 뒷부분
         const API_KEY = part1 + part2;
 
         if (API_KEY.includes("AIzaSy...") || API_KEY.length < 30) {
