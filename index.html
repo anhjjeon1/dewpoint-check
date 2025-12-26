@@ -26,51 +26,62 @@
             position: relative;
         }
         
-        /* [복원] 12월 25일 버전의 진한 청록색 헤더 */
+        /* [수정] 헤더 스타일: 양쪽 정렬 (이미지 좌측, 텍스트 우측) */
         .header { 
             width: 100%; 
-            background: #009688; /* Teal 색상 복원 */
-            padding: 20px 0; 
-            text-align: center;
+            background: #009688; 
+            padding: 10px 20px; 
+            box-sizing: border-box;
             color: white;
-            position: relative; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .logo-area {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
+            justify-content: space-between; /* 양 끝 배치 */
         }
-
+        
+        /* [복원] 로고 이미지 스타일 */
         .logo-img {
-            width: 60px; 
-            height: 60px; 
-            border-radius: 10px; /* 둥근 사각형 형태 */
+            width: 50px; 
+            height: 50px; 
+            border-radius: 10px; 
             background: white; 
             padding: 2px;
             object-fit: cover;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            flex-shrink: 0; /* 이미지 크기 고정 */
+        }
+
+        /* 텍스트 그룹 (우측 정렬) */
+        .header-text-group {
+            text-align: right;
         }
 
         .header-title {
-            font-size: 1.4rem; 
+            font-size: 1.1rem; 
             font-weight: bold; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            margin-bottom: 2px;
         }
 
         .header-subtitle {
-            font-size: 0.9rem; 
+            font-size: 0.8rem; 
             color: #E0F2F1; 
             font-weight: normal;
-            margin-top: 5px;
             letter-spacing: -0.5px;
+        }
+        
+        /* [요청] 버전 텍스트 빨간색 강조 */
+        .version-text {
+            color: #FF5252; /* 붉은색 */
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin-left: 5px;
         }
 
         .content { padding: 15px; flex: 1; }
 
-        /* 환경정보 그리드 (2열 배치) */
         .env-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -84,7 +95,6 @@
             background: #ffffff; 
         }
         
-        /* 환경정보 박스 배경색 (연한 민트색) */
         .env-box { background: #F0F4C3; border: 1px solid #DCE775; }
 
         .section-title {
@@ -102,19 +112,21 @@
         
         input[readonly] { background: #e9ecef; color: #555; text-align: center; }
 
+        /* [복원] 체크박스 3열 배치로 변경 (공간 활용) */
         .checkbox-group { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
-            gap: 10px; 
+            gap: 8px; 
             margin-bottom: 15px; 
         }
         .check-item { 
             display: flex; align-items: center; 
-            font-size: 0.9rem; 
+            font-size: 0.85rem; 
             cursor: pointer; color: #00695C; 
-            background: #fff; padding: 10px; border: 1px solid #B2DFDB; border-radius: 6px;
+            background: #fff; padding: 8px; border: 1px solid #B2DFDB; border-radius: 6px;
+            white-space: nowrap;
         }
-        .check-item input { margin-right: 8px; transform: scale(1.2); accent-color: #00897B; }
+        .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
         .preview-area { 
             width: 100%; height: 200px; 
@@ -128,7 +140,7 @@
         
         button.main-btn { 
             width: 100%; padding: 15px; 
-            background: #00897B; color: white; /* 버튼 색상 복원 */
+            background: #00897B; color: white; 
             font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
             border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             transition: background 0.2s;
@@ -151,12 +163,17 @@
         }
         input[type="file"] { display: none; }
         
-        /* [복원] 하단 사업자 정보 (진한 남색 배경) */
+        /* [수정] 하단 사업자 정보 슬림화 & 2줄 정리 */
         .business-info {
-            background: #102e52; color: #cfd8dc; padding: 25px 20px; text-align: left;
-            font-size: 0.75rem; line-height: 1.6;
+            background: #102e52; color: #cfd8dc; 
+            padding: 15px 15px; /* 높이 줄임 */
+            text-align: center;
+            font-size: 0.7rem; line-height: 1.4;
         }
-        .business-info strong { color: white; font-size: 0.9rem; display: block; margin-bottom: 5px; }
+        .business-info strong { 
+            color: white; font-size: 0.8rem; /* 상호 크기 줄임 */
+            margin-right: 5px;
+        }
 
         /* 사이드바 */
         #historySidebar {
@@ -171,9 +188,12 @@
             color: white; font-size: 1.5rem; cursor: pointer;
             background: rgba(0,0,0,0.2); padding: 8px; border-radius: 50%;
         }
-
+        
+        /* PDF 저장 시 숨길 요소 */
         body.pdf-mode button, body.pdf-mode #historyToggleBtn, body.pdf-mode .custom-file-upload { display: none !important; }
         body.pdf-mode .container { box-shadow: none; max-width: 100%; }
+        /* PDF 저장 시 헤더 정렬 유지 */
+        body.pdf-mode .header { justify-content: space-between; } 
     </style>
 </head>
 <body>
@@ -199,12 +219,13 @@
 
 <div class="container" id="pdfArea">
     <div class="header">
-        <div class="logo-area">
-            <img src="12.jpg" class="logo-img" onerror="this.style.display='none';">
-            <div style="text-align: left;">
-                <div class="header-title">청개구리 결로/곰팡이 진단 AI앱</div>
-                <div class="header-subtitle">AI 이슬점(Dew Point) 정밀 분석 Ver 1.4d</div>
-            </div>
+        <img src="12.jpg" class="logo-img" onerror="this.style.display='none';">
+        
+        <div class="header-text-group">
+            <div class="header-title">AI 이슬점(Dew Point) 정밀 분석</div>
+            <div class="header-subtitle">
+                청개구리 결로진단 AI앱 
+                <span class="version-text">Ver 1.5(history)</span> </div>
         </div>
     </div>
 
@@ -245,6 +266,8 @@
             <label class="check-item"><input type="checkbox" id="chk2"> 창문 주변</label>
             <label class="check-item"><input type="checkbox" id="chk3"> 벽 모서리</label>
             <label class="check-item"><input type="checkbox" id="chk4"> 현관/대피소</label>
+            <label class="check-item"><input type="checkbox" id="chk5"> 가구 뒤</label>
+            <label class="check-item"><input type="checkbox" id="chk6"> 천장/기타</label>
         </div>
 
         <div class="box">
@@ -290,10 +313,8 @@
     </div>
 
     <div class="business-info">
-        <strong>청개구리샤시</strong>
-        상호 : 청개구리샤시 | 사업자등록번호 : 123-36-31426 | 대표 : 전영웅<br>
-        경기도 군포시 고산로 148번길 17 (군포시청 맞은편)<br>
-        고객센터 1599-7380 (08:00~17:00) | COPYRIGHT ⓒ 2025 All Rights Reserved.
+        <strong>청개구리샤시</strong> | 사업자등록번호: 123-36-31426 | 대표: 전영웅<br>
+        경기도 군포시 고산로 148번길 17 | 고객센터: 1599-7380 (08:00~17:00)
     </div>
 </div>
 
@@ -382,7 +403,8 @@
 
         try {
             let checks = [];
-            for(let i=1; i<=4; i++) {
+            // 체크박스 6개로 복원됨
+            for(let i=1; i<=6; i++) {
                 if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText);
             }
             
