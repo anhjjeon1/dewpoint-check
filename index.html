@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 1.8)</title>
+    <title>청개구리 결로점검 AI (Ver 1.9)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -14,7 +14,7 @@
     <link rel="icon" href="image_1.png" type="image/png">
     <link rel="apple-touch-icon" href="image_1.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; margin: 0; padding: 0; background: #e0f2f1; overflow-x: hidden; }
@@ -150,7 +150,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 1.8 (자동날씨복구)</span>
+            <span class="version-text">Ver 1.9 (저장오류수정)</span>
         </div>
     </div>
 
@@ -243,7 +243,7 @@
             <button class="sub-btn call" onclick="location.href='tel:1599-7380'">
                 <i class="fas fa-phone-alt"></i> 문의(1599-7380)
             </button>
-            <button class="sub-btn save" onclick="savePDFWithGuide()">
+            <button class="sub-btn save" id="saveBtn" onclick="savePDFWithGuide()">
                 <i class="fas fa-file-pdf"></i> 결과 저장
             </button>
         </div>
@@ -263,7 +263,6 @@
         getWeather(); 
     };
 
-    // [Ver 1.8 중요] 키가 필요 없는 'Open-Meteo' 날씨 서비스로 교체!
     function getWeather() {
         const outTempEl = document.getElementById('outTemp');
         const outHumEl = document.getElementById('outHum');
@@ -279,31 +278,20 @@
             async (position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
-                
-                // 여기가 핵심! 키가 필요 없는 주소로 변경됨
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&timezone=auto`;
-                
                 try {
                     const res = await fetch(url);
                     const data = await res.json();
-                    
                     if(data.current) {
                         outTempEl.value = data.current.temperature_2m;
                         outHumEl.value = data.current.relative_humidity_2m;
-                    } else {
-                        throw new Error("데이터 없음");
-                    }
+                    } else { throw new Error("데이터 없음"); }
                 } catch (e) {
-                    console.error(e);
-                    // 실패하면 수동 입력 유도
                     outTempEl.value = ""; outHumEl.value = "";
                     outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력";
                 }
             },
-            () => { 
-                outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력";
-                // 위치 권한 거부 시 조용히 넘어감 (수동 입력 가능)
-            }
+            () => { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
         );
     }
 
@@ -312,17 +300,12 @@
         const imgTag = document.getElementById('img'+num);
         if (fileBox.files && fileBox.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) { 
-                imgTag.src = e.target.result; 
-                imgTag.style.display = 'block'; 
-            };
+            reader.onload = function(e) { imgTag.src = e.target.result; imgTag.style.display = 'block'; };
             reader.readAsDataURL(fileBox.files[0]);
         }
     }
 
-    function toggleSidebar() {
-        document.getElementById('historySidebar').classList.toggle('open');
-    }
+    function toggleSidebar() { document.getElementById('historySidebar').classList.toggle('open'); }
 
     function saveHistory(location, resultText) {
         let history = JSON.parse(localStorage.getItem('dewpoint_history') || '[]');
@@ -373,10 +356,7 @@
         const part2 = "O6uC9pmDzvRsWckIDw";      
         const API_KEY = part1 + "_" + part2; 
 
-        if (API_KEY.length < 30) {
-            alert("API 키 오류: 관리자에게 문의하세요.");
-            return;
-        }
+        if (API_KEY.length < 30) { alert("API 키 오류: 관리자에게 문의하세요."); return; }
 
         btn.disabled = true; status.style.display = 'block';
         resultDiv.innerText = "데이터 및 열화상 이미지 분석 중입니다...";
@@ -429,12 +409,39 @@
         }
     }
 
+    // [Ver 1.9 수정] PDF 저장 기능 강화 (빈 페이지 방지)
     function savePDFWithGuide() {
-        document.body.classList.add('pdf-mode');
-        const element = document.getElementById('pdfArea');
-        html2pdf().set({ margin:0, filename:'결로열화상진단결과.pdf', html2canvas:{scale:2}, jsPDF:{unit:'mm', format:'a4'} })
-        .from(element).save()
-        .then(() => document.body.classList.remove('pdf-mode'));
+        const btn = document.getElementById('saveBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> 생성중...";
+        btn.disabled = true;
+
+        setTimeout(() => {
+            document.body.classList.add('pdf-mode');
+            const element = document.getElementById('pdfArea');
+            
+            // 옵션 강화: 스케일 조정 및 랜더링 대기
+            const opt = {
+                margin: 0,
+                filename: '결로진단결과_' + new Date().getTime() + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save()
+            .then(() => {
+                document.body.classList.remove('pdf-mode');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            })
+            .catch(err => {
+                alert("PDF 저장 중 오류가 발생했습니다. '스크롤 캡처'를 이용해주세요.");
+                document.body.classList.remove('pdf-mode');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }, 500); // 0.5초 대기 후 실행
     }
 </script>
 
