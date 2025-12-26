@@ -8,11 +8,11 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
     <meta property="og:description" content="AI 이슬점 정밀 분석으로 결로와 곰팡이 원인을 찾아드립니다.">
-    <meta property="og:image" content="12.jpg">
+    <meta property="og:image" content="image_1.png">
     <meta property="og:url" content="https://anhjjeon1.github.io/dewpoint-check/">
 
-    <link rel="icon" href="12.jpg" type="image/jpeg">
-    <link rel="apple-touch-icon" href="12.jpg">
+    <link rel="icon" href="image_1.png" type="image/png">
+    <link rel="apple-touch-icon" href="image_1.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -26,7 +26,7 @@
             position: relative;
         }
         
-        /* [수정] 헤더 스타일: 양쪽 정렬 (이미지 좌측, 텍스트 우측) */
+        /* 헤더 스타일 */
         .header { 
             width: 100%; 
             background: #009688; 
@@ -36,10 +36,10 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
-            justify-content: space-between; /* 양 끝 배치 */
+            justify-content: space-between; 
         }
         
-        /* [복원] 로고 이미지 스타일 */
+        /* [수정] 이미지 image_1.png 사용 */
         .logo-img {
             width: 50px; 
             height: 50px; 
@@ -47,10 +47,9 @@
             background: white; 
             padding: 2px;
             object-fit: cover;
-            flex-shrink: 0; /* 이미지 크기 고정 */
+            flex-shrink: 0;
         }
 
-        /* 텍스트 그룹 (우측 정렬) */
         .header-text-group {
             text-align: right;
         }
@@ -69,9 +68,9 @@
             letter-spacing: -0.5px;
         }
         
-        /* [요청] 버전 텍스트 빨간색 강조 */
+        /* 버전 텍스트 빨간색 */
         .version-text {
-            color: #FF5252; /* 붉은색 */
+            color: #FF5252; 
             font-weight: bold;
             background: rgba(255, 255, 255, 0.9);
             padding: 1px 5px;
@@ -81,6 +80,19 @@
         }
 
         .content { padding: 15px; flex: 1; }
+
+        /* 진단 장소/일자 박스 (일렬 배치) */
+        .location-date-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #B2DFDB; 
+            border-radius: 10px; 
+            background: #ffffff;
+        }
+        
+        .half-box { flex: 1; }
 
         .env-grid {
             display: grid;
@@ -112,7 +124,6 @@
         
         input[readonly] { background: #e9ecef; color: #555; text-align: center; }
 
-        /* [복원] 체크박스 3열 배치로 변경 (공간 활용) */
         .checkbox-group { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -163,16 +174,12 @@
         }
         input[type="file"] { display: none; }
         
-        /* [수정] 하단 사업자 정보 슬림화 & 2줄 정리 */
+        /* [수정] 하단 사업자 정보 슬림화 */
         .business-info {
             background: #102e52; color: #cfd8dc; 
-            padding: 15px 15px; /* 높이 줄임 */
+            padding: 15px 15px;
             text-align: center;
             font-size: 0.7rem; line-height: 1.4;
-        }
-        .business-info strong { 
-            color: white; font-size: 0.8rem; /* 상호 크기 줄임 */
-            margin-right: 5px;
         }
 
         /* 사이드바 */
@@ -189,10 +196,8 @@
             background: rgba(0,0,0,0.2); padding: 8px; border-radius: 50%;
         }
         
-        /* PDF 저장 시 숨길 요소 */
         body.pdf-mode button, body.pdf-mode #historyToggleBtn, body.pdf-mode .custom-file-upload { display: none !important; }
         body.pdf-mode .container { box-shadow: none; max-width: 100%; }
-        /* PDF 저장 시 헤더 정렬 유지 */
         body.pdf-mode .header { justify-content: space-between; } 
     </style>
 </head>
@@ -219,17 +224,29 @@
 
 <div class="container" id="pdfArea">
     <div class="header">
-        <img src="12.jpg" class="logo-img" onerror="this.style.display='none';">
+        <img src="image_1.png" class="logo-img" onerror="this.style.display='none';">
         
         <div class="header-text-group">
             <div class="header-title">AI 이슬점(Dew Point) 정밀 분석</div>
             <div class="header-subtitle">
                 청개구리 결로진단 AI앱 
-                <span class="version-text">Ver 1.5(history)</span> </div>
+                <span class="version-text">Ver 1.5(history)</span>
+            </div>
         </div>
     </div>
 
     <div class="content">
+        <div class="location-date-box">
+            <div class="half-box">
+                <label>🏠 진단 장소</label>
+                <input type="text" id="locInput" placeholder="예: 안방 베란다 벽면">
+            </div>
+            <div class="half-box">
+                <label>📅 진단일자</label>
+                <input type="text" id="dateInput" readonly>
+            </div>
+        </div>
+
         <div class="box env-box">
             <div class="section-title"><i class="fas fa-temperature-low"></i> 현재 환경정보</div>
             <div class="env-grid">
@@ -243,21 +260,13 @@
                 </div>
                 <div>
                     <label>실외온도 (자동)</label>
-                    <input type="text" id="outTemp" placeholder="자동감지(또는 입력)">
+                    <input type="text" id="outTemp" placeholder="자동감지">
                 </div>
                 <div>
                     <label>실외습도 (자동)</label>
-                    <input type="text" id="outHum" placeholder="자동감지(또는 입력)">
+                    <input type="text" id="outHum" placeholder="자동감지">
                 </div>
             </div>
-        </div>
-
-        <div class="box">
-            <div class="section-title"><i class="fas fa-home"></i> 진단 장소</div>
-            <input type="text" id="locInput" placeholder="예: 안방 베란다 벽면">
-            
-            <label style="margin-top:10px;">📅 진단일자</label>
-            <input type="text" id="dateInput" readonly style="margin-top:5px;">
         </div>
 
         <div class="section-title"><i class="fas fa-check-circle"></i> 발생 부위 선택 (다중 선택)</div>
@@ -313,8 +322,8 @@
     </div>
 
     <div class="business-info">
-        <strong>청개구리샤시</strong> | 사업자등록번호: 123-36-31426 | 대표: 전영웅<br>
-        경기도 군포시 고산로 148번길 17 | 고객센터: 1599-7380 (08:00~17:00)
+        청개구리샤시 | 사업자 등록번호 : 123-36-31426 | 대표 : 전영웅<br>
+        고객센터 1599-7380 (08:00~17:00) | COPYRIGHT ⓒ 2025 All Rights Reserved.
     </div>
 </div>
 
@@ -389,8 +398,8 @@
         
         // 🟢 [중요] API 키 분리 입력 (GitHub 경고 방지)
         // 본인의 키를 아래 따옴표 안에 나누어 입력하세요.
-        const part1 = "AIzaSyAZRYWwExOUfQSZ";  // 키 앞부분
-        const part2 = "O6uC9pmDzvRsWckIDw";      // 키 뒷부분
+        const part1 = "AIzaSy...";  // 키 앞부분
+        const part2 = "...";      // 키 뒷부분
         const API_KEY = part1 + part2;
 
         if (API_KEY.includes("AIzaSy...") || API_KEY.length < 30) {
@@ -403,7 +412,6 @@
 
         try {
             let checks = [];
-            // 체크박스 6개로 복원됨
             for(let i=1; i<=6; i++) {
                 if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText);
             }
@@ -460,4 +468,3 @@
 
 </body>
 </html>
-
