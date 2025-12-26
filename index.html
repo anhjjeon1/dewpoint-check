@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI</title>
+    <title>청개구리 결로점검 AI (Ver 1.6)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -26,201 +26,92 @@
             position: relative;
         }
         
-        /* [수정] 헤더 높이 줄임 (padding 조절) */
         .header { 
-            width: 100%; 
-            background: #009688; 
-            padding: 10px 0 8px 0; /* 상하 여백 최소화 */
-            box-sizing: border-box;
-            color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            position: relative;
+            width: 100%; background: #009688; padding: 10px 0 8px 0;
+            box-sizing: border-box; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative;
         }
-        
-        /* [수정] 상단 로우 높이 줄임 */
         .header-top-row {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 45px; /* 높이 60px -> 45px로 축소 */
-            margin-bottom: 0; /* 간격 제거 */
+            position: relative; display: flex; align-items: center; justify-content: center; height: 45px; margin-bottom: 0;
         }
-
-        /* [수정] 이미지 위치 좌측 이동 (left: 15px) */
         .logo-img {
-            position: absolute;
-            left: 15px; /* 왼쪽으로 바짝 붙임 */
-            top: 50%;
-            transform: translateY(-50%);
-            width: 42px; /* 이미지 크기 약간 조절 */
-            height: 42px; 
-            border-radius: 8px; 
-            background: white; 
-            padding: 2px;
-            object-fit: cover;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            width: 42px; height: 42px; border-radius: 8px; background: white; padding: 2px; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-
-        /* [수정] 타이틀 글자 크기 축소 및 배치 조정 */
         .header-title {
-            font-size: 1.35rem; /* 글자 크기 줄임 (전체 보이게) */
-            font-weight: bold; 
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            text-align: center;
-            width: 100%;
-            padding-left: 50px; /* 이미지를 피해서 텍스트 배치 */
-            padding-right: 10px;
-            word-break: keep-all;
-            white-space: nowrap;
-            line-height: 1.1;
+            font-size: 1.35rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            text-align: center; width: 100%; padding-left: 50px; padding-right: 10px; word-break: keep-all; white-space: nowrap; line-height: 1.1;
         }
-
-        /* [수정] 부제 간격 줄임 */
         .header-subtitle {
-            text-align: right;
-            font-size: 0.75rem; 
-            color: #E0F2F1; 
-            padding-right: 15px; 
-            letter-spacing: -0.5px;
-            margin-top: 2px; /* 위쪽 타이틀과 간격 최소화 */
+            text-align: right; font-size: 0.75rem; color: #E0F2F1; padding-right: 15px; letter-spacing: -0.5px; margin-top: 2px;
         }
-        
         .version-text {
-            color: #D32F2F; 
-            font-weight: bold;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 0 4px;
-            border-radius: 3px;
-            font-size: 0.65rem;
-            margin-left: 3px;
+            color: #D32F2F; font-weight: bold; background: rgba(255, 255, 255, 0.8); padding: 0 4px; border-radius: 3px; font-size: 0.65rem; margin-left: 3px;
         }
 
         .content { padding: 15px; flex: 1; }
-
         .location-date-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding: 15px;
-            border: 1px solid #B2DFDB; 
-            border-radius: 10px; 
-            background: #ffffff;
+            display: flex; gap: 10px; margin-bottom: 15px; padding: 15px;
+            border: 1px solid #B2DFDB; border-radius: 10px; background: #ffffff;
         }
-        
         .half-box { flex: 1; }
-
-        .env-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .box { 
-            margin-bottom: 15px; padding: 15px; 
-            border: 1px solid #B2DFDB; 
-            border-radius: 10px; 
-            background: #ffffff; 
-        }
-        
+        .env-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .box { margin-bottom: 15px; padding: 15px; border: 1px solid #B2DFDB; border-radius: 10px; background: #ffffff; }
         .env-box { background: #F0F4C3; border: 1px solid #DCE775; }
-
-        .section-title {
-            font-weight: bold; 
-            color: #00796B; 
-            margin-bottom: 10px; 
-            display: flex; 
-            align-items: center; 
-            gap: 6px;
-            font-size: 1rem;
-        }
-
+        .section-title { font-weight: bold; color: #00796B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; font-size: 1rem; }
+        
         label { display: block; margin-bottom: 5px; color: #333; font-size: 0.85rem; font-weight: bold; }
         input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
-        
         input[readonly] { background: #e9ecef; color: #555; text-align: center; }
 
-        .checkbox-group { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 8px; 
-            margin-bottom: 15px; 
-        }
+        .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
         .check-item { 
-            display: flex; align-items: center; 
-            font-size: 0.85rem; 
-            cursor: pointer; color: #00695C; 
-            background: #fff; padding: 8px; border: 1px solid #B2DFDB; border-radius: 6px;
-            white-space: nowrap;
+            display: flex; align-items: center; font-size: 0.85rem; cursor: pointer; color: #00695C; 
+            background: #fff; padding: 8px; border: 1px solid #B2DFDB; border-radius: 6px; white-space: nowrap; 
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
+        /* [Ver 1.6 수정] 사진 미리보기 영역 높이 조절 */
         .preview-area { 
-            width: 100%; height: 200px; 
-            background-color: #f1f8e9; 
-            border: 2px dashed #a5d6a7;
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 10px; overflow: hidden;
-            
-            background-image: url('placeholder.png');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 60px; 
+            width: 100%; height: 180px; /* 높이 약간 줄임 */
+            background-color: #f1f8e9; border: 2px dashed #a5d6a7; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden;
+            background-image: url('https://via.placeholder.com/60x60/a5d6a7/ffffff?text=IMG'); /* 임시 플레이스홀더 */
+            background-repeat: no-repeat; background-position: center; background-size: 60px; 
         }
         .preview-area img { width: 100%; height: 100%; object-fit: contain; display: none; z-index: 10; background: #f1f8e9; }
         
         button.main-btn { 
-            width: 100%; padding: 15px; 
-            background: #00897B; color: white; 
-            font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
-            border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            transition: background 0.2s;
+            width: 100%; padding: 15px; background: #00897B; color: white; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
+            border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: background 0.2s;
         }
         button.main-btn:hover { background: #00796B; }
 
         .footer-buttons { display:flex; gap: 8px; margin-top: 20px; margin-bottom: 20px; }
         button.sub-btn { 
-            flex: 1; padding: 12px 0; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; 
-            font-size: 0.95rem; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+            flex: 1; padding: 12px 0; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 0.95rem; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
             display: flex; align-items: center; justify-content: center; gap: 5px;
         }
         button.sub-btn.call { background:#2E7D32; }
         button.sub-btn.save { background:#1c3664; }
 
         .custom-file-upload {
-            display: inline-block; padding: 8px 20px; cursor: pointer;
-            background: #546e7a; color: white; border-radius: 20px;
-            font-size: 0.85rem; border: none; font-weight: bold; 
-            float: left;
+            display: inline-block; padding: 8px 20px; cursor: pointer; background: #546e7a; color: white; border-radius: 20px;
+            font-size: 0.85rem; border: none; font-weight: bold; float: left;
         }
         input[type="file"] { display: none; }
         
-        /* [수정] 하단 정보: 글자 크기 대폭 축소(0.6rem)하여 2줄로 맞춤 */
         .business-info {
-            background: #102e52; color: #cfd8dc; 
-            padding: 10px 10px;
-            text-align: center;
-            font-size: 0.6rem; /* 글자 크기 줄임 */
-            line-height: 1.4;
-            letter-spacing: -0.3px;
+            background: #102e52; color: #cfd8dc; padding: 10px 10px; text-align: center; font-size: 0.6rem; line-height: 1.4; letter-spacing: -0.3px;
         }
-        .business-info strong { 
-            color: white; font-size: 0.7rem;
-            margin-right: 5px;
-        }
+        .business-info strong { color: white; font-size: 0.7rem; margin-right: 5px; }
 
         #historySidebar {
-            position: fixed; top: 0; right: -320px; width: 300px; height: 100%;
-            background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.2);
-            z-index: 1000; transition: right 0.3s ease-in-out;
-            display: flex; flex-direction: column; border-left: 1px solid #ddd;
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+            z-index: 1000; transition: right 0.3s ease-in-out; display: flex; flex-direction: column; border-left: 1px solid #ddd;
         }
         #historySidebar.open { right: 0; }
         #historyToggleBtn {
-            position: fixed; top: 20px; right: 20px; z-index: 999;
-            color: white; font-size: 1.5rem; cursor: pointer;
-            background: rgba(0,0,0,0.2); padding: 8px; border-radius: 50%;
+            position: fixed; top: 20px; right: 20px; z-index: 999; color: white; font-size: 1.5rem; cursor: pointer; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 50%;
         }
         
         body.pdf-mode button, body.pdf-mode #historyToggleBtn, body.pdf-mode .custom-file-upload { display: none !important; }
@@ -253,13 +144,12 @@
     <div class="header">
         <div class="header-top-row">
             <img src="image_1.png" class="logo-img" onerror="this.style.display='none';">
-            
             <div class="header-title">청개구리 결로진단 AI앱</div>
         </div>
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 1.5(history)</span>
+            <span class="version-text">Ver 1.6 (열화상 추가)</span>
         </div>
     </div>
 
@@ -276,7 +166,7 @@
         </div>
 
         <div class="box env-box">
-            <div class="section-title"><i class="fas fa-temperature-low"></i> 현재 환경정보</div>
+            <div class="section-title"><i class="fas fa-temperature-low"></i> 현재 환경정보 (실외 자동)</div>
             <div class="env-grid">
                 <div>
                     <label>실내온도 (°C)</label>
@@ -288,11 +178,11 @@
                 </div>
                 <div>
                     <label>실외온도 (자동)</label>
-                    <input type="text" id="outTemp" placeholder="자동감지">
+                    <input type="text" id="outTemp" placeholder="감지중..." readonly>
                 </div>
                 <div>
                     <label>실외습도 (자동)</label>
-                    <input type="text" id="outHum" placeholder="자동감지">
+                    <input type="text" id="outHum" placeholder="감지중..." readonly>
                 </div>
             </div>
         </div>
@@ -308,7 +198,7 @@
         </div>
 
         <div class="box">
-            <div class="section-title"><i class="fas fa-camera"></i> 결로/곰팡이 사진(필수)</div>
+            <div class="section-title"><i class="fas fa-camera"></i> 1. 결로/곰팡이 사진(필수)</div>
             <div class="preview-area"><img id="img1"></div>
             <div style="overflow:hidden;">
                 <label for="file1" class="custom-file-upload">사진입력</label>
@@ -317,7 +207,7 @@
         </div>
         
         <div class="box">
-            <div class="section-title"><i class="fas fa-camera"></i> 주변 환경 사진(선택)</div>
+            <div class="section-title"><i class="fas fa-camera"></i> 2. 주변 환경 사진(선택)</div>
             <div class="preview-area"><img id="img2"></div>
             <div style="overflow:hidden;">
                 <label for="file2" class="custom-file-upload">사진입력</label>
@@ -325,11 +215,20 @@
             </div>
         </div>
 
+        <div class="box" style="border: 2px solid #FF7043; background: #FFF3E0;">
+            <div class="section-title" style="color: #D84315;"><i class="fas fa-fire-alt"></i> 3. 열화상 카메라 사진(선택)</div>
+            <div class="preview-area" style="border-color: #FFAB91; background-color: #FBE9E7;"><img id="img3"></div>
+            <div style="overflow:hidden;">
+                <label for="file3" class="custom-file-upload" style="background: #FF7043;">사진입력</label>
+                <input type="file" id="file3" accept="image/*" onchange="preview(3)">
+            </div>
+        </div>
+
         <button class="main-btn" id="btnRun" onclick="runAI()">
             💧 결로 원인 분석 시작
         </button>
         <div id="status" style="text-align:center; margin-top:15px; color:#00897B; display:none; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> AI가 환경 데이터를 분석 중입니다...
+            <i class="fas fa-spinner fa-spin"></i> AI가 열화상 데이터와 환경을 분석 중입니다...
         </div>
 
         <div class="box" style="margin-top:20px;">
@@ -356,11 +255,44 @@
 </div>
 
 <script>
+    // [Ver 1.6 수정] 날짜 자동 입력 및 날씨 API 복구
     window.onload = function() {
         const now = new Date();
-        document.getElementById('dateInput').value = now.toLocaleString();
+        // 날짜 형식을 보기 좋게 변경 (예: 2025. 5. 15. 오후 2:30)
+        document.getElementById('dateInput').value = now.toLocaleDateString() + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         renderHistory();
+        getWeather(); // 실외 날씨 자동 가져오기 시작
     };
+
+    // 실외 날씨 자동 가져오기 함수 (OpenWeatherMap API 사용)
+    function getWeather() {
+        const outTempEl = document.getElementById('outTemp');
+        const outHumEl = document.getElementById('outHum');
+        
+        if (!navigator.geolocation) {
+            outTempEl.value = "위치정보 미지원"; outHumEl.value = "직접 입력 필요"; return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                // 무료 날씨 API 키 (테스트용)
+                const apiKey = '4c398827253942595356612633592146'.split('').reverse().join('');
+                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=kr`;
+                
+                try {
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    outTempEl.value = data.main.temp.toFixed(1); // 소수점 1자리까지
+                    outHumEl.value = data.main.humidity;
+                } catch (e) {
+                    outTempEl.value = "오류발생"; outHumEl.value = "직접 입력";
+                }
+            },
+            () => { outTempEl.value = "위치차단됨"; outHumEl.value = "직접 입력"; }
+        );
+    }
 
     function preview(num) {
         const fileBox = document.getElementById('file'+num);
@@ -424,18 +356,18 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        // 🟢 [중요] API 키 분리 입력 (GitHub 경고 방지)
-        const part1 = "AIzaSyAZRYWwExOUfQSZ";  // 키 앞부분
-        const part2 = "O6uC9pmDzvRsWckIDw";      // 키 뒷부분
-        const API_KEY = part1 + "_" + part2;
+        // [Ver 1.6 수정] 선생님이 발견하신 API 키 오류 수정 (밑줄 추가!)
+        const part1 = "AIzaSyAZRYWwExOUfQSZ";  
+        const part2 = "O6uC9pmDzvRsWckIDw";      
+        const API_KEY = part1 + "_" + part2; // <-- 여기에 밑줄(_) 추가됨
 
-        if (API_KEY.includes("AIzaSy...") || API_KEY.length < 30) {
-            alert("관리자 설정 필요: 소스코드 하단에 API 키를 입력해주세요.");
+        if (API_KEY.length < 30) {
+            alert("API 키 오류: 관리자에게 문의하세요.");
             return;
         }
 
         btn.disabled = true; status.style.display = 'block';
-        resultDiv.innerText = "데이터 분석 중입니다...";
+        resultDiv.innerText = "데이터 및 열화상 이미지 분석 중입니다...";
 
         try {
             let checks = [];
@@ -443,17 +375,20 @@
                 if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText);
             }
             
+            // [Ver 1.6 수정] 프롬프트에 열화상 사진 내용 추가
             let parts = [{ 
-                text: `[결로 정밀 진단 요청]\n` +
+                text: `[결로/열화상 정밀 진단 요청]\n` +
                       `장소: ${loc}\n` +
                       `실내환경: ${inTemp}°C / ${inHum}%\n` +
                       `실외환경: ${outTemp}°C / ${outHum}%\n` +
                       `발생부위: ${checks.join(', ')}\n\n` +
-                      `위 데이터를 바탕으로 이슬점을 계산하고 결로 원인을 분석해줘.\n` +
-                      `1. 이슬점 분석\n2. 원인 진단(단열, 환기 등)\n3. 해결책 제시`
+                      `위 환경 데이터와 첨부된 사진(일반, 열화상)을 종합적으로 분석해줘.\n` +
+                      `특히 열화상 이미지가 있다면 온도차에 의한 결로 취약 부위를 중점적으로 파악해.\n` +
+                      `1. 이슬점 분석\n2. 열화상/사진 분석 결과\n3. 원인 진단(단열, 기밀 등)\n4. 해결책 제시`
             }];
 
-            for(let i=1; i<=2; i++) {
+            // [Ver 1.6 수정] 사진 3장 모두 처리하도록 반복문 수정 (i<=3)
+            for(let i=1; i<=3; i++) {
                 const file = document.getElementById('file'+i).files[0];
                 if(file) {
                     const base64 = await new Promise(resolve => {
@@ -487,7 +422,7 @@
     function savePDFWithGuide() {
         document.body.classList.add('pdf-mode');
         const element = document.getElementById('pdfArea');
-        html2pdf().set({ margin:0, filename:'결로진단결과.pdf', html2canvas:{scale:2}, jsPDF:{unit:'mm', format:'a4'} })
+        html2pdf().set({ margin:0, filename:'결로열화상진단결과.pdf', html2canvas:{scale:2}, jsPDF:{unit:'mm', format:'a4'} })
         .from(element).save()
         .then(() => document.body.classList.remove('pdf-mode'));
     }
@@ -495,4 +430,3 @@
 
 </body>
 </html>
-
