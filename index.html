@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 1.9)</title>
+    <title>청개구리 결로점검 AI (Ver 2.0)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -79,7 +79,18 @@
             background-image: url('https://via.placeholder.com/60x60/a5d6a7/ffffff?text=IMG');
             background-repeat: no-repeat; background-position: center; background-size: 60px; 
         }
-        .preview-area img { width: 100%; height: 100%; object-fit: contain; display: none; z-index: 10; background: #f1f8e9; }
+
+        /* [Ver 2.0 수정] 사진 찌그러짐 방지 (max-width/height 사용) */
+        .preview-area img { 
+            max-width: 100%; 
+            max-height: 100%; 
+            width: auto; 
+            height: auto; 
+            object-fit: contain; 
+            display: none; 
+            z-index: 10; 
+            background: #f1f8e9; 
+        }
         
         button.main-btn { 
             width: 100%; padding: 15px; background: #00897B; color: white; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
@@ -150,7 +161,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 1.9 (저장오류수정)</span>
+            <span class="version-text">Ver 2.0 (사진비율교정)</span>
         </div>
     </div>
 
@@ -409,7 +420,6 @@
         }
     }
 
-    // [Ver 1.9 수정] PDF 저장 기능 강화 (빈 페이지 방지)
     function savePDFWithGuide() {
         const btn = document.getElementById('saveBtn');
         const originalText = btn.innerHTML;
@@ -420,7 +430,6 @@
             document.body.classList.add('pdf-mode');
             const element = document.getElementById('pdfArea');
             
-            // 옵션 강화: 스케일 조정 및 랜더링 대기
             const opt = {
                 margin: 0,
                 filename: '결로진단결과_' + new Date().getTime() + '.pdf',
@@ -436,12 +445,12 @@
                 btn.disabled = false;
             })
             .catch(err => {
-                alert("PDF 저장 중 오류가 발생했습니다. '스크롤 캡처'를 이용해주세요.");
+                alert("오류: 다시 시도해주세요.");
                 document.body.classList.remove('pdf-mode');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             });
-        }, 500); // 0.5초 대기 후 실행
+        }, 500); 
     }
 </script>
 
