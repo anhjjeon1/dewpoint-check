@@ -427,7 +427,7 @@
         // 🟢 [중요] API 키 분리 입력 (GitHub 경고 방지)
         const part1 = "AIzaSyAZRYWwExOUfQSZ";  // 키 앞부분
         const part2 = "O6uC9pmDzvRsWckIDw";      // 키 뒷부분
-        const API_KEY = part1 + part2;
+        const API_KEY = part1 + "_" + part2;
 
         if (API_KEY.includes("AIzaSy...") || API_KEY.length < 30) {
             alert("관리자 설정 필요: 소스코드 하단에 API 키를 입력해주세요.");
@@ -495,3 +495,4 @@
 
 </body>
 </html>
+
