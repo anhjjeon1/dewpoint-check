@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 1.7)</title>
+    <title>청개구리 결로점검 AI (Ver 1.8)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -62,9 +62,7 @@
         label { display: block; margin-bottom: 5px; color: #333; font-size: 0.85rem; font-weight: bold; }
         input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
         
-        /* [Ver 1.7 수정] readonly 스타일 제거 - 이제 입력 가능함 */
         input[readonly] { background: #e9ecef; color: #555; text-align: center; }
-        /* 날짜만 읽기 전용으로 유지 */
         #dateInput { background: #e9ecef; color: #555; text-align: center; pointer-events: none; }
 
         .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
@@ -152,7 +150,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 1.7 (입력잠금해제)</span>
+            <span class="version-text">Ver 1.8 (자동날씨복구)</span>
         </div>
     </div>
 
@@ -169,7 +167,7 @@
         </div>
 
         <div class="box env-box">
-            <div class="section-title"><i class="fas fa-temperature-low"></i> 현재 환경정보 (수동 입력 가능)</div>
+            <div class="section-title"><i class="fas fa-temperature-low"></i> 현재 환경정보 (실외 자동)</div>
             <div class="env-grid">
                 <div>
                     <label>실내온도 (°C)</label>
@@ -181,11 +179,11 @@
                 </div>
                 <div>
                     <label>실외온도 (°C)</label>
-                    <input type="text" id="outTemp" placeholder="직접입력">
+                    <input type="text" id="outTemp" placeholder="위치확인중..">
                 </div>
                 <div>
                     <label>실외습도 (%)</label>
-                    <input type="text" id="outHum" placeholder="직접입력">
+                    <input type="text" id="outHum" placeholder="위치확인중..">
                 </div>
             </div>
         </div>
@@ -265,14 +263,13 @@
         getWeather(); 
     };
 
-    // 실외 날씨 자동 시도 (실패해도 이제 수동 입력 가능!)
+    // [Ver 1.8 중요] 키가 필요 없는 'Open-Meteo' 날씨 서비스로 교체!
     function getWeather() {
         const outTempEl = document.getElementById('outTemp');
         const outHumEl = document.getElementById('outHum');
         
-        // 초기 메시지 설정
-        outTempEl.placeholder = "감지중...";
-        outHumEl.placeholder = "감지중...";
+        outTempEl.placeholder = "위치확인중..";
+        outHumEl.placeholder = "위치확인중..";
         
         if (!navigator.geolocation) {
             outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; return;
@@ -282,29 +279,30 @@
             async (position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
-                // 무료 키 (트래픽 초과 시 작동 안 할 수 있음 -> 수동 입력 유도)
-                const apiKey = '4c398827253942595356612633592146'.split('').reverse().join('');
-                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=kr`;
+                
+                // 여기가 핵심! 키가 필요 없는 주소로 변경됨
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&timezone=auto`;
                 
                 try {
                     const res = await fetch(url);
                     const data = await res.json();
-                    if(data.main) {
-                        outTempEl.value = data.main.temp.toFixed(1);
-                        outHumEl.value = data.main.humidity;
+                    
+                    if(data.current) {
+                        outTempEl.value = data.current.temperature_2m;
+                        outHumEl.value = data.current.relative_humidity_2m;
                     } else {
                         throw new Error("데이터 없음");
                     }
                 } catch (e) {
-                    // 실패 시 사용자에게 직접 입력하라고 안내
-                    outTempEl.value = ""; 
-                    outHumEl.value = "";
-                    outTempEl.placeholder = "직접입력";
-                    outHumEl.placeholder = "직접입력";
+                    console.error(e);
+                    // 실패하면 수동 입력 유도
+                    outTempEl.value = ""; outHumEl.value = "";
+                    outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력";
                 }
             },
             () => { 
-                outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; 
+                outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력";
+                // 위치 권한 거부 시 조용히 넘어감 (수동 입력 가능)
             }
         );
     }
@@ -371,7 +369,6 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        // [Ver 1.7 유지] API 키 정상화 (선생님이 고치신 버전)
         const part1 = "AIzaSyAZRYWwExOUfQSZ";  
         const part2 = "O6uC9pmDzvRsWckIDw";      
         const API_KEY = part1 + "_" + part2; 
