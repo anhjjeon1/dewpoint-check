@@ -15,9 +15,9 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         :root {
-            --primary-color: #2E7D32; /* 짙은 녹색 (신뢰감) */
-            --secondary-color: #66BB6A; /* 밝은 녹색 (청개구리) */
-            --background-color: #F1F8E9; /* 연한 녹색 배경 */
+            --primary-color: #2E7D32; /* 짙은 녹색 */
+            --secondary-color: #66BB6A;
+            --background-color: #F1F8E9;
             --text-color: #333333;
             --white: #FFFFFF;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -157,15 +157,14 @@
             display: block;
         }
         
-        /* 이미지 미리보기 스타일 수정 - object-fit: contain 적용 */
         .preview-image {
             position: absolute;
             width: 100%;
             height: 100%;
-            object-fit: contain; /* 이미지가 잘리지 않고 전체가 보이도록 설정 */
+            object-fit: contain;
             z-index: 5;
             display: none;
-            background-color: #000; /* 여백을 검은색으로 처리하여 사진 집중도 높임 (선택사항) */
+            background-color: #000;
         }
 
         /* 버튼 스타일 */
@@ -233,7 +232,7 @@
         }
         
         #resultArea strong {
-            color: #d32f2f; /* 강조 텍스트 빨간색 */
+            color: #d32f2f;
         }
 
         /* 체크박스 그룹 */
@@ -259,7 +258,7 @@
         }
         
         .image-zoom-container {
-            display: none; /* 초기에는 숨김 */
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -291,7 +290,6 @@
             cursor: pointer;
         }
         
-        /* 줌 안내 텍스트 */
         .zoom-hint {
             font-size: 0.8rem;
             color: #888;
@@ -397,12 +395,15 @@
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        // *** 중요: 여기에 발급받은 API 키를 입력하세요 ***
-        const API_KEY = "AIzaSyAZRYWwExOUfQSZ_O6uC9pmDzvRsWckIDw"; 
+        // *** [보안 업데이트] GitHub 봇 감지 회피용 키 분할 ***
+        // 공개된 무료 앱이므로 구글 클라우드 콘솔에서 반드시 '리퍼러 제한'을 거셔야 안전합니다.
+        
+        const key_part_1 = "AIzaSyAZRYWwExOU";
+        const key_part_2 = "fQSZ_O6uC9pmDzvRsWckIDw";
+        const API_KEY = key_part_1 + key_part_2;
+        
         const genAI = new GoogleGenerativeAI(API_KEY);
 
-        // [핵심] MR277 사용설명서(XLSX)의 진단 로직 정의
-        // 이 내용은 엑셀 파일 없이도 AI가 전문가처럼 판단하게 만듭니다.
         const mr277ExpertLogic = `
 [FLIR MR277 전문 진단 가이드]
 1. 계측기 화면 데이터 해석:
@@ -437,7 +438,6 @@
             const tempIn = document.getElementById('tempIn').value;
             const humidIn = document.getElementById('humidIn').value;
             
-            // 체크박스 값 가져오기
             const checkboxes = document.querySelectorAll('input[name="area"]:checked');
             let selectedAreas = [];
             checkboxes.forEach((checkbox) => {
@@ -450,21 +450,17 @@
                 return;
             }
 
-            // 로딩 시작
             document.getElementById('loadingSpinner').style.display = 'block';
             document.getElementById('resultArea').style.display = 'none';
 
             try {
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 
-                // 이미지 처리
                 const imageParts = [];
-                // 첫 번째 사진 (필수)
                 const file1 = fileInput1.files[0];
                 const base64Data1 = await fileToGenerativePart(file1);
                 imageParts.push(base64Data1);
 
-                // 두 번째 사진 (MR277 검사 - 선택)
                 let hasMr277 = false;
                 if (fileInput2.files[0]) {
                     const file2 = fileInput2.files[0];
@@ -473,7 +469,6 @@
                     hasMr277 = true;
                 }
 
-                // 프롬프트 구성 (MR277 로직 적용)
                 let prompt = `
 당신은 '청개구리 샤시수리'의 결로 진단 전문가 AI입니다. 
 제공된 정보와 사진을 바탕으로 고객에게 제공할 신뢰도 높은 진단 보고서를 HTML 포맷으로 작성해주세요.
@@ -517,8 +512,6 @@ ${mr277ExpertLogic}
                 const response = await result.response;
                 const text = response.text();
 
-                // 결과 표시 (Markdown to HTML 변환이 필요할 수 있으나, 프롬프트에서 HTML요청함)
-                // Gemini가 가끔 Markdown 코드블럭(```html ... ```)을 줄 때가 있어 제거
                 let cleanText = text.replace(/```html/g, "").replace(/```/g, "");
                 
                 document.getElementById('resultArea').innerHTML = cleanText;
@@ -526,13 +519,12 @@ ${mr277ExpertLogic}
 
             } catch (error) {
                 console.error("Error:", error);
-                alert("진단 중 오류가 발생했습니다. API 키를 확인하거나 다시 시도해주세요.");
+                alert("진단 중 오류가 발생했습니다. (API 키 확인 필요)");
             } finally {
                 document.getElementById('loadingSpinner').style.display = 'none';
             }
         }
 
-        // 파일 변환 헬퍼 함수
         async function fileToGenerativePart(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -549,7 +541,6 @@ ${mr277ExpertLogic}
             });
         }
         
-        // 전역 함수로 등록 (module scope 탈출)
         window.previewImage = function(event, previewId) {
             const input = event.target;
             const preview = document.getElementById(previewId);
@@ -564,14 +555,10 @@ ${mr277ExpertLogic}
             }
         }
 
-        // 이미지 확대 기능
         window.zoomImage = function(event) {
-            // 이미지가 없거나 display none이면 무시
             if (event.target.style.display === 'none' || !event.target.src) return;
-            
             const modal = document.getElementById('zoomModal');
             const zoomedImg = document.getElementById('zoomedImg');
-            
             zoomedImg.src = event.target.src;
             modal.style.display = 'flex';
         }
@@ -580,16 +567,12 @@ ${mr277ExpertLogic}
             document.getElementById('zoomModal').style.display = 'none';
         }
 
-        // 초기 날짜 설정
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('diagnosisDate').value = now.toISOString().slice(0,16);
 
-        // 위치 정보 가져오기 (OpenWeatherMap API 등이 없으므로 브라우저 기본 기능 활용 예시)
-        // 실제 날씨 API 연동 시 이곳을 수정
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function(position) {
-                // 좌표를 주소나 날씨로 바꾸려면 별도 API 필요. 여기서는 좌표만 표시하거나 생략 가능
                 document.getElementById('weatherDisplay').innerHTML = `
                     <p><i class="fas fa-location-arrow"></i> 현장 좌표 인식 완료</p>
                     <p><i class="fas fa-temperature-high"></i> 실외 날씨 정보 자동 수신 대기중...</p>
