@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.1 자동보정)</title>
+    <title>청개구리 결로점검 AI (Ver 2.2)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -72,7 +72,7 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* [수정됨] 클릭 가능하도록 커서 변경 및 터치 영역 확대 */
+        /* [수정] 클릭 영역 개선 (자식 요소 클릭 방지) */
         .preview-area { 
             width: 100%; 
             min-height: 180px;
@@ -84,7 +84,8 @@
             overflow: hidden;
             background-image: url('https://via.placeholder.com/60x60/a5d6a7/ffffff?text=IMG');
             background-repeat: no-repeat; background-position: center; background-size: 60px; 
-            cursor: pointer; /* 손가락 모양 커서 */
+            cursor: pointer;
+            position: relative; /* 중요 */
         }
 
         .preview-area img { 
@@ -92,7 +93,12 @@
             height: auto; 
             display: none; 
             z-index: 10; 
-            background: #f1f8e9; 
+            background: #f1f8e9;
+            pointer-events: none; /* 이미지 위를 눌러도 부모 div 클릭으로 인식되게 함 */
+        }
+        
+        .preview-area span {
+            pointer-events: none; /* 글자 위를 눌러도 부모 div 클릭으로 인식되게 함 */
         }
         
         button.main-btn { 
@@ -164,7 +170,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.1 자동보정</span>
+            <span class="version-text">Ver 2.2 (오류수정)</span>
         </div>
     </div>
 
@@ -214,7 +220,7 @@
 
         <div class="box">
             <div class="section-title"><i class="fas fa-camera"></i> 1. 결로/곰팡이 사진(필수)</div>
-            <div class="preview-area" onclick="document.getElementById('file1').click()">
+            <div class="preview-area" onclick="triggerInput('file1')">
                 <img id="img1">
                 <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
             </div>
@@ -226,7 +232,7 @@
         
         <div class="box">
             <div class="section-title"><i class="fas fa-thermometer-three-quarters"></i> 2. FLIR MR 277검사 (선택)</div>
-            <div class="preview-area" onclick="document.getElementById('file2').click()">
+            <div class="preview-area" onclick="triggerInput('file2')">
                 <img id="img2">
                 <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
             </div>
@@ -238,7 +244,7 @@
 
         <div class="box" style="border: 2px solid #FF7043; background: #FFF3E0;">
             <div class="section-title" style="color: #D84315;"><i class="fas fa-fire-alt"></i> 3. 열화상 카메라 사진(선택)</div>
-            <div class="preview-area" style="border-color: #FFAB91; background-color: #FBE9E7;" onclick="document.getElementById('file3').click()">
+            <div class="preview-area" style="border-color: #FFAB91; background-color: #FBE9E7;" onclick="triggerInput('file3')">
                 <img id="img3">
                 <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
             </div>
@@ -316,6 +322,11 @@
             },
             () => { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
         );
+    }
+
+    // [수정] 미리보기 박스 클릭 시 파일 입력창 열어주는 헬퍼 함수
+    function triggerInput(id) {
+        document.getElementById(id).click();
     }
 
     function preview(num) {
@@ -457,7 +468,7 @@
             }
 
             if (!finalData) {
-                throw new Error("모든 AI 모델 접속에 실패했습니다. (네트워크/키/서버 문제)");
+                throw new Error("모든 AI 모델 접속에 실패했습니다.\n(원인: API키 문제, 네트워크 불안정, 또는 구글 서버 장애)");
             }
             
             const aiText = finalData.candidates[0].content.parts[0].text;
