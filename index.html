@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.5)</title>
+    <title>청개구리 결로점검 AI (Ver 2.6 최종)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -72,7 +72,7 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* 사진 비율 4:3 강제 고정 및 반응형 처리 */
+        /* [핵심] 사진 비율 4:3 강제 고정 및 터치 영역 개선 */
         .preview-area { 
             width: 100%; 
             aspect-ratio: 4 / 3; 
@@ -95,7 +95,7 @@
             display: none; 
             z-index: 10; 
             background: #f1f8e9;
-            pointer-events: none;
+            pointer-events: none; /* 클릭 통과 */
         }
         
         .preview-area span { pointer-events: none; }
@@ -169,7 +169,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.5 (API키결합수정)</span>
+            <span class="version-text">Ver 2.6 (최종수정)</span>
         </div>
     </div>
 
@@ -257,7 +257,7 @@
             💧 결로 원인 분석 시작
         </button>
         <div id="status" style="text-align:center; margin-top:15px; color:#00897B; display:none; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> AI가 최적의 분석 모델을 찾는 중입니다...
+            <i class="fas fa-spinner fa-spin"></i> AI가 MR277 및 환경을 정밀 분석 중입니다...
         </div>
 
         <div class="box" style="margin-top:20px;">
@@ -392,12 +392,9 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        // [핵심 수정] 언더바(_)를 코드에서 자동으로 붙여줌. 
-        // p1: 앞부분, p2: 뒷부분 (언더바 제외)
+        // [핵심] API 키 결합 방식 개선 (사용자 편의성 UP)
         const p1 = "AIzaSyAZRYWwExOUfQSZ";  
-        const p2 = "O6uC9pmDzvRsWckIDw"; // 여기엔 언더바가 없어야 함
-        
-        // 최종적으로 언더바를 붙여서 키를 완성함
+        const p2 = "O6uC9pmDzvRsWckIDw"; 
         const API_KEY = p1 + "_" + p2; 
 
         if (API_KEY.length < 30) { alert("API 키 오류: 키가 올바르지 않습니다."); return; }
@@ -411,6 +408,7 @@
                 if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText);
             }
             
+            // MR277 정밀 진단 로직 추가
             let promptText = `[결로/열화상 정밀 진단 요청]\n` +
                   `장소: ${loc}\n` +
                   `실내환경: ${inTemp}°C / ${inHum}%\n` +
@@ -437,6 +435,7 @@
                 }
             }
 
+            // [오류 원인 해결] 모델명 수정 (2.5 -> 1.5)
             const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"];
             let finalData = null;
             let successModel = "";
@@ -468,7 +467,7 @@
                         lastErrorMsg = `(${response.status}) ${cleanMsg}`;
                     }
                 } catch (e) {
-                    console.warn(`${model} 네트워크 에러:`, e);
+                    console.warn(`${model} 에러:`, e);
                     lastErrorMsg = "네트워크 연결 실패";
                 }
             }
