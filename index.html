@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.1 정밀)</title>
+    <title>청개구리 결로점검 AI (Ver 2.1 자동보정)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -241,7 +241,7 @@
             💧 결로 원인 분석 시작
         </button>
         <div id="status" style="text-align:center; margin-top:15px; color:#00897B; display:none; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> AI가 MR277 및 환경을 정밀 분석 중입니다...
+            <i class="fas fa-spinner fa-spin"></i> AI가 최적의 분석 모델을 찾는 중입니다...
         </div>
 
         <div class="box" style="margin-top:20px;">
@@ -353,7 +353,7 @@
         }
     }
 
-    // [핵심] 1.5-flash 모델 사용 및 MR277 로직 추가
+    // [핵심 업데이트] AI 모델 자동 테스트 및 선택 실행 (Auto-Selection)
     async function runAI() {
         const btn = document.getElementById('btnRun');
         const status = document.getElementById('status');
@@ -380,7 +380,6 @@
                 if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText);
             }
             
-            // 프롬프트: MR277 로직 반영
             let promptText = `[결로/열화상 정밀 진단 요청]\n` +
                   `장소: ${loc}\n` +
                   `실내환경: ${inTemp}°C / ${inHum}%\n` +
@@ -403,26 +402,53 @@
                         reader.onload = e => resolve(e.target.result.split(',')[1]);
                         reader.readAsDataURL(file);
                     });
-                    // REST API 호환성을 위해 snake_case 사용 권장
+                    // REST API용 snake_case 사용
                     parts.push({ inline_data: { mime_type: "image/jpeg", data: base64 } });
                 }
             }
 
-            // 모델명 1.5-flash로 수정 (2.5는 오타/비공개 모델)
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: parts }] })
-            });
-
-            const data = await response.json();
-            if(data.error) throw new Error(data.error.message);
+            // [테스트 할 모델 리스트] : 앞에서부터 순서대로 시도합니다.
+            const models = [
+                "gemini-1.5-flash", 
+                "gemini-1.5-pro", 
+                "gemini-1.0-pro"
+            ];
             
-            const aiText = data.candidates[0].content.parts[0].text;
-            resultDiv.innerText = aiText + "\n\n(문의: 1599-7380)";
+            let finalData = null;
+            let successModel = "";
+
+            // 모델 순차 테스트 루프
+            for (const model of models) {
+                try {
+                    status.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 분석 모델(${model}) 접속 시도 중...`;
+                    
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: parts }] })
+                    });
+
+                    if (response.ok) {
+                        finalData = await response.json();
+                        successModel = model;
+                        break; // 성공하면 루프 탈출
+                    } else {
+                        console.warn(`${model} 실패:`, await response.text());
+                    }
+                } catch (e) {
+                    console.warn(`${model} 에러:`, e);
+                }
+            }
+
+            if (!finalData) {
+                throw new Error("모든 AI 모델 접속에 실패했습니다. (네트워크/키/서버 문제)");
+            }
+            
+            const aiText = finalData.candidates[0].content.parts[0].text;
+            resultDiv.innerText = `[${successModel} 분석 완료]\n` + aiText + "\n\n(문의: 1599-7380)";
             saveHistory(loc, aiText);
 
         } catch (e) {
-            resultDiv.innerText = "오류: " + e.message;
+            resultDiv.innerText = "오류 발생: " + e.message;
         } finally {
             btn.disabled = false; status.style.display = 'none';
         }
