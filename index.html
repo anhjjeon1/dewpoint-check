@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.1)</title>
+    <title>청개구리 결로점검 AI (Ver 2.1 정밀)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -72,10 +72,9 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* [Ver 2.1 스타일 유지] */
         .preview-area { 
             width: 100%; 
-            min-height: 180px; 
+            min-height: 180px;
             background-color: #f1f8e9; 
             border: 2px dashed #a5d6a7; 
             border-radius: 8px;
@@ -163,7 +162,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.1 (MR277 정밀분석)</span>
+            <span class="version-text">Ver 2.1 (MR277 정밀)</span>
         </div>
     </div>
 
@@ -242,7 +241,7 @@
             💧 결로 원인 분석 시작
         </button>
         <div id="status" style="text-align:center; margin-top:15px; color:#00897B; display:none; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> AI가 MR277 및 환경 데이터를 정밀 분석 중입니다...
+            <i class="fas fa-spinner fa-spin"></i> AI가 MR277 및 환경을 정밀 분석 중입니다...
         </div>
 
         <div class="box" style="margin-top:20px;">
@@ -354,6 +353,7 @@
         }
     }
 
+    // [핵심] 1.5-flash 모델 사용 및 MR277 로직 추가
     async function runAI() {
         const btn = document.getElementById('btnRun');
         const status = document.getElementById('status');
@@ -380,7 +380,7 @@
                 if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText);
             }
             
-            // [업그레이드] 프롬프트 수정: MR277 진단 로직 추가
+            // 프롬프트: MR277 로직 반영
             let promptText = `[결로/열화상 정밀 진단 요청]\n` +
                   `장소: ${loc}\n` +
                   `실내환경: ${inTemp}°C / ${inHum}%\n` +
@@ -403,11 +403,12 @@
                         reader.onload = e => resolve(e.target.result.split(',')[1]);
                         reader.readAsDataURL(file);
                     });
-                    parts.push({ inlineData: { data: base64, mimeType: "image/jpeg" } });
+                    // REST API 호환성을 위해 snake_case 사용 권장
+                    parts.push({ inline_data: { mime_type: "image/jpeg", data: base64 } });
                 }
             }
 
-            // 모델명을 'gemini-1.5-flash'로 수정하여 안정성 확보 (2.5는 오타 가능성 있음)
+            // 모델명 1.5-flash로 수정 (2.5는 오타/비공개 모델)
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: parts }] })
