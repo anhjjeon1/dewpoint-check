@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.2)</title>
+    <title>청개구리 결로점검 AI (Ver 2.3 비율수정)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -72,10 +72,11 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* [수정] 클릭 영역 개선 (자식 요소 클릭 방지) */
+        /* [핵심 수정] 사진 비율 4:3 강제 고정 */
         .preview-area { 
             width: 100%; 
-            min-height: 180px;
+            /* min-height 삭제하고 비율로 설정 */
+            aspect-ratio: 4 / 3; 
             background-color: #f1f8e9; 
             border: 2px dashed #a5d6a7; 
             border-radius: 8px;
@@ -85,20 +86,22 @@
             background-image: url('https://via.placeholder.com/60x60/a5d6a7/ffffff?text=IMG');
             background-repeat: no-repeat; background-position: center; background-size: 60px; 
             cursor: pointer;
-            position: relative; /* 중요 */
+            position: relative;
         }
 
         .preview-area img { 
             width: 100%; 
-            height: auto; 
+            height: 100%; /* 부모 박스 크기에 맞춤 */
+            object-fit: contain; /* 비율 유지하며 꽉 차게 */
             display: none; 
             z-index: 10; 
             background: #f1f8e9;
-            pointer-events: none; /* 이미지 위를 눌러도 부모 div 클릭으로 인식되게 함 */
+            pointer-events: none; 
         }
         
+        /* 안내 문구도 클릭 방해하지 않도록 설정 */
         .preview-area span {
-            pointer-events: none; /* 글자 위를 눌러도 부모 div 클릭으로 인식되게 함 */
+            pointer-events: none;
         }
         
         button.main-btn { 
@@ -170,7 +173,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.2 (오류수정)</span>
+            <span class="version-text">Ver 2.3 (비율수정)</span>
         </div>
     </div>
 
@@ -324,16 +327,16 @@
         );
     }
 
-    // [수정] 미리보기 박스 클릭 시 파일 입력창 열어주는 헬퍼 함수
+    // [수정] 박스 클릭 시 사진첩 열기
     function triggerInput(id) {
-        document.getElementById(id).click();
+        const fileInput = document.getElementById(id);
+        if (fileInput) fileInput.click();
     }
 
     function preview(num) {
         const fileBox = document.getElementById('file'+num);
         const imgTag = document.getElementById('img'+num);
         
-        // 추가: span 태그(안내문구) 숨기기
         const parentDiv = imgTag.parentElement;
         const spanText = parentDiv.querySelector('span');
 
@@ -342,7 +345,7 @@
             reader.onload = function(e) { 
                 imgTag.src = e.target.result; 
                 imgTag.style.display = 'block'; 
-                if(spanText) spanText.style.display = 'none'; // 사진 들어가면 안내문구 숨김
+                if(spanText) spanText.style.display = 'none'; 
             };
             reader.readAsDataURL(fileBox.files[0]);
         }
@@ -384,7 +387,7 @@
         }
     }
 
-    // [AI 자동보정 로직]
+    // [수정] 오류 발생 시 팝업으로 상세 원인 알림
     async function runAI() {
         const btn = document.getElementById('btnRun');
         const status = document.getElementById('status');
@@ -400,7 +403,7 @@
         const part2 = "O6uC9pmDzvRsWckIDw";      
         const API_KEY = part1 + "_" + part2; 
 
-        if (API_KEY.length < 30) { alert("API 키 오류: 관리자에게 문의하세요."); return; }
+        if (API_KEY.length < 30) { alert("API 키 오류: 키가 올바르지 않습니다."); return; }
 
         btn.disabled = true; status.style.display = 'block';
         resultDiv.innerText = "데이터 및 열화상 이미지 분석 중입니다...";
@@ -445,6 +448,7 @@
             
             let finalData = null;
             let successModel = "";
+            let lastErrorMsg = "";
 
             for (const model of models) {
                 try {
@@ -460,15 +464,20 @@
                         successModel = model;
                         break; 
                     } else {
-                        console.warn(`${model} 실패:`, await response.text());
+                        const errText = await response.text();
+                        console.warn(`${model} 실패:`, errText);
+                        lastErrorMsg = errText;
                     }
                 } catch (e) {
                     console.warn(`${model} 에러:`, e);
+                    lastErrorMsg = e.toString();
                 }
             }
 
             if (!finalData) {
-                throw new Error("모든 AI 모델 접속에 실패했습니다.\n(원인: API키 문제, 네트워크 불안정, 또는 구글 서버 장애)");
+                // 상세 에러 팝업
+                alert("분석 실패! 아래 내용을 확인해주세요.\n\n원인: " + lastErrorMsg);
+                throw new Error("모든 AI 모델 접속 실패. (상세 에러는 팝업 확인)");
             }
             
             const aiText = finalData.candidates[0].content.parts[0].text;
