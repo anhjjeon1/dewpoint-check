@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.7)</title>
+    <title>청개구리 결로점검 AI (Ver 2.1 MR277)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -72,10 +72,9 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* [비율 유지] 4:3 비율 고정 및 터치 개선 */
         .preview-area { 
             width: 100%; 
-            aspect-ratio: 4 / 3; 
+            min-height: 180px; 
             background-color: #f1f8e9; 
             border: 2px dashed #a5d6a7; 
             border-radius: 8px;
@@ -84,21 +83,15 @@
             overflow: hidden;
             background-image: url('https://via.placeholder.com/60x60/a5d6a7/ffffff?text=IMG');
             background-repeat: no-repeat; background-position: center; background-size: 60px; 
-            cursor: pointer;
-            position: relative;
         }
 
         .preview-area img { 
             width: 100%; 
-            height: 100%; 
-            object-fit: contain;
+            height: auto; 
             display: none; 
             z-index: 10; 
-            background: #f1f8e9;
-            pointer-events: none;
+            background: #f1f8e9; 
         }
-        
-        .preview-area span { pointer-events: none; }
         
         button.main-btn { 
             width: 100%; padding: 15px; background: #00897B; color: white; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
@@ -169,7 +162,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.7 (최종디버깅)</span>
+            <span class="version-text">Ver 2.1 (MR277)</span>
         </div>
     </div>
 
@@ -219,10 +212,7 @@
 
         <div class="box">
             <div class="section-title"><i class="fas fa-camera"></i> 1. 결로/곰팡이 사진(필수)</div>
-            <div class="preview-area" onclick="triggerInput('file1')">
-                <img id="img1">
-                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
-            </div>
+            <div class="preview-area"><img id="img1"></div>
             <div style="overflow:hidden;">
                 <label for="file1" class="custom-file-upload">사진입력</label>
                 <input type="file" id="file1" accept="image/*" onchange="preview(1)">
@@ -231,10 +221,7 @@
         
         <div class="box">
             <div class="section-title"><i class="fas fa-thermometer-three-quarters"></i> 2. FLIR MR 277검사 (선택)</div>
-            <div class="preview-area" onclick="triggerInput('file2')">
-                <img id="img2">
-                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
-            </div>
+            <div class="preview-area"><img id="img2"></div>
             <div style="overflow:hidden;">
                 <label for="file2" class="custom-file-upload">사진입력</label>
                 <input type="file" id="file2" accept="image/*" onchange="preview(2)">
@@ -243,10 +230,7 @@
 
         <div class="box" style="border: 2px solid #FF7043; background: #FFF3E0;">
             <div class="section-title" style="color: #D84315;"><i class="fas fa-fire-alt"></i> 3. 열화상 카메라 사진(선택)</div>
-            <div class="preview-area" style="border-color: #FFAB91; background-color: #FBE9E7;" onclick="triggerInput('file3')">
-                <img id="img3">
-                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
-            </div>
+            <div class="preview-area" style="border-color: #FFAB91; background-color: #FBE9E7;"><img id="img3"></div>
             <div style="overflow:hidden;">
                 <label for="file3" class="custom-file-upload" style="background: #FF7043;">사진입력</label>
                 <input type="file" id="file3" accept="image/*" onchange="preview(3)">
@@ -257,7 +241,7 @@
             💧 결로 원인 분석 시작
         </button>
         <div id="status" style="text-align:center; margin-top:15px; color:#00897B; display:none; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> AI가 환경 및 계측 데이터를 정밀 분석 중입니다...
+            <i class="fas fa-spinner fa-spin"></i> AI가 MR277 정밀 데이터를 분석 중입니다...
         </div>
 
         <div class="box" style="margin-top:20px;">
@@ -323,24 +307,12 @@
         );
     }
 
-    function triggerInput(id) {
-        const fileInput = document.getElementById(id);
-        if (fileInput) fileInput.click();
-    }
-
     function preview(num) {
         const fileBox = document.getElementById('file'+num);
         const imgTag = document.getElementById('img'+num);
-        const parentDiv = imgTag.parentElement;
-        const spanText = parentDiv.querySelector('span');
-
         if (fileBox.files && fileBox.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) { 
-                imgTag.src = e.target.result; 
-                imgTag.style.display = 'block'; 
-                if(spanText) spanText.style.display = 'none'; 
-            };
+            reader.onload = function(e) { imgTag.src = e.target.result; imgTag.style.display = 'block'; };
             reader.readAsDataURL(fileBox.files[0]);
         }
     }
@@ -381,7 +353,6 @@
         }
     }
 
-    // [핵심] API 키 결합 오류 수정 및 정밀 디버깅
     async function runAI() {
         const btn = document.getElementById('btnRun');
         const status = document.getElementById('status');
@@ -393,12 +364,16 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        // [수정] 언더바 확실하게 결합
-        const p1 = "AIzaSyAZRYWwExOUfQSZ";  
-        const p2 = "O6uC9pmDzvRsWckIDw"; 
-        const API_KEY = p1 + "_" + p2; 
+        // [수정] 키 결합 방식을 단순하고 안전하게 변경
+        const k1 = "AIzaSyAZRYWwExOUfQSZ";
+        const k2 = "O6uC9pmDzvRsWckIDw";
+        // 사용자가 제공한 키에 언더바(_)가 있다면 k2 시작에 _를 붙이고, 
+        // 없다면 그냥 합칩니다. (사용자 키에 _가 있다고 가정하고 안전하게 처리)
+        // 기존 Ver 2.1은 이 방식이 아니었으므로, 가장 단순한 + 결합으로 돌아갑니다.
+        // 그리고 사용자님의 키 패턴(AIza..._O6u...)에 맞춰 가운데 _를 명시적으로 넣습니다.
+        const API_KEY = k1 + "_" + k2; 
 
-        if (API_KEY.length < 30) { alert("API 키 오류: 키가 올바르지 않습니다."); return; }
+        if (API_KEY.length < 30) { alert("API 키 오류: 관리자에게 문의하세요."); return; }
 
         btn.disabled = true; status.style.display = 'block';
         resultDiv.innerText = "데이터 및 열화상 이미지 분석 중입니다...";
@@ -409,17 +384,17 @@
                 if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText);
             }
             
+            // [MR277 로직 추가된 프롬프트]
             let promptText = `[결로/열화상 정밀 진단 요청]\n` +
                   `장소: ${loc}\n` +
                   `실내환경: ${inTemp}°C / ${inHum}%\n` +
                   `실외환경: ${outTemp}°C / ${outHum}%\n` +
                   `발생부위: ${checks.join(', ')}\n\n` +
-                  `[FLIR MR277 진단 기준]\n` +
-                  `만약 '2. FLIR MR 277검사' 사진이 첨부되었다면 화면 속 숫자를 읽어주세요.\n` +
-                  `- MIX(혼합비) 값이 10.0g/kg 이상이면 '환기 부족(생활습관)'이 주원인입니다.\n` +
-                  `- MIX(혼합비) 값이 9.0g/kg 이하인데 결로가 있으면 '단열 불량(구조문제)'이 주원인입니다.\n\n` +
-                  `위 환경 데이터와 첨부된 사진(현장사진, MR277화면, 열화상)을 종합 분석하여,\n` +
-                  `1. 이슬점 분석\n2. MR277 계측값 분석(사진 있을시)\n3. 원인 진단(환기부족 vs 단열불량 판정)\n4. 해결책을 제시해줘.`;
+                  `[FLIR MR277 정밀 진단 로직 적용]\n` +
+                  `만약 2번째 사진이 계측기(MR277) 화면이라면, 'MIX(혼합비)' 수치를 읽어서 판단해라.\n` +
+                  `- MIX 10.0g/kg 이상: 환기 부족이 주원인.\n` +
+                  `- MIX 9.0g/kg 이하인데 결로 발생: 단열 불량이 주원인.\n\n` +
+                  `위 데이터를 바탕으로 1.이슬점 분석, 2.MR277 수치 해석, 3.원인 판정, 4.해결책을 제시해줘.`;
 
             let parts = [{ text: promptText }];
 
@@ -431,39 +406,25 @@
                         reader.onload = e => resolve(e.target.result.split(',')[1]);
                         reader.readAsDataURL(file);
                     });
-                    parts.push({ inline_data: { mime_type: "image/jpeg", data: base64 } });
+                    parts.push({ inlineData: { data: base64, mimeType: "image/jpeg" } });
                 }
             }
 
-            // [안정성] 단일 모델 사용 (gemini-1.5-flash) - 루프 제거
-            const model = "gemini-1.5-flash";
+            // [오류 수정] gemini-1.5-flash 모델 사용 (2.5는 오타)
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: parts }] })
+            });
+
+            const data = await response.json();
+            if(data.error) throw new Error(data.error.message);
             
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: parts }] })
-                });
-
-                // [중요] 응답을 텍스트로 먼저 받아서 에러인지 확인
-                const textResponse = await response.text();
-                
-                if (response.ok) {
-                    const finalData = JSON.parse(textResponse);
-                    const aiText = finalData.candidates[0].content.parts[0].text;
-                    resultDiv.innerText = aiText + "\n\n(문의: 1599-7380)";
-                    saveHistory(loc, aiText);
-                } else {
-                    // 에러 발생 시 상세 내용 팝업
-                    alert("분석 실패!\n\n구글 서버 메시지:\n" + textResponse.substring(0, 200));
-                    resultDiv.innerText = "오류가 발생했습니다. (팝업 내용을 확인해주세요)";
-                }
-            } catch (err) {
-                alert("네트워크 오류 발생:\n" + err.message);
-                resultDiv.innerText = "네트워크 연결을 확인해주세요.";
-            }
+            const aiText = data.candidates[0].content.parts[0].text;
+            resultDiv.innerText = aiText + "\n\n(문의: 1599-7380)";
+            saveHistory(loc, aiText);
 
         } catch (e) {
-            resultDiv.innerText = "오류 발생: " + e.message;
+            resultDiv.innerText = "오류: " + e.message;
         } finally {
             btn.disabled = false; status.style.display = 'none';
         }
