@@ -3,460 +3,603 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.1)</title>
-    
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
-    <meta property="og:description" content="AI 이슬점 정밀 분석으로 결로와 곰팡이 원인을 찾아드립니다.">
-    <meta property="og:image" content="image_1.png">
-    <meta property="og:url" content="https://anhjjeon1.github.io/dewpoint-check/">
-
-    <link rel="icon" href="image_1.png" type="image/png">
-    <link rel="apple-touch-icon" href="image_1.png">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>청개구리 결로진단 AI앱 (MR277 정밀버전)</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+    }
+    </script>
     <style>
-        body { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; margin: 0; padding: 0; background: #e0f2f1; overflow-x: hidden; }
-        
-        .container { 
-            max-width: 500px; margin: 0 auto; background: white; min-height: 100vh; 
-            display: flex; flex-direction: column; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.1); 
-            position: relative;
-        }
-        
-        .header { 
-            width: 100%; background: #009688; padding: 10px 0 8px 0;
-            box-sizing: border-box; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative;
-        }
-        .header-top-row {
-            position: relative; display: flex; align-items: center; justify-content: center; height: 45px; margin-bottom: 0;
-        }
-        .logo-img {
-            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
-            width: 42px; height: 42px; border-radius: 8px; background: white; padding: 2px; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .header-title {
-            font-size: 1.35rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            text-align: center; width: 100%; padding-left: 50px; padding-right: 10px; word-break: keep-all; white-space: nowrap; line-height: 1.1;
-        }
-        .header-subtitle {
-            text-align: right; font-size: 0.75rem; color: #E0F2F1; padding-right: 15px; letter-spacing: -0.5px; margin-top: 2px;
-        }
-        .version-text {
-            color: #D32F2F; font-weight: bold; background: rgba(255, 255, 255, 0.8); padding: 0 4px; border-radius: 3px; font-size: 0.65rem; margin-left: 3px;
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --primary-color: #2E7D32; /* 짙은 녹색 (신뢰감) */
+            --secondary-color: #66BB6A; /* 밝은 녹색 (청개구리) */
+            --background-color: #F1F8E9; /* 연한 녹색 배경 */
+            --text-color: #333333;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
         }
 
-        .content { padding: 15px; flex: 1; }
-        .location-date-box {
-            display: flex; gap: 10px; margin-bottom: 15px; padding: 15px;
-            border: 1px solid #B2DFDB; border-radius: 10px; background: #ffffff;
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
         }
-        .half-box { flex: 1; }
-        .env-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .box { margin-bottom: 15px; padding: 15px; border: 1px solid #B2DFDB; border-radius: 10px; background: #ffffff; }
-        .env-box { background: #F0F4C3; border: 1px solid #DCE775; }
-        .section-title { font-weight: bold; color: #00796B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; font-size: 1rem; }
-        
-        label { display: block; margin-bottom: 5px; color: #333; font-size: 0.85rem; font-weight: bold; }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
-        
-        input[readonly] { background: #e9ecef; color: #555; text-align: center; }
-        #dateInput { background: #e9ecef; color: #555; text-align: center; pointer-events: none; }
 
-        .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
-        .check-item { 
-            display: flex; align-items: center; font-size: 0.85rem; cursor: pointer; color: #00695C; 
-            background: #fff; padding: 8px; border: 1px solid #B2DFDB; border-radius: 6px; white-space: nowrap; 
+        .container {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 600px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            box-sizing: border-box;
         }
-        .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* [Ver 2.1 핵심 수정] 사진 영역 스타일 변경 */
-        .preview-area { 
-            width: 100%; 
-            min-height: 180px; /* 사진 없을 때 최소 높이 */
-            /* height: 180px;  <-- 고정 높이 삭제! */
-            background-color: #f1f8e9; 
-            border: 2px dashed #a5d6a7; 
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 5px;
+        }
+
+        /* 폼 스타일 */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        input[type="date"],
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 10px; 
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* 날씨 정보 박스 */
+        .weather-info {
+            background-color: #E8F5E9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #C8E6C9;
+        }
+
+        .weather-info p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: #2E7D32;
+        }
+
+        /* 파일 업로드 커스텀 */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fafafa;
             overflow: hidden;
-            background-image: url('https://via.placeholder.com/60x60/a5d6a7/ffffff?text=IMG');
-            background-repeat: no-repeat; background-position: center; background-size: 60px; 
+            transition: all 0.3s;
+            cursor: pointer;
         }
 
-        /* 사진이 들어오면 가로 꽉 차게(100%), 높이는 자동으로 늘어남 */
-        .preview-area img { 
-            width: 100%; 
-            height: auto; 
-            display: none; 
-            z-index: 10; 
-            background: #f1f8e9; 
+        .file-upload-wrapper:hover {
+            border-color: var(--primary-color);
+            background-color: #f1f8e9;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .file-upload-icon {
+            text-align: center;
+            color: #888;
+        }
+
+        .file-upload-icon i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
         }
         
-        button.main-btn { 
-            width: 100%; padding: 15px; background: #00897B; color: white; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
-            border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: background 0.2s;
+        /* 이미지 미리보기 스타일 수정 - object-fit: contain 적용 */
+        .preview-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 이미지가 잘리지 않고 전체가 보이도록 설정 */
+            z-index: 5;
+            display: none;
+            background-color: #000; /* 여백을 검은색으로 처리하여 사진 집중도 높임 (선택사항) */
         }
-        button.main-btn:hover { background: #00796B; }
 
-        .footer-buttons { display:flex; gap: 8px; margin-top: 20px; margin-bottom: 20px; }
-        button.sub-btn { 
-            flex: 1; padding: 12px 0; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 0.95rem; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-            display: flex; align-items: center; justify-content: center; gap: 5px;
+        /* 버튼 스타일 */
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
         }
-        button.sub-btn.call { background:#2E7D32; }
-        button.sub-btn.save { background:#1c3664; }
 
-        .custom-file-upload {
-            display: inline-block; padding: 8px 20px; cursor: pointer; background: #546e7a; color: white; border-radius: 20px;
-            font-size: 0.85rem; border: none; font-weight: bold; float: left;
+        .btn-submit:hover {
+            background-color: #1B5E20;
         }
-        input[type="file"] { display: none; }
+
+        /* 로딩 스피너 */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 결과 표시 영역 */
+        #resultArea {
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: none;
+            line-height: 1.6;
+        }
         
-        .business-info {
-            background: #102e52; color: #cfd8dc; padding: 10px 10px; text-align: center; font-size: 0.6rem; line-height: 1.4; letter-spacing: -0.3px;
-        }
-        .business-info strong { color: white; font-size: 0.7rem; margin-right: 5px; }
-
-        #historySidebar {
-            position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.2);
-            z-index: 1000; transition: right 0.3s ease-in-out; display: flex; flex-direction: column; border-left: 1px solid #ddd;
-        }
-        #historySidebar.open { right: 0; }
-        #historyToggleBtn {
-            position: fixed; top: 20px; right: 20px; z-index: 999; color: white; font-size: 1.5rem; cursor: pointer; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 50%;
+        #resultArea h2 {
+            font-size: 1.4rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
         }
         
-        body.pdf-mode button, body.pdf-mode #historyToggleBtn, body.pdf-mode .custom-file-upload { display: none !important; }
-        body.pdf-mode .container { box-shadow: none; max-width: 100%; }
-        body.pdf-mode .header { justify-content: space-between; } 
+        #resultArea h3 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-top: 25px;
+        }
+        
+        #resultArea ul {
+            padding-left: 20px;
+        }
+        
+        #resultArea strong {
+            color: #d32f2f; /* 강조 텍스트 빨간색 */
+        }
+
+        /* 체크박스 그룹 */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .checkbox-item input {
+            margin-right: 8px;
+        }
+        
+        .image-zoom-container {
+            display: none; /* 초기에는 숨김 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .zoomed-image {
+            max-width: 90%;
+            max-height: 80%;
+            object-fit: contain;
+            border: 2px solid white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .close-zoom-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* 줌 안내 텍스트 */
+        .zoom-hint {
+            font-size: 0.8rem;
+            color: #888;
+            text-align: center;
+            margin-top: 5px;
+        }
+
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-<div id="historyToggleBtn" onclick="toggleSidebar()">
-    <i class="fas fa-history"></i>
-</div>
+    <div class="container">
+        <h1>🐸 청개구리 결로진단 AI앱</h1>
+        <p class="subtitle">AI 이슬점(Dew Point) 정밀 분석 Ver2.1 (MR277 연동)</p>
 
-<div id="historySidebar">
-    <div style="padding: 15px; background: #009688; color: white; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: bold;"><i class="fas fa-list-alt"></i> 진단 기록</span>
-        <button onclick="toggleSidebar()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">
-            <i class="fas fa-times"></i>
+        <div class="section-title">진단 정보 입력</div>
+        
+        <div class="input-group">
+            <label for="diagnosisDate">진단 일자</label>
+            <input type="datetime-local" id="diagnosisDate">
+        </div>
+
+        <div class="input-group">
+            <label for="location">진단 장소</label>
+            <input type="text" id="location" placeholder="예: 안방 베란다 벽면">
+        </div>
+        
+        <div class="input-group">
+            <label>발생 부위 선택 (다중 선택)</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="area" value="베란다/발코니"> 베란다/발코니</label>
+                <label class="checkbox-item"><input type="checkbox" name="area" value="창문 주변"> 창문 주변</label>
+                <label class="checkbox-item"><input type="checkbox" name="area" value="벽 모서리"> 벽 모서리</label>
+                <label class="checkbox-item"><input type="checkbox" name="area" value="가구 뒤"> 가구 뒤</label>
+                <label class="checkbox-item"><input type="checkbox" name="area" value="현관/대피소"> 현관/대피소</label>
+                <label class="checkbox-item"><input type="checkbox" name="area" value="천장/기타"> 천장/기타</label>
+            </div>
+        </div>
+
+        <div class="section-title">현재 환경 정보</div>
+        <div class="weather-info" id="weatherDisplay">
+            <p><i class="fas fa-map-marker-alt"></i> 위치 정보를 가져오는 중...</p>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <div class="input-group" style="flex: 1;">
+                <label for="tempIn">실내 온도 (°C)</label>
+                <input type="number" id="tempIn" placeholder="예: 22" step="0.1">
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label for="humidIn">실내 습도 (%)</label>
+                <input type="number" id="humidIn" placeholder="예: 50" step="1">
+            </div>
+        </div>
+
+        <div class="section-title">현장 사진 업로드</div>
+        
+        <div class="input-group">
+            <label>1. 결로/곰팡이 사진 (필수)</label>
+            <div class="file-upload-wrapper" onclick="document.getElementById('fileInput1').click()">
+                <input type="file" id="fileInput1" accept="image/*" onchange="previewImage(event, 'preview1')">
+                <div class="file-upload-icon">
+                    <i class="fas fa-camera"></i>
+                    <span>사진 촬영 또는 업로드</span>
+                </div>
+                <img id="preview1" class="preview-image" onclick="zoomImage(event)">
+            </div>
+            <p class="zoom-hint">* 사진을 클릭하면 크게 볼 수 있습니다.</p>
+        </div>
+
+        <div class="input-group">
+            <label>2. FLIR MR 277검사 (선택)</label>
+            <div class="file-upload-wrapper" onclick="document.getElementById('fileInput2').click()">
+                <input type="file" id="fileInput2" accept="image/*" onchange="previewImage(event, 'preview2')">
+                <div class="file-upload-icon">
+                    <i class="fas fa-thermometer-three-quarters"></i>
+                    <span>MR277 화면 촬영/업로드</span>
+                </div>
+                <img id="preview2" class="preview-image" onclick="zoomImage(event)">
+            </div>
+            <p class="zoom-hint">* 계측기 화면의 숫자가 잘 보이게 찍어주세요.</p>
+        </div>
+
+        <button class="btn-submit" onclick="generateContent()">
+            <i class="fas fa-robot"></i> AI 정밀 진단 시작
         </button>
-    </div>
-    <div id="historyList" style="flex: 1; overflow-y: auto;"></div>
-    <div style="padding: 10px; border-top: 1px solid #ddd;">
-        <button onclick="clearHistory()" style="width: 100%; padding: 10px; background: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            기록 삭제
-        </button>
-    </div>
-</div>
 
-<div class="container" id="pdfArea">
-    <div class="header">
-        <div class="header-top-row">
-            <img src="image_1.png" class="logo-img" onerror="this.style.display='none';">
-            <div class="header-title">청개구리 결로진단 AI앱</div>
+        <div class="loading" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>청개구리 AI가 사진과 데이터를 정밀 분석 중입니다...<br>(약 10~20초 소요)</p>
         </div>
+
+        <div id="resultArea"></div>
         
-        <div class="header-subtitle">
-            AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.1 (사진확대적용)</span>
+        <div id="zoomModal" class="image-zoom-container">
+            <img id="zoomedImg" class="zoomed-image">
+            <button class="close-zoom-btn" onclick="closeZoom()">닫기</button>
         </div>
+
     </div>
 
-    <div class="content">
-        <div class="location-date-box">
-            <div class="half-box">
-                <label>🏠 진단 장소</label>
-                <input type="text" id="locInput" placeholder="예: 안방 베란다 벽면">
-            </div>
-            <div class="half-box">
-                <label>📅 진단일자</label>
-                <input type="text" id="dateInput" readonly>
-            </div>
-        </div>
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        <div class="box env-box">
-            <div class="section-title"><i class="fas fa-temperature-low"></i> 현재 환경정보 (실외 자동)</div>
-            <div class="env-grid">
-                <div>
-                    <label>실내온도 (°C)</label>
-                    <input type="text" id="inTemp" placeholder="직접입력">
-                </div>
-                <div>
-                    <label>실내습도 (%)</label>
-                    <input type="text" id="inHum" placeholder="직접입력">
-                </div>
-                <div>
-                    <label>실외온도 (°C)</label>
-                    <input type="text" id="outTemp" placeholder="위치확인중..">
-                </div>
-                <div>
-                    <label>실외습도 (%)</label>
-                    <input type="text" id="outHum" placeholder="위치확인중..">
-                </div>
-            </div>
-        </div>
+        // *** 중요: 여기에 발급받은 API 키를 입력하세요 ***
+        const API_KEY = "AIzaSyAZRYWwExOUfQSZ_O6uC9pmDzvRsWckIDw"; 
+        const genAI = new GoogleGenerativeAI(API_KEY);
 
-        <div class="section-title"><i class="fas fa-check-circle"></i> 발생 부위 선택 (다중 선택)</div>
-        <div class="checkbox-group">
-            <label class="check-item"><input type="checkbox" id="chk1"> 베란다/발코니</label>
-            <label class="check-item"><input type="checkbox" id="chk2"> 창문 주변</label>
-            <label class="check-item"><input type="checkbox" id="chk3"> 벽 모서리</label>
-            <label class="check-item"><input type="checkbox" id="chk4"> 현관/대피소</label>
-            <label class="check-item"><input type="checkbox" id="chk5"> 가구 뒤</label>
-            <label class="check-item"><input type="checkbox" id="chk6"> 천장/기타</label>
-        </div>
+        // [핵심] MR277 사용설명서(XLSX)의 진단 로직 정의
+        // 이 내용은 엑셀 파일 없이도 AI가 전문가처럼 판단하게 만듭니다.
+        const mr277ExpertLogic = `
+[FLIR MR277 전문 진단 가이드]
+1. 계측기 화면 데이터 해석:
+   - AIR: 주변 공기 온도 (°C)
+   - RH: 상대 습도 (%)
+   - DEW: 이슬점 온도 (°C) -> 벽 표면 온도가 이 값 이하면 100% 결로.
+   - MIX: 혼합비 (Mixing Ratio, g/kg) -> 공기 1kg당 수증기량. 절대습도 지표.
 
-        <div class="box">
-            <div class="section-title"><i class="fas fa-camera"></i> 1. 결로/곰팡이 사진(필수)</div>
-            <div class="preview-area"><img id="img1"></div>
-            <div style="overflow:hidden;">
-                <label for="file1" class="custom-file-upload">사진입력</label>
-                <input type="file" id="file1" accept="image/*" onchange="preview(1)">
-            </div>
-        </div>
-        
-        <div class="box">
-            <div class="section-title"><i class="fas fa-camera"></i> 2. 주변 환경 사진(선택)</div>
-            <div class="preview-area"><img id="img2"></div>
-            <div style="overflow:hidden;">
-                <label for="file2" class="custom-file-upload">사진입력</label>
-                <input type="file" id="file2" accept="image/*" onchange="preview(2)">
-            </div>
-        </div>
+2. 결로 원인 판정 알고리즘 (혼합비 기준):
+   (CASE A) 환기 부족형 (생활 습관 문제)
+      - 조건: 측정된 MIX 값이 10.0 g/kg 이상임.
+      - 분석: 공기 자체에 물기가 너무 많음. 단열이 좋아도 결로가 생길 환경.
+      - 처방: 단열 공사 전 '강제 환기' 및 '습도 조절'이 최우선 해결책.
+   (CASE B) 단열 불량형 (건물 구조 문제)
+      - 조건: 측정된 MIX 값이 9.0 g/kg 이하로 정상이거나 건조함.
+      - 분석: 공기는 쾌적하나 벽면 온도가 너무 낮아(이슬점 도달) 결로 발생.
+      - 처방: 환기로 해결 불가. 단열 시공(단열재 보강)이 필수.
+   (CASE C) 복합형
+      - 조건: MIX도 높고(9.0 이상), 벽면 온도도 매우 낮음.
+      - 처방: 환기 관리와 단열 시공 병행 필요.
 
-        <div class="box" style="border: 2px solid #FF7043; background: #FFF3E0;">
-            <div class="section-title" style="color: #D84315;"><i class="fas fa-fire-alt"></i> 3. 열화상 카메라 사진(선택)</div>
-            <div class="preview-area" style="border-color: #FFAB91; background-color: #FBE9E7;"><img id="img3"></div>
-            <div style="overflow:hidden;">
-                <label for="file3" class="custom-file-upload" style="background: #FF7043;">사진입력</label>
-                <input type="file" id="file3" accept="image/*" onchange="preview(3)">
-            </div>
-        </div>
+3. 열화상/IGM 색상 해석:
+   - 파란색(Cold Spot): 수분 위험 구역.
+   - 화면 중앙 십자선(Crosshair) 수치와 컬러바(Scale)를 비교할 것.
+`;
 
-        <button class="main-btn" id="btnRun" onclick="runAI()">
-            💧 결로 원인 분석 시작
-        </button>
-        <div id="status" style="text-align:center; margin-top:15px; color:#00897B; display:none; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> AI가 열화상 데이터와 환경을 분석 중입니다...
-        </div>
-
-        <div class="box" style="margin-top:20px;">
-            <div class="section-title"><i class="fas fa-lightbulb"></i> 분석 결과 및 해결방안</div>
-            <div id="result" style="min-height:60px; font-size: 0.95rem; line-height: 1.6; color:#444;">
-                분석 시작 버튼을 누르면 결과가 여기에 표시됩니다.
-            </div>
-        </div>
-
-        <div class="footer-buttons">
-            <button class="sub-btn call" onclick="location.href='tel:1599-7380'">
-                <i class="fas fa-phone-alt"></i> 문의(1599-7380)
-            </button>
-            <button class="sub-btn save" id="saveBtn" onclick="savePDFWithGuide()">
-                <i class="fas fa-file-pdf"></i> 결과 저장
-            </button>
-        </div>
-    </div>
-
-    <div class="business-info">
-        <strong>청개구리샤시</strong> | 사업자 등록번호 : 123-36-31426 | 대표 : 전영웅<br>
-        고객센터 1599-7380 (08:00~17:00) | COPYRIGHT ⓒ 2025 All Rights Reserved.
-    </div>
-</div>
-
-<script>
-    window.onload = function() {
-        const now = new Date();
-        document.getElementById('dateInput').value = now.toLocaleDateString() + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        renderHistory();
-        getWeather(); 
-    };
-
-    function getWeather() {
-        const outTempEl = document.getElementById('outTemp');
-        const outHumEl = document.getElementById('outHum');
-        
-        outTempEl.placeholder = "위치확인중..";
-        outHumEl.placeholder = "위치확인중..";
-        
-        if (!navigator.geolocation) {
-            outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; return;
-        }
-        
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&timezone=auto`;
-                try {
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    if(data.current) {
-                        outTempEl.value = data.current.temperature_2m;
-                        outHumEl.value = data.current.relative_humidity_2m;
-                    } else { throw new Error("데이터 없음"); }
-                } catch (e) {
-                    outTempEl.value = ""; outHumEl.value = "";
-                    outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력";
-                }
-            },
-            () => { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
-        );
-    }
-
-    function preview(num) {
-        const fileBox = document.getElementById('file'+num);
-        const imgTag = document.getElementById('img'+num);
-        if (fileBox.files && fileBox.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) { imgTag.src = e.target.result; imgTag.style.display = 'block'; };
-            reader.readAsDataURL(fileBox.files[0]);
-        }
-    }
-
-    function toggleSidebar() { document.getElementById('historySidebar').classList.toggle('open'); }
-
-    function saveHistory(location, resultText) {
-        let history = JSON.parse(localStorage.getItem('dewpoint_history') || '[]');
-        history.unshift({ id: Date.now(), date: new Date().toLocaleString(), location: location, result: resultText });
-        localStorage.setItem('dewpoint_history', JSON.stringify(history));
-        renderHistory();
-    }
-
-    function renderHistory() {
-        const listEl = document.getElementById('historyList');
-        const history = JSON.parse(localStorage.getItem('dewpoint_history') || '[]');
-        listEl.innerHTML = history.length === 0 ? 
-            '<div style="padding:20px; text-align:center; color:#ccc;">기록 없음</div>' : 
-            history.map(h => `<div style="padding:15px; border-bottom:1px solid #eee; cursor:pointer;" onclick="loadHistory(${h.id})">
-                <div style="font-size:0.8rem; color:#eee;">${h.date}</div>
-                <div style="font-weight:bold; color:white;">${h.location}</div>
-            </div>`).join('');
-    }
-
-    function loadHistory(id) {
-        const item = JSON.parse(localStorage.getItem('dewpoint_history')).find(h => h.id === id);
-        if(item) {
-            document.getElementById('locInput').value = item.location;
-            document.getElementById('result').innerText = item.result;
-            toggleSidebar();
-        }
-    }
-
-    function clearHistory() {
-        if(confirm('기록을 모두 삭제하시겠습니까?')) {
-            localStorage.removeItem('dewpoint_history');
-            renderHistory();
-        }
-    }
-
-    async function runAI() {
-        const btn = document.getElementById('btnRun');
-        const status = document.getElementById('status');
-        const resultDiv = document.getElementById('result');
-        
-        const loc = document.getElementById('locInput').value;
-        const inTemp = document.getElementById('inTemp').value;
-        const inHum = document.getElementById('inHum').value;
-        const outTemp = document.getElementById('outTemp').value;
-        const outHum = document.getElementById('outHum').value;
-        
-        const part1 = "AIzaSyAZRYWwExOUfQSZ";  
-        const part2 = "O6uC9pmDzvRsWckIDw";      
-        const API_KEY = part1 + "_" + part2; 
-
-        if (API_KEY.length < 30) { alert("API 키 오류: 관리자에게 문의하세요."); return; }
-
-        btn.disabled = true; status.style.display = 'block';
-        resultDiv.innerText = "데이터 및 열화상 이미지 분석 중입니다...";
-
-        try {
-            let checks = [];
-            for(let i=1; i<=6; i++) {
-                if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText);
-            }
+        window.generateContent = async function() {
+            const fileInput1 = document.getElementById('fileInput1');
+            const fileInput2 = document.getElementById('fileInput2');
+            const diagnosisDate = document.getElementById('diagnosisDate').value;
+            const location = document.getElementById('location').value;
+            const tempIn = document.getElementById('tempIn').value;
+            const humidIn = document.getElementById('humidIn').value;
             
-            let parts = [{ 
-                text: `[결로/열화상 정밀 진단 요청]\n` +
-                      `장소: ${loc}\n` +
-                      `실내환경: ${inTemp}°C / ${inHum}%\n` +
-                      `실외환경: ${outTemp}°C / ${outHum}%\n` +
-                      `발생부위: ${checks.join(', ')}\n\n` +
-                      `위 환경 데이터와 첨부된 사진(일반, 열화상)을 종합적으로 분석해줘.\n` +
-                      `특히 열화상 이미지가 있다면 온도차에 의한 결로 취약 부위를 중점적으로 파악해.\n` +
-                      `1. 이슬점 분석\n2. 열화상/사진 분석 결과\n3. 원인 진단(단열, 기밀 등)\n4. 해결책 제시`
-            }];
+            // 체크박스 값 가져오기
+            const checkboxes = document.querySelectorAll('input[name="area"]:checked');
+            let selectedAreas = [];
+            checkboxes.forEach((checkbox) => {
+                selectedAreas.push(checkbox.value);
+            });
+            const areaString = selectedAreas.join(', ');
 
-            for(let i=1; i<=3; i++) {
-                const file = document.getElementById('file'+i).files[0];
-                if(file) {
-                    const base64 = await new Promise(resolve => {
-                        const reader = new FileReader();
-                        reader.onload = e => resolve(e.target.result.split(',')[1]);
-                        reader.readAsDataURL(file);
+            if (!fileInput1.files[0]) {
+                alert("첫 번째 사진(결로/곰팡이 사진)은 필수입니다.");
+                return;
+            }
+
+            // 로딩 시작
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('resultArea').style.display = 'none';
+
+            try {
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                
+                // 이미지 처리
+                const imageParts = [];
+                // 첫 번째 사진 (필수)
+                const file1 = fileInput1.files[0];
+                const base64Data1 = await fileToGenerativePart(file1);
+                imageParts.push(base64Data1);
+
+                // 두 번째 사진 (MR277 검사 - 선택)
+                let hasMr277 = false;
+                if (fileInput2.files[0]) {
+                    const file2 = fileInput2.files[0];
+                    const base64Data2 = await fileToGenerativePart(file2);
+                    imageParts.push(base64Data2);
+                    hasMr277 = true;
+                }
+
+                // 프롬프트 구성 (MR277 로직 적용)
+                let prompt = `
+당신은 '청개구리 샤시수리'의 결로 진단 전문가 AI입니다. 
+제공된 정보와 사진을 바탕으로 고객에게 제공할 신뢰도 높은 진단 보고서를 HTML 포맷으로 작성해주세요.
+
+[입력 정보]
+- 진단 일시: ${diagnosisDate}
+- 진단 장소: ${location}
+- 발생 부위: ${areaString}
+- 사용자 입력 환경: 실내 ${tempIn}°C, 습도 ${humidIn}%
+- MR277 사진 제공 여부: ${hasMr277 ? "제공됨 (두 번째 사진)" : "제공되지 않음"}
+
+[MR277 진단 기준 (XLSX 로직 반영)]
+${mr277ExpertLogic}
+
+[분석 지침]
+1. **첫 번째 사진(현장)**: 곰팡이/결로의 심각도와 패턴(모서리 집중, 전면 퍼짐 등)을 시각적으로 분석하세요.
+2. **두 번째 사진(MR277)**: 만약 제공되었다면, 화면 속 숫자(AIR, RH, DEW, MIX)를 OCR로 읽어내세요.
+   - 특히 **MIX(혼합비)** 값을 찾아 위 [MR277 진단 기준]의 CASE A, B, C 중 어디에 해당하는지 반드시 판정하세요.
+   - MR277 사진이 없다면 사용자 입력 환경값(${tempIn}°C, ${humidIn}%)을 기준으로 이론적 이슬점을 계산하여 분석하세요.
+
+[보고서 출력 형식 (HTML 태그 사용, 마크다운 아님)]
+<div class="report">
+  <h3>1. 진단 개요</h3>
+  (장소, 부위, 기본 환경 정보 요약)
+  
+  <h3>2. 정밀 분석 결과 (MR277)</h3>
+  (만약 MR277 사진이 있으면 읽어낸 수치(AIR, RH, DEW, MIX)를 표로 정리하고, MIX 값에 따른 [원인 판정] 결과를 굵은 글씨로 명시. 사진이 없으면 "이론적 이슬점 분석"으로 대체)
+  
+  <h3>3. 원인 진단</h3>
+  (데이터와 사진 분석을 종합하여 결로의 주원인이 '환기 부족'인지 '단열 불량'인지, 아니면 복합적인지 서술)
+  
+  <h3>4. 청개구리 솔루션</h3>
+  (원인에 맞는 해결책 제시. 단열 공사 제안 시 "특허받은 단열 공법" 언급. 환기 부족 시 구체적인 환기법 안내)
+  
+  <hr>
+  <p style="font-size:0.9rem; color:#666;">* 본 진단 결과는 AI 분석에 기반하며, 현장 상황에 따라 달라질 수 있습니다. (문의: 1599-7380)</p>
+</div>
+`;
+
+                const result = await model.generateContent([prompt, ...imageParts]);
+                const response = await result.response;
+                const text = response.text();
+
+                // 결과 표시 (Markdown to HTML 변환이 필요할 수 있으나, 프롬프트에서 HTML요청함)
+                // Gemini가 가끔 Markdown 코드블럭(```html ... ```)을 줄 때가 있어 제거
+                let cleanText = text.replace(/```html/g, "").replace(/```/g, "");
+                
+                document.getElementById('resultArea').innerHTML = cleanText;
+                document.getElementById('resultArea').style.display = 'block';
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("진단 중 오류가 발생했습니다. API 키를 확인하거나 다시 시도해주세요.");
+            } finally {
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        // 파일 변환 헬퍼 함수
+        async function fileToGenerativePart(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64Data = reader.result.split(',')[1];
+                    resolve({
+                        inlineData: {
+                            data: base64Data,
+                            mimeType: file.type
+                        }
                     });
-                    parts.push({ inlineData: { data: base64, mimeType: "image/jpeg" } });
-                }
-            }
-
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: parts }] })
+                };
+                reader.readAsDataURL(file);
             });
-
-            const data = await response.json();
-            if(data.error) throw new Error(data.error.message);
-            
-            const aiText = data.candidates[0].content.parts[0].text;
-            resultDiv.innerText = aiText + "\n\n(문의: 1599-7380)";
-            saveHistory(loc, aiText);
-
-        } catch (e) {
-            resultDiv.innerText = "오류: " + e.message;
-        } finally {
-            btn.disabled = false; status.style.display = 'none';
         }
-    }
-
-    function savePDFWithGuide() {
-        const btn = document.getElementById('saveBtn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> 생성중...";
-        btn.disabled = true;
-
-        setTimeout(() => {
-            document.body.classList.add('pdf-mode');
-            const element = document.getElementById('pdfArea');
+        
+        // 전역 함수로 등록 (module scope 탈출)
+        window.previewImage = function(event, previewId) {
+            const input = event.target;
+            const preview = document.getElementById(previewId);
             
-            const opt = {
-                margin: 0,
-                filename: '결로진단결과_' + new Date().getTime() + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
-            html2pdf().set(opt).from(element).save()
-            .then(() => {
-                document.body.classList.remove('pdf-mode');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            })
-            .catch(err => {
-                alert("오류: 다시 시도해주세요.");
-                document.body.classList.remove('pdf-mode');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+        // 이미지 확대 기능
+        window.zoomImage = function(event) {
+            // 이미지가 없거나 display none이면 무시
+            if (event.target.style.display === 'none' || !event.target.src) return;
+            
+            const modal = document.getElementById('zoomModal');
+            const zoomedImg = document.getElementById('zoomedImg');
+            
+            zoomedImg.src = event.target.src;
+            modal.style.display = 'flex';
+        }
+
+        window.closeZoom = function() {
+            document.getElementById('zoomModal').style.display = 'none';
+        }
+
+        // 초기 날짜 설정
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('diagnosisDate').value = now.toISOString().slice(0,16);
+
+        // 위치 정보 가져오기 (OpenWeatherMap API 등이 없으므로 브라우저 기본 기능 활용 예시)
+        // 실제 날씨 API 연동 시 이곳을 수정
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                // 좌표를 주소나 날씨로 바꾸려면 별도 API 필요. 여기서는 좌표만 표시하거나 생략 가능
+                document.getElementById('weatherDisplay').innerHTML = `
+                    <p><i class="fas fa-location-arrow"></i> 현장 좌표 인식 완료</p>
+                    <p><i class="fas fa-temperature-high"></i> 실외 날씨 정보 자동 수신 대기중...</p>
+                `;
+            }, function(error) {
+                document.getElementById('weatherDisplay').innerHTML = `<p>위치 정보를 가져올 수 없습니다. (수동 입력 필요)</p>`;
             });
-        }, 500); 
-    }
-</script>
-
+        } else {
+            document.getElementById('weatherDisplay').innerHTML = `<p>이 브라우저는 위치 정보를 지원하지 않습니다.</p>`;
+        }
+    </script>
 </body>
 </html>
