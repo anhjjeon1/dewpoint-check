@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.3 비율수정)</title>
+    <title>청개구리 결로점검 AI (Ver 2.4)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -72,11 +72,10 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* [핵심 수정] 사진 비율 4:3 강제 고정 */
+        /* [핵심 수정] 사진 비율 4:3 강제 고정 및 반응형 처리 */
         .preview-area { 
             width: 100%; 
-            /* min-height 삭제하고 비율로 설정 */
-            aspect-ratio: 4 / 3; 
+            aspect-ratio: 4 / 3; /* 4:3 비율 고정 */
             background-color: #f1f8e9; 
             border: 2px dashed #a5d6a7; 
             border-radius: 8px;
@@ -91,15 +90,14 @@
 
         .preview-area img { 
             width: 100%; 
-            height: 100%; /* 부모 박스 크기에 맞춤 */
-            object-fit: contain; /* 비율 유지하며 꽉 차게 */
+            height: 100%; 
+            object-fit: contain; /* 비율 유지하며 박스 안에 맞춤 */
             display: none; 
             z-index: 10; 
             background: #f1f8e9;
-            pointer-events: none; 
+            pointer-events: none; /* 클릭 통과 */
         }
         
-        /* 안내 문구도 클릭 방해하지 않도록 설정 */
         .preview-area span {
             pointer-events: none;
         }
@@ -173,7 +171,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.3 (비율수정)</span>
+            <span class="version-text">Ver 2.4 (비율교정)</span>
         </div>
     </div>
 
@@ -327,7 +325,6 @@
         );
     }
 
-    // [수정] 박스 클릭 시 사진첩 열기
     function triggerInput(id) {
         const fileInput = document.getElementById(id);
         if (fileInput) fileInput.click();
@@ -336,7 +333,6 @@
     function preview(num) {
         const fileBox = document.getElementById('file'+num);
         const imgTag = document.getElementById('img'+num);
-        
         const parentDiv = imgTag.parentElement;
         const spanText = parentDiv.querySelector('span');
 
@@ -387,7 +383,7 @@
         }
     }
 
-    // [수정] 오류 발생 시 팝업으로 상세 원인 알림
+    // [핵심] API 통신 안전장치 추가 (JSON 파싱 오류 방지)
     async function runAI() {
         const btn = document.getElementById('btnRun');
         const status = document.getElementById('status');
@@ -399,9 +395,10 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        const part1 = "AIzaSyAZRYWwExOUfQSZ";  
-        const part2 = "O6uC9pmDzvRsWckIDw";      
-        const API_KEY = part1 + "_" + part2; 
+        // API 키 결합 (오류 방지)
+        const p1 = "AIzaSyAZRYWwExOUfQSZ";  
+        const p2 = "_O6uC9pmDzvRsWckIDw";      
+        const API_KEY = p1 + p2; 
 
         if (API_KEY.length < 30) { alert("API 키 오류: 키가 올바르지 않습니다."); return; }
 
@@ -440,11 +437,7 @@
                 }
             }
 
-            const models = [
-                "gemini-1.5-flash", 
-                "gemini-1.5-pro", 
-                "gemini-1.0-pro"
-            ];
+            const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"];
             
             let finalData = null;
             let successModel = "";
@@ -459,25 +452,34 @@
                         body: JSON.stringify({ contents: [{ parts: parts }] })
                     });
 
+                    // [수정] 텍스트로 먼저 받아서 JSON인지 확인 (Unexpected token < 방지)
+                    const textResponse = await response.text(); 
+                    
                     if (response.ok) {
-                        finalData = await response.json();
-                        successModel = model;
-                        break; 
+                        try {
+                            finalData = JSON.parse(textResponse);
+                            successModel = model;
+                            break; 
+                        } catch (jsonErr) {
+                            console.warn(`${model} JSON 파싱 실패:`, jsonErr);
+                            lastErrorMsg = "서버 응답이 JSON이 아닙니다.";
+                        }
                     } else {
-                        const errText = await response.text();
-                        console.warn(`${model} 실패:`, errText);
-                        lastErrorMsg = errText;
+                        // 에러가 HTML로 올 경우 태그 제거하고 메시지만 추출 시도
+                        let cleanMsg = textResponse.replace(/<[^>]*>/g, '').substring(0, 100);
+                        console.warn(`${model} 실패:`, cleanMsg);
+                        lastErrorMsg = `(${response.status}) ${cleanMsg}`;
                     }
                 } catch (e) {
-                    console.warn(`${model} 에러:`, e);
-                    lastErrorMsg = e.toString();
+                    console.warn(`${model} 네트워크 에러:`, e);
+                    lastErrorMsg = "네트워크 연결 실패";
                 }
             }
 
             if (!finalData) {
-                // 상세 에러 팝업
-                alert("분석 실패! 아래 내용을 확인해주세요.\n\n원인: " + lastErrorMsg);
-                throw new Error("모든 AI 모델 접속 실패. (상세 에러는 팝업 확인)");
+                alert("분석 실패!\n\n원인: " + lastErrorMsg + "\n\n(API 키가 만료되었거나 인터넷 연결을 확인해주세요.)");
+                resultDiv.innerText = "분석에 실패했습니다. 다시 시도해주세요.";
+                return;
             }
             
             const aiText = finalData.candidates[0].content.parts[0].text;
