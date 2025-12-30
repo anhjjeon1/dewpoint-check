@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 2.4)</title>
+    <title>청개구리 결로점검 AI (Ver 2.5)</title>
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
@@ -72,10 +72,10 @@
         }
         .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
 
-        /* [핵심 수정] 사진 비율 4:3 강제 고정 및 반응형 처리 */
+        /* 사진 비율 4:3 강제 고정 및 반응형 처리 */
         .preview-area { 
             width: 100%; 
-            aspect-ratio: 4 / 3; /* 4:3 비율 고정 */
+            aspect-ratio: 4 / 3; 
             background-color: #f1f8e9; 
             border: 2px dashed #a5d6a7; 
             border-radius: 8px;
@@ -91,16 +91,14 @@
         .preview-area img { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; /* 비율 유지하며 박스 안에 맞춤 */
+            object-fit: contain;
             display: none; 
             z-index: 10; 
             background: #f1f8e9;
-            pointer-events: none; /* 클릭 통과 */
-        }
-        
-        .preview-area span {
             pointer-events: none;
         }
+        
+        .preview-area span { pointer-events: none; }
         
         button.main-btn { 
             width: 100%; padding: 15px; background: #00897B; color: white; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
@@ -171,7 +169,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.4 (비율교정)</span>
+            <span class="version-text">Ver 2.5 (API키결합수정)</span>
         </div>
     </div>
 
@@ -383,7 +381,6 @@
         }
     }
 
-    // [핵심] API 통신 안전장치 추가 (JSON 파싱 오류 방지)
     async function runAI() {
         const btn = document.getElementById('btnRun');
         const status = document.getElementById('status');
@@ -395,10 +392,13 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        // API 키 결합 (오류 방지)
+        // [핵심 수정] 언더바(_)를 코드에서 자동으로 붙여줌. 
+        // p1: 앞부분, p2: 뒷부분 (언더바 제외)
         const p1 = "AIzaSyAZRYWwExOUfQSZ";  
-        const p2 = "_O6uC9pmDzvRsWckIDw";      
-        const API_KEY = p1 + p2; 
+        const p2 = "O6uC9pmDzvRsWckIDw"; // 여기엔 언더바가 없어야 함
+        
+        // 최종적으로 언더바를 붙여서 키를 완성함
+        const API_KEY = p1 + "_" + p2; 
 
         if (API_KEY.length < 30) { alert("API 키 오류: 키가 올바르지 않습니다."); return; }
 
@@ -438,7 +438,6 @@
             }
 
             const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"];
-            
             let finalData = null;
             let successModel = "";
             let lastErrorMsg = "";
@@ -452,7 +451,6 @@
                         body: JSON.stringify({ contents: [{ parts: parts }] })
                     });
 
-                    // [수정] 텍스트로 먼저 받아서 JSON인지 확인 (Unexpected token < 방지)
                     const textResponse = await response.text(); 
                     
                     if (response.ok) {
@@ -465,7 +463,6 @@
                             lastErrorMsg = "서버 응답이 JSON이 아닙니다.";
                         }
                     } else {
-                        // 에러가 HTML로 올 경우 태그 제거하고 메시지만 추출 시도
                         let cleanMsg = textResponse.replace(/<[^>]*>/g, '').substring(0, 100);
                         console.warn(`${model} 실패:`, cleanMsg);
                         lastErrorMsg = `(${response.status}) ${cleanMsg}`;
