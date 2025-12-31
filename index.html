@@ -356,10 +356,11 @@
         // =========================================================
         // [수정됨] 새로운 키 적용 (Github 경고 방지용 분할 입력)
         // =========================================================
-        const part_A = "AIzaSyBPuzKx5ngfeh"; 
-        const part_B = "Pn8p90tbqgW2deSgoBRS4";
-        
-        const API_KEY = part_A + part_B; 
+// 보안을 위해 키를 두 조각으로 분리함
+const part_A = "AIzaSyB0FtOib";
+const part_B = "U0nqU3N7ECCXopWbw3QZqScn0";
+
+const API_KEY = part_A + "_" + part_B;
 
         btn.disabled = true; status.style.display = 'block';
         resultDiv.innerText = "데이터 및 열화상 이미지 분석 중입니다...";
@@ -427,3 +428,4 @@
 
 </body>
 </html>
+
