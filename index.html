@@ -369,9 +369,14 @@ const API_KEY = part_A + "_" + part_B;
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
-            let promptText = `[결로진단 요청] 장소:${loc}, 발생부위:${checks.join(',')}. 
+            // 환경 정보(온도, 습도)를 AI에게 전달하도록 수정함
+            let promptText = `[결로진단 요청] 
+            - 진단장소: ${loc}
+            - 발생부위: ${checks.join(',')}
+            - 환경정보: 실내(${inTemp}°C / ${inHum}%), 실외(${outTemp}°C / ${outHum}%)
+
             [FLIR MR277 로직] MIX(혼합비)가 10.0g/kg이상이면 '환기부족', 9.0이하인데 결로면 '단열불량'.
-            위 데이터와 사진을 보고 1.이슬점 2.MR277수치분석 3.원인판정 4.해결책을 작성해줘.`;
+            위 데이터와 사진을 보고 1.이슬점(Dew Point) 계산 및 분석 2.MR277수치기반 원인추론 3.종합원인판정 4.해결책을 작성해줘.`; 
 
             let parts = [{ text: promptText }];
             for(let i=1; i<=3; i++) {
@@ -428,4 +433,5 @@ const API_KEY = part_A + "_" + part_B;
 
 </body>
 </html>
+
 
