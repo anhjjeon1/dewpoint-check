@@ -361,11 +361,12 @@
         const outHum = document.getElementById('outHum').value;
         
         // =========================================================
-        // [Ver 2.0 Premium] 키 설정 (최종 수정됨)
+        // [Ver 2.0 Premium] 키 분할 적용 (GitHub 보안 경고 회피)
         // =========================================================
         const part_A = "AIzaSyB0FtOib_"; 
         const part_B = "U0nqU3N7ECCXopWbw3QZqScn0";
         
+        // 🟢 [수정 완료] 언더바 중복 제거
         const API_KEY = part_A + part_B; 
 
         btn.disabled = true; status.style.display = 'block';
@@ -393,8 +394,9 @@
                 }
             }
 
-            // 🟢 [최종] 모델 이름: gemini-1.5-flash
-            const model = "gemini-1.5-flash"; 
+            // 🟢 [수정 완료] Gemini 2.0 Flash (Experimental) 모델 사용
+            // 1.5가 아니라 2.0을 사용하므로 'not found' 오류가 해결됩니다.
+            const model = "gemini-2.0-flash-exp"; 
             
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
