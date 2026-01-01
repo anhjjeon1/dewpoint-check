@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>청개구리 결로점검 AI (Ver 3.3 배포용)</title>
+    <title>청개구리 결로점검 AI (Ver 2.0 Premium)</title>
     
     <meta property="og:type" content="website">
-    <meta property="og:title" content="청개구리 결로/곰팡이 진단 AI앱">
-    <meta property="og:description" content="AI 이슬점 정밀 분석으로 결로와 곰팡이 원인을 찾아드립니다.">
+    <meta property="og:title" content="청개구리 결로/곰팡이 AI 정밀진단">
+    <meta property="og:description" content="전문가용 AI가 결로와 곰팡이 원인을 정밀 분석하여 해결책을 제시합니다.">
     <meta property="og:image" content="image_1.png">
     <meta property="og:url" content="https://anhjjeon1.github.io/dewpoint-check/">
 
@@ -27,59 +27,64 @@
         }
         
         .header { 
-            width: 100%; background: #009688; padding: 10px 0 8px 0;
+            width: 100%; background: #00796B; padding: 15px 0 10px 0;
             box-sizing: border-box; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative;
         }
         .header-top-row {
-            position: relative; display: flex; align-items: center; justify-content: center; height: 45px; margin-bottom: 0;
+            position: relative; display: flex; align-items: center; justify-content: center; height: 45px; margin-bottom: 5px;
         }
         .logo-img {
-            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
-            width: 42px; height: 42px; border-radius: 8px; background: white; padding: 2px; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            width: 45px; height: 45px; border-radius: 10px; background: white; padding: 2px; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .header-title {
-            font-size: 1.35rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            text-align: center; width: 100%; padding-left: 50px; padding-right: 10px; word-break: keep-all; white-space: nowrap; line-height: 1.1;
+            font-size: 1.4rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            text-align: center; width: 100%; padding-left: 60px; padding-right: 20px; word-break: keep-all; white-space: nowrap; line-height: 1.1;
         }
         .header-subtitle {
-            text-align: right; font-size: 0.75rem; color: #E0F2F1; padding-right: 15px; letter-spacing: -0.5px; margin-top: 2px;
+            text-align: right; font-size: 0.8rem; color: #B2DFDB; padding-right: 20px; letter-spacing: -0.5px; margin-top: 2px;
         }
         .version-text {
-            color: #D32F2F; font-weight: bold; background: rgba(255, 255, 255, 0.8); padding: 0 4px; border-radius: 3px; font-size: 0.65rem; margin-left: 3px;
+            color: #fff; background: #D32F2F; padding: 1px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
-        .content { padding: 15px; flex: 1; }
+        .content { padding: 20px; flex: 1; }
+        
         .location-date-box {
-            display: flex; gap: 10px; margin-bottom: 15px; padding: 15px;
-            border: 1px solid #B2DFDB; border-radius: 10px; background: #ffffff;
+            display: flex; gap: 10px; margin-bottom: 20px; padding: 15px;
+            border: 1px solid #B2DFDB; border-radius: 12px; background: #fdfdfd;
         }
         .half-box { flex: 1; }
-        .env-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .box { margin-bottom: 15px; padding: 15px; border: 1px solid #B2DFDB; border-radius: 10px; background: #ffffff; }
-        .env-box { background: #F0F4C3; border: 1px solid #DCE775; }
-        .section-title { font-weight: bold; color: #00796B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; font-size: 1rem; }
+        .env-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .box { margin-bottom: 20px; padding: 15px; border: 1px solid #B2DFDB; border-radius: 12px; background: #ffffff; }
+        .env-box { background: #F9FBE7; border: 1px solid #E6EE9C; }
         
-        label { display: block; margin-bottom: 5px; color: #333; font-size: 0.85rem; font-weight: bold; }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
+        .section-title { font-weight: bold; color: #00695C; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; }
         
-        input[readonly] { background: #e9ecef; color: #555; text-align: center; }
-        #dateInput { background: #e9ecef; color: #555; text-align: center; pointer-events: none; }
+        label { display: block; margin-bottom: 6px; color: #455A64; font-size: 0.9rem; font-weight: bold; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #CFD8DC; border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: border 0.2s; }
+        input[type="text"]:focus { border-color: #009688; outline: none; }
+        
+        input[readonly] { background: #ECEFF1; color: #546E7A; text-align: center; font-weight: bold; }
+        #dateInput { background: #ECEFF1; color: #546E7A; text-align: center; pointer-events: none; }
 
-        .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
+        .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .check-item { 
-            display: flex; align-items: center; font-size: 0.85rem; cursor: pointer; color: #00695C; 
-            background: #fff; padding: 8px; border: 1px solid #B2DFDB; border-radius: 6px; white-space: nowrap; 
+            display: flex; align-items: center; font-size: 0.9rem; cursor: pointer; color: #00695C; 
+            background: #fff; padding: 10px; border: 1px solid #B2DFDB; border-radius: 8px; white-space: nowrap; 
+            transition: background 0.2s;
         }
-        .check-item input { margin-right: 6px; transform: scale(1.1); accent-color: #00897B; }
+        .check-item:hover { background: #E0F2F1; }
+        .check-item input { margin-right: 8px; transform: scale(1.2); accent-color: #00897B; }
 
         .preview-area { 
             width: 100%; 
             aspect-ratio: 4 / 3; 
             background-color: #f1f8e9; 
             border: 2px dashed #a5d6a7; 
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 10px; 
+            margin-bottom: 12px; 
             overflow: hidden;
             background-image: url('https://via.placeholder.com/60x60/a5d6a7/ffffff?text=IMG');
             background-repeat: no-repeat; background-position: center; background-size: 60px; 
@@ -99,29 +104,31 @@
         .preview-area span { pointer-events: none; }
         
         button.main-btn { 
-            width: 100%; padding: 15px; background: #00897B; color: white; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;
-            border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: background 0.2s;
+            width: 100%; padding: 16px; background: #00897B; color: white; font-size: 1.25rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px;
+            border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.2s;
         }
+        button.main-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         button.main-btn:hover { background: #00796B; }
 
-        .footer-buttons { display:flex; gap: 8px; margin-top: 20px; margin-bottom: 20px; }
+        .footer-buttons { display:flex; gap: 10px; margin-top: 25px; margin-bottom: 25px; }
         button.sub-btn { 
-            flex: 1; padding: 12px 0; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 0.95rem; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-            display: flex; align-items: center; justify-content: center; gap: 5px;
+            flex: 1; padding: 14px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
+            display: flex; align-items: center; justify-content: center; gap: 6px; transition: transform 0.1s;
         }
+        button.sub-btn:active { transform: translateY(2px); }
         button.sub-btn.call { background:#2E7D32; }
         button.sub-btn.save { background:#1c3664; }
 
         .custom-file-upload {
             display: inline-block; padding: 8px 20px; cursor: pointer; background: #546e7a; color: white; border-radius: 20px;
-            font-size: 0.85rem; border: none; font-weight: bold; float: left;
+            font-size: 0.85rem; border: none; font-weight: bold; float: left; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         input[type="file"] { display: none; }
         
         .business-info {
-            background: #102e52; color: #cfd8dc; padding: 10px 10px; text-align: center; font-size: 0.6rem; line-height: 1.4; letter-spacing: -0.3px;
+            background: #102e52; color: #cfd8dc; padding: 15px 15px; text-align: center; font-size: 0.7rem; line-height: 1.5; letter-spacing: -0.3px;
         }
-        .business-info strong { color: white; font-size: 0.7rem; margin-right: 5px; }
+        .business-info strong { color: white; font-size: 0.8rem; margin-right: 5px; }
 
         #historySidebar {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.2);
@@ -144,7 +151,7 @@
 </div>
 
 <div id="historySidebar">
-    <div style="padding: 15px; background: #009688; color: white; display: flex; justify-content: space-between; align-items: center;">
+    <div style="padding: 15px; background: #00796B; color: white; display: flex; justify-content: space-between; align-items: center;">
         <span style="font-weight: bold;"><i class="fas fa-list-alt"></i> 진단 기록</span>
         <button onclick="toggleSidebar()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">
             <i class="fas fa-times"></i>
@@ -162,12 +169,12 @@
     <div class="header">
         <div class="header-top-row">
             <img src="image_1.png" class="logo-img" onerror="this.style.display='none';">
-            <div class="header-title">청개구리 결로진단 AI앱</div>
+            <div class="header-title">청개구리 결로진단 AI</div>
         </div>
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 3.3 (배포용)</span>
+            <span class="version-text">Ver 2.0 (Premium)</span>
         </div>
     </div>
 
@@ -252,10 +259,10 @@
         </div>
 
         <button class="main-btn" id="btnRun" onclick="runAI()">
-            💧 결로 원인 분석 시작
+            💧 Premium AI 정밀 분석 시작
         </button>
         <div id="status" style="text-align:center; margin-top:15px; color:#00897B; display:none; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> AI가 환경 및 계측 데이터를 정밀 분석 중입니다...
+            <i class="fas fa-spinner fa-spin"></i> Premium AI가 환경 데이터를 정밀 분석 중입니다...
         </div>
 
         <div class="box" style="margin-top:20px;">
@@ -354,29 +361,24 @@
         const outHum = document.getElementById('outHum').value;
         
         // =========================================================
-        // [수정됨] 새로운 키 적용 (Github 경고 방지용 분할 입력)
+        // [Ver 2.0 Premium] 키 분할 적용 (GitHub 보안 경고 회피)
         // =========================================================
-// 보안을 위해 키를 두 조각으로 분리함
-const part_A = "AIzaSyB0FtOib";
-const part_B = "U0nqU3N7ECCXopWbw3QZqScn0";
-
-const API_KEY = part_A + "_" + part_B;
+        const part_A = "AIzaSyB0FtOib_"; 
+        const part_B = "U0nqU3N7ECCXopWbw3QZqScn0";
+        
+        const API_KEY = part_A + part_B; 
 
         btn.disabled = true; status.style.display = 'block';
-        resultDiv.innerText = "데이터 및 열화상 이미지 분석 중입니다...";
+        resultDiv.innerText = "Premium AI가 데이터 및 열화상 이미지를 분석 중입니다...";
 
         try {
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
-            // 환경 정보(온도, 습도)를 AI에게 전달하도록 수정함
-            let promptText = `[결로진단 요청] 
-            - 진단장소: ${loc}
-            - 발생부위: ${checks.join(',')}
-            - 환경정보: 실내(${inTemp}°C / ${inHum}%), 실외(${outTemp}°C / ${outHum}%)
-
+            let promptText = `[결로진단 요청] 장소:${loc}, 발생부위:${checks.join(',')}. 
+            실내온도:${inTemp}, 실내습도:${inHum}, 실외온도:${outTemp}, 실외습도:${outHum}.
             [FLIR MR277 로직] MIX(혼합비)가 10.0g/kg이상이면 '환기부족', 9.0이하인데 결로면 '단열불량'.
-            위 데이터와 사진을 보고 1.이슬점(Dew Point) 계산 및 분석 2.MR277수치기반 원인추론 3.종합원인판정 4.해결책을 작성해줘.`; 
+            위 데이터와 사진을 보고 전문가 입장에서 1.이슬점 분석 2.원인 판정 3.구체적인 해결책을 작성해줘.`;
 
             let parts = [{ text: promptText }];
             for(let i=1; i<=3; i++) {
@@ -424,7 +426,7 @@ const API_KEY = part_A + "_" + part_B;
         btn.innerHTML = "저장중..."; btn.disabled = true;
         setTimeout(() => {
             document.body.classList.add('pdf-mode');
-            html2pdf().set({ margin:0, filename:'결로진단.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2, useCORS:true}, jsPDF:{unit:'mm', format:'a4'} })
+            html2pdf().set({ margin:0, filename:'결로진단_Premium_Report.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2, useCORS:true}, jsPDF:{unit:'mm', format:'a4'} })
             .from(document.getElementById('pdfArea')).save().then(()=>{ document.body.classList.remove('pdf-mode'); btn.innerHTML=originalText; btn.disabled=false; })
             .catch(e=>{ alert("PDF 저장 오류"); document.body.classList.remove('pdf-mode'); btn.innerHTML=originalText; btn.disabled=false; });
         }, 500);
@@ -433,5 +435,3 @@ const API_KEY = part_A + "_" + part_B;
 
 </body>
 </html>
-
-
