@@ -112,14 +112,19 @@
         button.main-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         button.main-btn:hover { background: #00796B; }
 
-        .footer-buttons { display:flex; gap: 10px; margin-top: 25px; margin-bottom: 25px; }
+        /* [수정] 하단 버튼 비율 및 정렬 개선 */
+        .footer-buttons { display:flex; gap: 8px; margin-top: 25px; margin-bottom: 25px; }
         button.sub-btn { 
-            flex: 1; padding: 14px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
+            padding: 14px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
             display: flex; align-items: center; justify-content: center; gap: 6px; transition: transform 0.1s;
+            white-space: nowrap; /* 줄바꿈 방지 */
         }
         button.sub-btn:active { transform: translateY(2px); }
-        button.sub-btn.call { background:#2E7D32; }
-        button.sub-btn.save { background:#1c3664; }
+        
+        /* 상담 버튼을 더 길게 설정 (flex 비율 조정) */
+        button.sub-btn.call { background:#2E7D32; flex: 1.8; }
+        /* 저장 버튼은 상대적으로 짧게 */
+        button.sub-btn.save { background:#1c3664; flex: 1; }
 
         .custom-file-upload {
             display: inline-block; padding: 8px 20px; cursor: pointer; background: #546e7a; color: white; border-radius: 20px;
@@ -141,33 +146,28 @@
             position: fixed; top: 20px; right: 20px; z-index: 999; color: white; font-size: 1.5rem; cursor: pointer; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 50%;
         }
 
-        /* [수정] 결과 텍스트 영역 스타일 개선 */
         #result {
             min-height: 60px;
             font-size: 0.95rem;
             line-height: 1.6;
             color: #333;
-            /* white-space: pre-wrap 삭제하여 들여쓰기 문제 해결 */
-            text-align: left; /* 기본 텍스트는 좌측 정렬 */
+            text-align: left; 
         }
 
-        /* 결과 내의 제목 등 스타일 */
         #result h1, #result h2, #result h3 { color: #00695C; margin-top: 15px; margin-bottom: 10px; }
         #result strong { color: #d32f2f; }
         #result ul { padding-left: 20px; margin-bottom: 10px; }
         #result li { margin-bottom: 5px; }
 
-        /* 하단 안내 문구 박스 스타일 */
         .result-footer-box {
             margin-top: 25px;
             padding: 15px;
             background-color: #E0F2F1;
             border-radius: 10px;
-            text-align: center; /* 박스 내부는 중앙 정렬 */
+            text-align: center; 
             border: 1px solid #80CBC4;
         }
         
-        /* 🟢 PDF 모드 스타일 개선 */
         body.pdf-mode .container { 
             box-shadow: none; 
             max-width: 100%; 
@@ -179,7 +179,7 @@
         }
         body.pdf-mode button, 
         body.pdf-mode #historyToggleBtn, 
-        body.pdf-mode .custom-file-upload,
+        body.pdf-mode .custom-file-upload, 
         body.pdf-mode .file-input-container { 
             display: none !important; 
         }
@@ -216,7 +216,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.6 (Layout Fix)</span>
+            <span class="version-text">Ver 2.8 (UI Fix)</span>
         </div>
     </div>
 
@@ -320,7 +320,7 @@
 
         <div class="footer-buttons">
             <button class="sub-btn call" onclick="location.href='tel:1599-7380'">
-                <i class="fas fa-phone-alt"></i> 전문가 상담(1599-7380)
+                <i class="fas fa-phone-alt"></i> 상담(1599-7380)
             </button>
             <button class="sub-btn save" id="saveBtn" onclick="savePDFWithGuide()">
                 <i class="fas fa-file-pdf"></i> 결과 저장
@@ -335,7 +335,6 @@
 </div>
 
 <script>
-    // [중요] Markdown 라이브러리 초기화
     var md = window.markdownit();
 
     window.onload = function() {
@@ -423,12 +422,11 @@
             history.map(h => `<div style="padding:15px; border-bottom:1px solid #eee; cursor:pointer;" onclick="loadHistory(${h.id})"><div style="font-size:0.8rem; color:#eee;">${h.date}</div><div style="font-weight:bold; color:white;">${h.location}</div></div>`).join('');
     }
     
-    // [수정] 기록 불러오기 시에도 마크다운 렌더링 적용
     function loadHistory(id) {
         const item = JSON.parse(localStorage.getItem('dewpoint_history')).find(h => h.id === id);
         if(item) { 
             document.getElementById('locInput').value = item.location; 
-            document.getElementById('result').innerHTML = md.render(item.result); // md.render 적용
+            document.getElementById('result').innerHTML = md.render(item.result); 
             toggleSidebar(); 
         }
     }
@@ -440,6 +438,7 @@
         const resultDiv = document.getElementById('result');
         
         const loc = document.getElementById('locInput').value;
+        const dateVal = document.getElementById('dateInput').value; // [수정] 현재 날짜 값 전달
         const inTemp = document.getElementById('inTemp').value;
         const inHum = document.getElementById('inHum').value;
         const dewPoint = document.getElementById('dewPoint').value;
@@ -462,6 +461,7 @@
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
+            // [수정] 프롬프트에 날짜 명시하여 전달
             let promptText = `
                 당신은 대한민국 최고의 결로 및 단열 진단 전문가입니다. 
                 사용자는 일반인이며, 전문 장비 없이 스마트폰 사진과 환경 데이터만 입력했습니다. 
@@ -469,6 +469,7 @@
                 보이지 않는 벽체 내부의 단열 상태를 꿰뚫어 보아야 합니다.
 
                 [입력 데이터]
+                - 진단 일자: ${dateVal} (※ 중요: 보고서 상단에 이 날짜를 '보고서 작성일'로 명확히 기재하세요)
                 - 장소: ${loc}
                 - 발생 부위: ${checks.join(', ')}
                 - 실내 환경: 온도 ${inTemp}°C, 습도 ${inHum}%
@@ -476,12 +477,13 @@
                 - **계산된 이슬점: ${dewPoint}** (매우 중요: 벽체 표면온도가 이보다 낮으면 100% 결로임)
 
                 [분석 요청 사항]
-                1. **위험도 판정**: 현재 이슬점(${dewPoint})을 기준으로 결로 발생 가능성을 "매우 높음/높음/보통"으로 진단하고 이유 설명.
-                2. **시각적 정밀 분석**: 사진을 보고 곰팡이가 벽지 안쪽에서 배어 나오는지(누수/단열불량), 표면에만 피었는지(환기부족) 구분하여 설명.
-                3. **원인 규명**: 
+                1. **보고서 헤더**: 보고서 시작 부분에 반드시 "작성일: ${dateVal}"을 표기하세요.
+                2. **위험도 판정**: 현재 이슬점(${dewPoint})을 기준으로 결로 발생 가능성을 "매우 높음/높음/보통"으로 진단하고 이유 설명.
+                3. **시각적 정밀 분석**: 사진을 보고 곰팡이가 벽지 안쪽에서 배어 나오는지(누수/단열불량), 표면에만 피었는지(환기부족) 구분하여 설명.
+                4. **원인 규명**: 
                    - 단순 생활 습관(환기 부족) 문제인지? 
                    - 건물 구조적 하자(단열재 누락/손상, 기밀 불량)인지 명확히 구분.
-                4. **전문가 솔루션**: 일반인이 당장 할 수 있는 조치와 시공이 필요한 조치를 나누어 제안.
+                5. **전문가 솔루션**: 일반인이 당장 할 수 있는 조치와 시공이 필요한 조치를 나누어 제안.
 
                 [출력 형식]
                 - 톤앤매너: 매우 전문적이고 신뢰감 있으면서도, 일반인이 이해하기 쉽게 설명.
@@ -520,7 +522,6 @@
             const jsonData = JSON.parse(textData);
             const aiResult = jsonData.candidates[0].content.parts[0].text;
             
-            // [수정] 하단 안내 문구를 별도의 깔끔한 HTML 박스로 구성
             const footerHtml = `
                 <div class="result-footer-box">
                     <h3 style="color:#00796B; margin:0 0 10px 0;">📢 더 정확한 원인 규명이 필요하신가요?</h3>
@@ -538,13 +539,10 @@
                 </div>
             `;
 
-            // [수정] 마크다운 변환 적용 (md.render) + 하단 박스 결합
             const finalHtml = md.render(aiResult) + footerHtml;
 
             resultDiv.innerHTML = finalHtml;
-            
-            // 저장 시에는 원본 텍스트를 저장 (불러오기 시 다시 렌더링하기 위해)
-            saveHistory(loc, aiResult); // 주의: 히스토리 저장 로직은 텍스트만 저장하도록 유지하는 것이 좋습니다.
+            saveHistory(loc, aiResult); 
 
         } catch (e) {
             alert("오류 발생: " + e.message);
