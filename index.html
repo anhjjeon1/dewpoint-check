@@ -7,7 +7,7 @@
     
     <meta property="og:type" content="website">
     <meta property="og:title" content="청개구리 결로/곰팡이 AI 정밀진단">
-    <meta property="og:description" content="전문가용 AI가 결로와 곰팡이 원인을 정밀 분석하여 해결책을 제시합니다.">
+    <meta property="og:description" content="사진만 찍으면 끝! AI가 우리집 결로 원인을 10초 만에 분석해 드립니다.">
     <meta property="og:image" content="image_1.png">
     <meta property="og:url" content="https://anhjjeon1.github.io/dewpoint-check/">
 
@@ -62,8 +62,8 @@
         .section-title { font-weight: bold; color: #00695C; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; }
         
         label { display: block; margin-bottom: 6px; color: #455A64; font-size: 0.9rem; font-weight: bold; }
-        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #CFD8DC; border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: border 0.2s; }
-        input[type="text"]:focus { border-color: #009688; outline: none; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid #CFD8DC; border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: border 0.2s; }
+        input[type="text"]:focus, input[type="number"]:focus { border-color: #009688; outline: none; }
         
         input[readonly] { background: #ECEFF1; color: #546E7A; text-align: center; font-weight: bold; }
         #dateInput { background: #ECEFF1; color: #546E7A; text-align: center; pointer-events: none; }
@@ -188,7 +188,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.1 (Final)</span>
+            <span class="version-text">Ver 2.5 (Pro-View)</span>
         </div>
     </div>
 
@@ -205,16 +205,26 @@
         </div>
 
         <div class="box env-box">
-            <div class="section-title"><i class="fas fa-temperature-low"></i> 현재 환경정보 (실외 자동)</div>
+            <div class="section-title"><i class="fas fa-temperature-low"></i> 환경 데이터 분석</div>
             <div class="env-grid">
                 <div>
                     <label>실내온도 (°C)</label>
-                    <input type="text" id="inTemp" placeholder="직접입력">
+                    <input type="number" id="inTemp" placeholder="입력" oninput="calcDewPoint()">
                 </div>
                 <div>
                     <label>실내습도 (%)</label>
-                    <input type="text" id="inHum" placeholder="직접입력">
+                    <input type="number" id="inHum" placeholder="입력" oninput="calcDewPoint()">
                 </div>
+                
+                <div style="grid-column: span 2;">
+                    <label style="color:#d32f2f; text-align:center;">🔥 결로 이슬점 (Dew Point)</label>
+                    <input type="text" id="dewPoint" placeholder="온도/습도 입력시 자동계산" readonly 
+                           style="background-color:#ffebee; color:#b71c1c; font-weight:bold; text-align:center; font-size:1.1rem; border:1px solid #ffcdd2;">
+                    <div style="text-align:center; font-size:0.75rem; color:#b71c1c; margin-top:4px;">
+                        * 벽 표면 온도가 이 값보다 낮으면 100% 결로 발생
+                    </div>
+                </div>
+
                 <div>
                     <label>실외온도 (°C)</label>
                     <input type="text" id="outTemp" placeholder="위치확인중..">
@@ -240,7 +250,7 @@
             <div class="section-title"><i class="fas fa-camera"></i> 1. 결로/곰팡이 사진(필수)</div>
             <div class="preview-area" onclick="triggerInput('file1')">
                 <img id="img1">
-                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
+                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(터치하여 사진 촬영/선택)</span>
             </div>
             <div style="overflow:hidden;">
                 <label for="file1" class="custom-file-upload">사진입력</label>
@@ -249,46 +259,35 @@
         </div>
         
         <div class="box">
-            <div class="section-title"><i class="fas fa-thermometer-three-quarters"></i> 2. FLIR MR 277검사 (선택)</div>
+            <div class="section-title" style="color:#78909c;"><i class="fas fa-plus-circle"></i> 추가 사진 (선택)</div>
             <div class="preview-area" onclick="triggerInput('file2')">
                 <img id="img2">
-                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
+                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(선택 사항)</span>
             </div>
             <div style="overflow:hidden;">
-                <label for="file2" class="custom-file-upload">사진입력</label>
+                <label for="file2" class="custom-file-upload" style="background-color:#78909c;">사진입력</label>
                 <input type="file" id="file2" accept="image/*" onchange="preview(2)">
             </div>
         </div>
 
-        <div class="box" style="border: 2px solid #FF7043; background: #FFF3E0;">
-            <div class="section-title" style="color: #D84315;"><i class="fas fa-fire-alt"></i> 3. 열화상 카메라 사진(선택)</div>
-            <div class="preview-area" style="border-color: #FFAB91; background-color: #FBE9E7;" onclick="triggerInput('file3')">
-                <img id="img3">
-                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(여기를 눌러 사진 추가)</span>
-            </div>
-            <div style="overflow:hidden;">
-                <label for="file3" class="custom-file-upload" style="background: #FF7043;">사진입력</label>
-                <input type="file" id="file3" accept="image/*" onchange="preview(3)">
-            </div>
-        </div>
-
         <button class="main-btn" id="btnRun" onclick="runAI()">
-            💧 Premium AI 정밀 분석 시작
+            <i class="fas fa-robot"></i> AI 정밀 분석 시작
         </button>
         <div id="status" style="text-align:center; margin-top:15px; color:#00897B; display:none; font-weight:bold;">
-            <i class="fas fa-spinner fa-spin"></i> Premium AI가 환경 데이터를 정밀 분석 중입니다...
+            <i class="fas fa-spinner fa-spin"></i> AI가 이미지를 픽셀 단위로 분석 중입니다...
         </div>
 
-        <div class="box" style="margin-top:20px;">
-            <div class="section-title"><i class="fas fa-lightbulb"></i> 분석 결과 및 해결방안</div>
-            <div id="result" style="min-height:60px; font-size: 0.95rem; line-height: 1.6; color:#444;">
-                분석 시작 버튼을 누르면 결과가 여기에 표시됩니다.
+        <div class="box" style="margin-top:20px; border:2px solid #00897B;">
+            <div class="section-title" style="color:#004D40;"><i class="fas fa-clipboard-list"></i> AI 진단 리포트</div>
+            <div id="result" style="min-height:60px; font-size: 0.95rem; line-height: 1.6; color:#333; white-space: pre-wrap;">
+                위 정보를 모두 입력하고 '분석 시작' 버튼을 눌러주세요.
+                일반인도 이해하기 쉬운 전문가급 소견서가 발행됩니다.
             </div>
         </div>
 
         <div class="footer-buttons">
             <button class="sub-btn call" onclick="location.href='tel:1599-7380'">
-                <i class="fas fa-phone-alt"></i> 문의(1599-7380)
+                <i class="fas fa-phone-alt"></i> 전문가 상담(1599-7380)
             </button>
             <button class="sub-btn save" id="saveBtn" onclick="savePDFWithGuide()">
                 <i class="fas fa-file-pdf"></i> 결과 저장
@@ -309,6 +308,38 @@
         renderHistory();
         getWeather(); 
     };
+
+    // [추가] 이슬점 계산 로직 (Magnus Formula)
+    function calcDewPoint() {
+        const temp = parseFloat(document.getElementById('inTemp').value);
+        const hum = parseFloat(document.getElementById('inHum').value);
+        const dpField = document.getElementById('dewPoint');
+
+        if (!isNaN(temp) && !isNaN(hum)) {
+            // 이슬점 계산 공식
+            const a = 17.27;
+            const b = 237.7;
+            const alpha = ((a * temp) / (b + temp)) + Math.log(hum / 100.0);
+            const dewPoint = (b * alpha) / (a - alpha);
+            
+            dpField.value = dewPoint.toFixed(1) + "°C";
+            
+            // 시각적 경고 (실내온도와 이슬점 차이가 적을수록 위험)
+            if (temp - dewPoint < 3) {
+                dpField.style.backgroundColor = "#ffcdd2"; // 매우 위험 (빨강)
+                dpField.style.color = "#b71c1c";
+            } else if (temp - dewPoint < 6) {
+                dpField.style.backgroundColor = "#fff9c4"; // 주의 (노랑)
+                dpField.style.color = "#f57f17";
+            } else {
+                dpField.style.backgroundColor = "#e8f5e9"; // 안전 (초록)
+                dpField.style.color = "#2e7d32";
+            }
+        } else {
+            dpField.value = "";
+            dpField.style.backgroundColor = "#ffebee";
+        }
+    }
 
     function getWeather() {
         const outTempEl = document.getElementById('outTemp');
@@ -368,33 +399,61 @@
         const btn = document.getElementById('btnRun');
         const status = document.getElementById('status');
         const resultDiv = document.getElementById('result');
+        
         const loc = document.getElementById('locInput').value;
         const inTemp = document.getElementById('inTemp').value;
         const inHum = document.getElementById('inHum').value;
+        const dewPoint = document.getElementById('dewPoint').value; // 이슬점 값 가져오기
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        // =========================================================
-        // [Ver 2.1 Final] 키 설정 (유지)
-        // =========================================================
+        if(!document.getElementById('file1').files[0]) {
+            alert("정확한 분석을 위해 첫 번째 사진은 필수입니다.");
+            return;
+        }
+
         const part_A = "AIzaSyB0FtOib_"; 
         const part_B = "U0nqU3N7ECCXopWbw3QZqScn0";
         const API_KEY = part_A + part_B; 
 
         btn.disabled = true; status.style.display = 'block';
-        resultDiv.innerText = "Premium AI가 데이터 및 열화상 이미지를 분석 중입니다...";
+        resultDiv.innerText = "전문가 AI가 사진과 환경 데이터를 정밀 분석 중입니다...";
 
         try {
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
-            let promptText = `[결로진단 요청] 장소:${loc}, 발생부위:${checks.join(',')}. 
-            실내온도:${inTemp}, 실내습도:${inHum}, 실외온도:${outTemp}, 실외습도:${outHum}.
-            [FLIR MR277 로직] MIX(혼합비)가 10.0g/kg이상이면 '환기부족', 9.0이하인데 결로면 '단열불량'.
-            위 데이터와 사진을 보고 전문가 입장에서 1.이슬점 분석 2.원인 판정 3.구체적인 해결책을 작성해줘.`;
+            // [프롬프트 고도화] 일반인이 장비 없이도 전문가 수준의 결과를 얻도록 지시
+            let promptText = `
+                당신은 대한민국 최고의 결로 및 단열 진단 전문가입니다. 
+                사용자는 일반인이며, 전문 장비 없이 스마트폰 사진과 환경 데이터만 입력했습니다. 
+                하지만 당신은 사진 속 **곰팡이의 색상, 분포 패턴, 물방울이 맺힌 위치(유리 중앙 vs 모서리 vs 프레임)**를 보고 
+                보이지 않는 벽체 내부의 단열 상태를 꿰뚫어 보아야 합니다.
+
+                [입력 데이터]
+                - 장소: ${loc}
+                - 발생 부위: ${checks.join(', ')}
+                - 실내 환경: 온도 ${inTemp}°C, 습도 ${inHum}%
+                - 실외 환경: 온도 ${outTemp}°C, 습도 ${outHum}%
+                - **계산된 이슬점: ${dewPoint}** (매우 중요: 벽체 표면온도가 이보다 낮으면 100% 결로임)
+
+                [분석 요청 사항]
+                1. **위험도 판정**: 현재 이슬점(${dewPoint})을 기준으로 결로 발생 가능성을 "매우 높음/높음/보통"으로 진단하고 이유 설명.
+                2. **시각적 정밀 분석**: 사진을 보고 곰팡이가 벽지 안쪽에서 배어 나오는지(누수/단열불량), 표면에만 피었는지(환기부족) 구분하여 설명.
+                3. **원인 규명**: 
+                   - 단순 생활 습관(환기 부족) 문제인지? 
+                   - 건물 구조적 하자(단열재 누락/손상, 기밀 불량)인지 명확히 구분.
+                4. **전문가 솔루션**: 일반인이 당장 할 수 있는 조치와 시공이 필요한 조치를 나누어 제안.
+
+                [출력 형식]
+                - 톤앤매너: 매우 전문적이고 신뢰감 있으면서도, 일반인이 이해하기 쉽게 설명.
+                - 핵심 결론부터 두괄식으로 제시.
+            `;
 
             let parts = [{ text: promptText }];
-            for(let i=1; i<=3; i++) {
+            
+            // 파일 처리 (2개까지만 받아도 충분)
+            for(let i=1; i<=2; i++) {
                 const file = document.getElementById('file'+i).files[0];
                 if(file) {
                     const base64 = await new Promise(resolve => {
@@ -422,8 +481,22 @@
 
             const jsonData = JSON.parse(textData);
             const aiResult = jsonData.candidates[0].content.parts[0].text;
-            resultDiv.innerText = aiResult + "\n\n(문의: 1599-7380)";
-            saveHistory(loc, aiResult);
+            
+            // [추가] 전문가 진단 유도 문구 자동 삽입
+            const footerNote = `
+                \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                📢 **더 정확한 원인 규명이 필요하신가요?**
+                
+                본 결과는 AI 분석에 기반한 추정치입니다.
+                **청개구리샤시의 전문가**가 방문하여 **첨단 장비(열화상 카메라, 초음파 기밀 진단기)**로 측정하면,
+                눈에 보이지 않는 **벽체 내부 단열재 손상**과 **미세한 바람 구멍(기밀 불량)**까지
+                과학적으로 진단하여 **완벽한 수리 솔루션**을 받으실 수 있습니다.
+                
+                📞 **전문가 정밀 진단 문의: 1599-7380**
+            `;
+
+            resultDiv.innerText = aiResult + footerNote;
+            saveHistory(loc, aiResult + footerNote);
 
         } catch (e) {
             alert("오류 발생: " + e.message);
@@ -439,9 +512,8 @@
         btn.innerHTML = "저장중..."; btn.disabled = true;
         
         setTimeout(() => {
-            // PDF 모드 전환
             document.body.classList.add('pdf-mode');
-            window.scrollTo(0, 0); // 화면 맨 위로 이동 (중요!)
+            window.scrollTo(0, 0); 
 
             const element = document.getElementById('pdfArea');
             
@@ -452,8 +524,8 @@
                 html2canvas: { 
                     scale: 2, 
                     useCORS: true, 
-                    scrollY: 0, // 스크롤 위치 초기화 (빈 페이지 방지 핵심)
-                    windowWidth: document.documentElement.offsetWidth // 모바일 너비 맞춤
+                    scrollY: 0, 
+                    windowWidth: document.documentElement.offsetWidth 
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
@@ -477,5 +549,3 @@
 
 </body>
 </html>
-
-
