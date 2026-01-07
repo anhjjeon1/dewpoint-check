@@ -15,7 +15,9 @@
     <link rel="apple-touch-icon" href="image_1.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         body { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; margin: 0; padding: 0; background: #e0f2f1; overflow-x: hidden; }
         
@@ -138,6 +140,32 @@
         #historyToggleBtn {
             position: fixed; top: 20px; right: 20px; z-index: 999; color: white; font-size: 1.5rem; cursor: pointer; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 50%;
         }
+
+        /* [수정] 결과 텍스트 영역 스타일 개선 */
+        #result {
+            min-height: 60px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #333;
+            /* white-space: pre-wrap 삭제하여 들여쓰기 문제 해결 */
+            text-align: left; /* 기본 텍스트는 좌측 정렬 */
+        }
+
+        /* 결과 내의 제목 등 스타일 */
+        #result h1, #result h2, #result h3 { color: #00695C; margin-top: 15px; margin-bottom: 10px; }
+        #result strong { color: #d32f2f; }
+        #result ul { padding-left: 20px; margin-bottom: 10px; }
+        #result li { margin-bottom: 5px; }
+
+        /* 하단 안내 문구 박스 스타일 */
+        .result-footer-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #E0F2F1;
+            border-radius: 10px;
+            text-align: center; /* 박스 내부는 중앙 정렬 */
+            border: 1px solid #80CBC4;
+        }
         
         /* 🟢 PDF 모드 스타일 개선 */
         body.pdf-mode .container { 
@@ -188,7 +216,7 @@
         
         <div class="header-subtitle">
             AI 이슬점(Dew Point) 정밀 분석 
-            <span class="version-text">Ver 2.5 (Pro-View)</span>
+            <span class="version-text">Ver 2.6 (Layout Fix)</span>
         </div>
     </div>
 
@@ -279,9 +307,14 @@
 
         <div class="box" style="margin-top:20px; border:2px solid #00897B;">
             <div class="section-title" style="color:#004D40;"><i class="fas fa-clipboard-list"></i> AI 진단 리포트</div>
-            <div id="result" style="min-height:60px; font-size: 0.95rem; line-height: 1.6; color:#333; white-space: pre-wrap;">
-                위 정보를 모두 입력하고 '분석 시작' 버튼을 눌러주세요.
-                일반인도 이해하기 쉬운 전문가급 소견서가 발행됩니다.
+            
+            <div id="result">
+                <div style="text-align: center; padding: 20px 0; color: #555;">
+                    위 정보를 모두 입력하고<br>
+                    <strong style="color:#00897B;">'분석 시작'</strong> 버튼을 눌러주세요.<br><br>
+                    일반인도 이해하기 쉬운<br>
+                    전문가급 소견서가 발행됩니다.
+                </div>
             </div>
         </div>
 
@@ -302,6 +335,9 @@
 </div>
 
 <script>
+    // [중요] Markdown 라이브러리 초기화
+    var md = window.markdownit();
+
     window.onload = function() {
         const now = new Date();
         document.getElementById('dateInput').value = now.toLocaleDateString() + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -309,14 +345,12 @@
         getWeather(); 
     };
 
-    // [추가] 이슬점 계산 로직 (Magnus Formula)
     function calcDewPoint() {
         const temp = parseFloat(document.getElementById('inTemp').value);
         const hum = parseFloat(document.getElementById('inHum').value);
         const dpField = document.getElementById('dewPoint');
 
         if (!isNaN(temp) && !isNaN(hum)) {
-            // 이슬점 계산 공식
             const a = 17.27;
             const b = 237.7;
             const alpha = ((a * temp) / (b + temp)) + Math.log(hum / 100.0);
@@ -324,15 +358,14 @@
             
             dpField.value = dewPoint.toFixed(1) + "°C";
             
-            // 시각적 경고 (실내온도와 이슬점 차이가 적을수록 위험)
             if (temp - dewPoint < 3) {
-                dpField.style.backgroundColor = "#ffcdd2"; // 매우 위험 (빨강)
+                dpField.style.backgroundColor = "#ffcdd2"; 
                 dpField.style.color = "#b71c1c";
             } else if (temp - dewPoint < 6) {
-                dpField.style.backgroundColor = "#fff9c4"; // 주의 (노랑)
+                dpField.style.backgroundColor = "#fff9c4"; 
                 dpField.style.color = "#f57f17";
             } else {
-                dpField.style.backgroundColor = "#e8f5e9"; // 안전 (초록)
+                dpField.style.backgroundColor = "#e8f5e9"; 
                 dpField.style.color = "#2e7d32";
             }
         } else {
@@ -389,9 +422,15 @@
         listEl.innerHTML = history.length === 0 ? '<div style="padding:20px; text-align:center; color:#ccc;">기록 없음</div>' : 
             history.map(h => `<div style="padding:15px; border-bottom:1px solid #eee; cursor:pointer;" onclick="loadHistory(${h.id})"><div style="font-size:0.8rem; color:#eee;">${h.date}</div><div style="font-weight:bold; color:white;">${h.location}</div></div>`).join('');
     }
+    
+    // [수정] 기록 불러오기 시에도 마크다운 렌더링 적용
     function loadHistory(id) {
         const item = JSON.parse(localStorage.getItem('dewpoint_history')).find(h => h.id === id);
-        if(item) { document.getElementById('locInput').value = item.location; document.getElementById('result').innerText = item.result; toggleSidebar(); }
+        if(item) { 
+            document.getElementById('locInput').value = item.location; 
+            document.getElementById('result').innerHTML = md.render(item.result); // md.render 적용
+            toggleSidebar(); 
+        }
     }
     function clearHistory() { if(confirm('삭제하시겠습니까?')) { localStorage.removeItem('dewpoint_history'); renderHistory(); } }
 
@@ -403,7 +442,7 @@
         const loc = document.getElementById('locInput').value;
         const inTemp = document.getElementById('inTemp').value;
         const inHum = document.getElementById('inHum').value;
-        const dewPoint = document.getElementById('dewPoint').value; // 이슬점 값 가져오기
+        const dewPoint = document.getElementById('dewPoint').value;
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
@@ -417,13 +456,12 @@
         const API_KEY = part_A + part_B; 
 
         btn.disabled = true; status.style.display = 'block';
-        resultDiv.innerText = "전문가 AI가 사진과 환경 데이터를 정밀 분석 중입니다...";
+        resultDiv.innerHTML = "<div style='text-align:center;'>전문가 AI가 사진과 환경 데이터를 정밀 분석 중입니다...</div>";
 
         try {
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
-            // [프롬프트 고도화] 일반인이 장비 없이도 전문가 수준의 결과를 얻도록 지시
             let promptText = `
                 당신은 대한민국 최고의 결로 및 단열 진단 전문가입니다. 
                 사용자는 일반인이며, 전문 장비 없이 스마트폰 사진과 환경 데이터만 입력했습니다. 
@@ -448,11 +486,11 @@
                 [출력 형식]
                 - 톤앤매너: 매우 전문적이고 신뢰감 있으면서도, 일반인이 이해하기 쉽게 설명.
                 - 핵심 결론부터 두괄식으로 제시.
+                - 가독성을 위해 문단 사이에 줄바꿈을 충분히 넣어주세요.
             `;
 
             let parts = [{ text: promptText }];
             
-            // 파일 처리 (2개까지만 받아도 충분)
             for(let i=1; i<=2; i++) {
                 const file = document.getElementById('file'+i).files[0];
                 if(file) {
@@ -482,25 +520,35 @@
             const jsonData = JSON.parse(textData);
             const aiResult = jsonData.candidates[0].content.parts[0].text;
             
-            // [추가] 전문가 진단 유도 문구 자동 삽입
-            const footerNote = `
-                \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                📢 **더 정확한 원인 규명이 필요하신가요?**
-                
-                본 결과는 AI 분석에 기반한 추정치입니다.
-                **청개구리샤시의 전문가**가 방문하여 **첨단 장비(열화상 카메라, 초음파 기밀 진단기)**로 측정하면,
-                눈에 보이지 않는 **벽체 내부 단열재 손상**과 **미세한 바람 구멍(기밀 불량)**까지
-                과학적으로 진단하여 **완벽한 수리 솔루션**을 받으실 수 있습니다.
-                
-                📞 **전문가 정밀 진단 문의: 1599-7380**
+            // [수정] 하단 안내 문구를 별도의 깔끔한 HTML 박스로 구성
+            const footerHtml = `
+                <div class="result-footer-box">
+                    <h3 style="color:#00796B; margin:0 0 10px 0;">📢 더 정확한 원인 규명이 필요하신가요?</h3>
+                    <p style="font-size:0.9rem; color:#444; margin-bottom:15px; line-height:1.5;">
+                        본 결과는 AI 분석에 기반한 추정치입니다.<br>
+                        <strong>청개구리샤시의 전문가</strong>가 방문하여<br>
+                        <strong>첨단 장비(열화상 카메라, 초음파 기밀 진단기)</strong>로 측정하면,<br>
+                        눈에 보이지 않는 <strong>벽체 내부 단열재 손상</strong>과<br>
+                        <strong>미세한 바람 구멍(기밀 불량)</strong>까지 과학적으로 진단하여<br>
+                        완벽한 수리 솔루션을 받으실 수 있습니다.
+                    </p>
+                    <div style="font-weight:bold; color:#D84315; font-size:1.1rem; border:2px dashed #D84315; padding:10px; border-radius:8px; display:inline-block; background:white;">
+                        📞 전문가 정밀 진단 문의: 1599-7380
+                    </div>
+                </div>
             `;
 
-            resultDiv.innerText = aiResult + footerNote;
-            saveHistory(loc, aiResult + footerNote);
+            // [수정] 마크다운 변환 적용 (md.render) + 하단 박스 결합
+            const finalHtml = md.render(aiResult) + footerHtml;
+
+            resultDiv.innerHTML = finalHtml;
+            
+            // 저장 시에는 원본 텍스트를 저장 (불러오기 시 다시 렌더링하기 위해)
+            saveHistory(loc, aiResult); // 주의: 히스토리 저장 로직은 텍스트만 저장하도록 유지하는 것이 좋습니다.
 
         } catch (e) {
             alert("오류 발생: " + e.message);
-            resultDiv.innerText = "분석 실패: " + e.message;
+            resultDiv.innerHTML = "분석 실패: " + e.message;
         } finally {
             btn.disabled = false; status.style.display = 'none';
         }
