@@ -13,6 +13,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
         :root {
@@ -20,9 +21,10 @@
             --brand-secondary: #00695C; 
             --brand-accent: #C69C6D; 
             --bg-color: #f4f6f8;
-            --equip-blue: #1565C0; /* 계측장비용 블루 */
-            --thermal-red: #D84315; /* 열화상용 레드 */
-            --sonic-purple: #6A1B9A; /* 초음파용 퍼플 */
+            --equip-blue: #1565C0;
+            --thermal-red: #D84315;
+            --sonic-purple: #6A1B9A;
+            --normal-gray: #546E7A; /* 일반 사진용 색상 */
         }
 
         body { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; margin: 0; padding: 0; background: var(--bg-color); overflow-x: hidden; }
@@ -81,7 +83,7 @@
         .check-item:hover { background: #E3F2FD; }
         .check-item input { margin-right: 8px; transform: scale(1.2); accent-color: var(--brand-primary); }
 
-        /* [수정] 사진 입력칸 스타일 (4:3 비율 유지) */
+        /* 사진 입력칸 스타일 (4:3) */
         .preview-area { 
             width: 100%; 
             aspect-ratio: 4 / 3; 
@@ -98,15 +100,9 @@
         .preview-area:hover { border-color: var(--brand-primary); }
 
         .preview-area img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
-            display: none; 
-            z-index: 10; 
-            background: #f5f5f5;
-            pointer-events: none;
+            width: 100%; height: 100%; object-fit: contain; display: none; 
+            z-index: 10; background: #f5f5f5; pointer-events: none;
         }
-        
         .upload-icon { font-size: 2rem; margin-bottom: 8px; color: #90a4ae; pointer-events: none; }
         .upload-text { font-size: 0.85rem; color: #78909c; font-weight: bold; pointer-events: none; }
         
@@ -117,21 +113,22 @@
         button.main-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         button.main-btn:hover { background: #002147; }
 
-        .footer-buttons { margin-top: 25px; margin-bottom: 25px; }
+        /* [수정] 하단 버튼 (PDF + 엑셀) */
+        .footer-buttons { display: flex; gap: 10px; margin-top: 25px; margin-bottom: 25px; }
         button.sub-btn { 
-            width: 100%; padding: 16px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1.1rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
+            flex: 1; padding: 16px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1.0rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
             display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s;
         }
         button.sub-btn:active { transform: translateY(2px); }
-        button.sub-btn.save { background: var(--brand-secondary); }
+        button.sub-btn.pdf { background: #D32F2F; } /* 빨강 */
+        button.sub-btn.excel { background: #2E7D32; } /* 초록 */
 
-        .custom-file-upload { display: none; } /* 기존 라벨 숨김 */
         input[type="file"] { display: none; }
         
-        /* [수정] 하단 정보: 제일건설 정보 슬림화 */
+        /* [수정] 하단 정보 슬림화 */
         .business-info {
             background: #263238; color: #cfd8dc; 
-            padding: 15px 20px; /* 패딩 축소 */
+            padding: 15px 20px; 
             text-align: center; font-size: 0.75rem; line-height: 1.5; 
             border-top: 3px solid var(--brand-accent);
         }
@@ -169,18 +166,10 @@
         }
         
         body.pdf-mode .container { 
-            box-shadow: none; 
-            max-width: 100%; 
-            width: 100%; 
-            margin: 0; 
-            padding: 0;
-            overflow: visible !important;
-            height: auto !important;
+            box-shadow: none; max-width: 100%; width: 100%; margin: 0; padding: 0;
+            overflow: visible !important; height: auto !important;
         }
-        body.pdf-mode button, 
-        body.pdf-mode #historyToggleBtn { 
-            display: none !important; 
-        }
+        body.pdf-mode button, body.pdf-mode #historyToggleBtn { display: none !important; }
         body.pdf-mode .header { justify-content: space-between; } 
     </style>
 </head>
@@ -213,7 +202,7 @@
         
         <div class="header-subtitle">
             제일건설 품질관리팀 정밀 분석 시스템 
-            <span class="version-text">Ver 3.1</span>
+            <span class="version-text">Ver 3.2</span>
         </div>
     </div>
 
@@ -269,47 +258,63 @@
         </div>
 
         <div class="box">
-            <div class="section-title"><i class="fas fa-microscope"></i> 정밀 계측 데이터 입력</div>
+            <div class="section-title"><i class="fas fa-microscope"></i> 현장 증거 및 정밀 계측 데이터</div>
             
-            <label style="color:var(--equip-blue);">■ FLIR MR 277 (VAP/MIX)</label>
-            <div class="preview-area" onclick="triggerInput('file1')" style="border-color: var(--equip-blue);">
-                <i class="fas fa-ruler-combined upload-icon" style="color:var(--equip-blue);"></i>
-                <span class="upload-text">계측기 화면 촬영</span>
+            <label style="color:var(--normal-gray);">1. 결로/곰팡이 메인 (필수)</label>
+            <div class="preview-area" onclick="triggerInput('file1')" style="border-color: #b0bec5;">
+                <i class="fas fa-camera upload-icon" style="color:#90a4ae;"></i>
+                <span class="upload-text" style="color:#78909c;">현장 사진 촬영</span>
                 <img id="img1">
             </div>
             <input type="file" id="file1" accept="image/*" onchange="preview(1)">
 
-            <label style="color:var(--equip-blue); margin-top:15px;">■ FLIR MR12 볼 프로브 (비파괴)</label>
-            <div class="preview-area" onclick="triggerInput('file2')" style="border-color: var(--equip-blue);">
-                <i class="fas fa-bullseye upload-icon" style="color:var(--equip-blue);"></i>
-                <span class="upload-text">볼 프로브 측정 사진</span>
+            <label style="color:var(--normal-gray); margin-top:15px;">2. 근접 상세 사진 (필수)</label>
+            <div class="preview-area" onclick="triggerInput('file2')" style="border-color: #b0bec5;">
+                <i class="fas fa-search-plus upload-icon" style="color:#90a4ae;"></i>
+                <span class="upload-text" style="color:#78909c;">근접 촬영</span>
                 <img id="img2">
             </div>
             <input type="file" id="file2" accept="image/*" onchange="preview(2)">
 
-            <label style="color:var(--thermal-red); margin-top:15px;">■ 열화상 카메라 (단열/열교)</label>
-            <div class="preview-area" onclick="triggerInput('file3')" style="border-color: var(--thermal-red); background-color:#fffbe6;">
-                <i class="fas fa-temperature-high upload-icon" style="color:var(--thermal-red);"></i>
-                <span class="upload-text">열화상 이미지</span>
+            <label style="color:var(--equip-blue); margin-top:15px;">3. FLIR MR 277 (VAP/MIX)</label>
+            <div class="preview-area" onclick="triggerInput('file3')" style="border-color: var(--equip-blue); background-color:#e3f2fd;">
+                <i class="fas fa-ruler-combined upload-icon" style="color:var(--equip-blue);"></i>
+                <span class="upload-text" style="color:var(--equip-blue);">계측기 화면 촬영</span>
                 <img id="img3">
             </div>
             <input type="file" id="file3" accept="image/*" onchange="preview(3)">
 
-            <label style="color:var(--sonic-purple); margin-top:15px;">■ 초음파(Ultrasonic) 기밀 진단 1</label>
-            <div class="preview-area" onclick="triggerInput('file4')" style="border-color: var(--sonic-purple); background-color:#f3e5f5;">
-                <i class="fas fa-wave-square upload-icon" style="color:var(--sonic-purple);"></i>
-                <span class="upload-text">초음파 이미지 1</span>
+            <label style="color:var(--equip-blue); margin-top:15px;">4. FLIR MR12 볼 프로브 (비파괴)</label>
+            <div class="preview-area" onclick="triggerInput('file4')" style="border-color: var(--equip-blue); background-color:#e3f2fd;">
+                <i class="fas fa-bullseye upload-icon" style="color:var(--equip-blue);"></i>
+                <span class="upload-text" style="color:var(--equip-blue);">볼 프로브 측정 사진</span>
                 <img id="img4">
             </div>
             <input type="file" id="file4" accept="image/*" onchange="preview(4)">
 
-            <label style="color:var(--sonic-purple); margin-top:15px;">■ 초음파(Ultrasonic) 기밀 진단 2 (추가)</label>
-            <div class="preview-area" onclick="triggerInput('file5')" style="border-color: var(--sonic-purple); background-color:#f3e5f5;">
-                <i class="fas fa-plus-circle upload-icon" style="color:var(--sonic-purple);"></i>
-                <span class="upload-text">초음파 이미지 2</span>
+            <label style="color:var(--thermal-red); margin-top:15px;">5. 열화상 카메라 (단열/열교)</label>
+            <div class="preview-area" onclick="triggerInput('file5')" style="border-color: var(--thermal-red); background-color:#fbe9e7;">
+                <i class="fas fa-temperature-high upload-icon" style="color:var(--thermal-red);"></i>
+                <span class="upload-text" style="color:var(--thermal-red);">열화상 이미지</span>
                 <img id="img5">
             </div>
             <input type="file" id="file5" accept="image/*" onchange="preview(5)">
+
+            <label style="color:var(--sonic-purple); margin-top:15px;">6. 초음파(Ultrasonic) 기밀 진단 1</label>
+            <div class="preview-area" onclick="triggerInput('file6')" style="border-color: var(--sonic-purple); background-color:#f3e5f5;">
+                <i class="fas fa-wave-square upload-icon" style="color:var(--sonic-purple);"></i>
+                <span class="upload-text" style="color:var(--sonic-purple);">초음파 이미지 1</span>
+                <img id="img6">
+            </div>
+            <input type="file" id="file6" accept="image/*" onchange="preview(6)">
+
+            <label style="color:var(--sonic-purple); margin-top:15px;">7. 초음파(Ultrasonic) 기밀 진단 2</label>
+            <div class="preview-area" onclick="triggerInput('file7')" style="border-color: var(--sonic-purple); background-color:#f3e5f5;">
+                <i class="fas fa-plus-circle upload-icon" style="color:var(--sonic-purple);"></i>
+                <span class="upload-text" style="color:var(--sonic-purple);">초음파 이미지 2</span>
+                <img id="img7">
+            </div>
+            <input type="file" id="file7" accept="image/*" onchange="preview(7)">
         </div>
 
         <button class="main-btn" id="btnRun" onclick="runAI()">
@@ -333,8 +338,11 @@
         </div>
 
         <div class="footer-buttons">
-            <button class="sub-btn save" id="saveBtn" onclick="savePDFWithGuide()">
-                <i class="fas fa-file-pdf"></i> 결과 리포트 PDF 저장
+            <button class="sub-btn pdf" id="saveBtn" onclick="savePDFWithGuide()">
+                <i class="fas fa-file-pdf"></i> PDF 저장
+            </button>
+            <button class="sub-btn excel" onclick="saveExcel()">
+                <i class="fas fa-file-excel"></i> 엑셀 저장
             </button>
         </div>
     </div>
@@ -350,7 +358,8 @@
 
     window.onload = function() {
         const now = new Date();
-        document.getElementById('dateInput').value = now.toLocaleDateString() + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        // [수정] 날짜 포맷 변경 (YYYY. M. D.)
+        document.getElementById('dateInput').value = `${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()}.`;
         renderHistory();
         getWeather(); 
     };
@@ -409,7 +418,7 @@
     function triggerInput(id) { document.getElementById(id).click(); }
 
     function preview(num) {
-        const fileBox = document.getElementById('file'+num).parentNode.previousElementSibling; // preview-area 찾기
+        const fileBox = document.getElementById('file'+num).parentNode.previousElementSibling; 
         const imgTag = document.getElementById('img'+num);
         const spanText = fileBox.querySelector('.upload-text');
         const icon = fileBox.querySelector('.upload-icon');
@@ -430,7 +439,7 @@
     function toggleSidebar() { document.getElementById('historySidebar').classList.toggle('open'); }
     function saveHistory(location, resultText) {
         let history = JSON.parse(localStorage.getItem('jeil_dew_history') || '[]');
-        history.unshift({ id: Date.now(), date: new Date().toLocaleString(), location: location, result: resultText });
+        history.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), location: location, result: resultText });
         localStorage.setItem('jeil_dew_history', JSON.stringify(history));
         renderHistory();
     }
@@ -464,9 +473,9 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        // 최소한 첫 번째 사진(MR277)은 있어야 함
+        // 최소한 첫 번째 사진(일반 현장 사진)은 있어야 함
         if(!document.getElementById('file1').files[0]) {
-            alert("정확한 분석을 위해 'FLIR MR 277' 데이터 사진은 필수입니다.");
+            alert("정확한 분석을 위해 '1. 결로/곰팡이 메인' 사진은 필수입니다.");
             return;
         }
 
@@ -483,7 +492,7 @@
             
             let promptText = `
                 당신은 '제일건설 풍경채' 품질관리팀의 결로 및 누수 진단 최고 전문가입니다. 
-                제출된 정밀 계측 장비(FLIR MR277, MR12, 열화상, 초음파) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
+                제출된 현장 사진(2장)과 정밀 계측 장비(MR277, MR12, 열화상, 초음파) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
 
                 [입력 데이터]
                 - 진단 일자: ${dateVal}
@@ -495,13 +504,14 @@
 
                 [분석 요청 사항]
                 1. **헤더**: "제일건설 품질관리팀 정밀 진단 보고서" 명시.
-                2. **계측 데이터 분석**:
+                2. **현장 시각 분석**: 1, 2번 일반 사진을 통해 곰팡이/결로의 표면적 상태 분석.
+                3. **계측 데이터 분석**:
                    - MR277 (VAP/MIX): 수증기압과 혼합비를 분석하여 환기 부족 여부 판단.
                    - MR12 (볼 프로브): 벽체 내부 수분 함량을 통해 누수 여부 판단.
                    - 열화상: 단열 결손(열교) 구간 확인.
                    - 초음파: 기밀 불량(누기) 구간 확인.
-                3. **종합 결론**: 위 데이터를 근거로 결로의 원인이 '사용자 관리 소홀'인지 '시공 하자'인지 명확히 판정.
-                4. **솔루션**: 데이터에 기반한 구체적인 해결 방안 제시.
+                4. **종합 결론**: 위 데이터를 근거로 결로의 원인이 '사용자 관리 소홀'인지 '시공 하자'인지 명확히 판정.
+                5. **솔루션**: 데이터에 기반한 구체적인 해결 방안 제시.
 
                 [출력 형식]
                 - 전문적이고 객관적인 어조.
@@ -510,8 +520,8 @@
 
             let parts = [{ text: promptText }];
             
-            // 5개의 사진 파일 순회
-            for(let i=1; i<=5; i++) {
+            // [수정] 7개의 사진 파일 순회
+            for(let i=1; i<=7; i++) {
                 const file = document.getElementById('file'+i).files[0];
                 if(file) {
                     const base64 = await new Promise(resolve => {
@@ -580,12 +590,7 @@
                 margin: 0,
                 filename: '제일건설_정밀진단_보고서.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 2, 
-                    useCORS: true, 
-                    scrollY: 0, 
-                    windowWidth: document.documentElement.offsetWidth 
-                },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: document.documentElement.offsetWidth },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -603,6 +608,37 @@
                     btn.disabled = false;
                 });
         }, 500);
+    }
+
+    function saveExcel() {
+        // 간단한 엑셀(CSV) 저장 기능 구현
+        let loc = document.getElementById('locInput').value || "장소미정";
+        let date = document.getElementById('dateInput').value;
+        let inTemp = document.getElementById('inTemp').value;
+        let inHum = document.getElementById('inHum').value;
+        let dew = document.getElementById('dewPoint').value;
+        
+        // 결과 텍스트 가져오기 (HTML 태그 제거)
+        let resultText = document.getElementById('result').innerText.replace(/\n/g, " ");
+
+        // 데이터 배열 생성
+        const data = [
+            ["항목", "내용"],
+            ["진단 일자", date],
+            ["진단 장소", loc],
+            ["실내 온도", inTemp + "°C"],
+            ["실내 습도", inHum + "%"],
+            ["이슬점", dew],
+            ["진단 결과", resultText.substring(0, 500) + "..."] // 엑셀 셀 제한 고려하여 일부만
+        ];
+
+        // 워크시트 생성
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "진단결과");
+
+        // 파일 다운로드
+        XLSX.writeFile(wb, `제일건설_결로진단_${loc}.xlsx`);
     }
 </script>
 
