@@ -13,7 +13,9 @@
     
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     
     <style>
         :root {
@@ -37,7 +39,7 @@
         }
         
         .header { 
-            width: 100%; background: var(--brand-primary); padding: 20px 0 15px 0;
+            width: 100%; background: var(--brand-primary); padding: 20px 0 35px 0;
             box-sizing: border-box; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative;
         }
         .header-top-row {
@@ -50,8 +52,13 @@
         .header-subtitle {
             text-align: center; font-size: 0.85rem; color: #cfd8dc; margin-top: 5px; letter-spacing: 0.5px;
         }
-        .version-text {
-            color: var(--brand-primary); background: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-left: 5px;
+        
+        .version-badge {
+            position: absolute; right: 20px; bottom: 10px;
+            background-color: var(--brand-accent); color: #fff;
+            padding: 0px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: 800;
+            border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.5; height: 18px; display: flex; align-items: center;
         }
 
         .content { padding: 20px; flex: 1; }
@@ -86,13 +93,7 @@
         .env-grid input { width: 100%; padding: 12px; border: 1px solid #CFD8DC; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
         
         input[readonly] { background: #ECEFF1; color: #546E7A; font-weight: bold; }
-        
-        #dateInput { 
-            background: #fafafa; 
-            color: #2c3e50; 
-            text-align: center; 
-            cursor: text; 
-        }
+        #dateInput { background: #fafafa; color: #2c3e50; text-align: center; cursor: text; }
 
         .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .check-item { 
@@ -196,8 +197,8 @@
         </div>
         <div class="header-subtitle">
             제일건설 품질관리팀 정밀 분석 시스템 
-            <span class="version-text">Ver 3.8</span>
         </div>
+        <span class="version-badge">Ver 3.9</span>
     </div>
 
     <div class="content">
@@ -338,7 +339,7 @@
                 <button class="sub-btn pdf" onclick="savePDFWithGuide()">
                     <i class="fas fa-file-pdf"></i> PDF 저장
                 </button>
-                <button class="sub-btn excel" onclick="saveExcel()">
+                <button class="sub-btn excel" onclick="saveExcelWithImages()">
                     <i class="fas fa-file-excel"></i> 엑셀 저장
                 </button>
             </div>
@@ -382,15 +383,8 @@
     function getWeather() {
         const outTempEl = document.getElementById('outTemp');
         const outHumEl = document.getElementById('outHum');
-        // 안내 문구는 HTML로 이동했으므로 placeholder는 기본값으로
-        outTempEl.placeholder = "위치확인중.."; 
-        outHumEl.placeholder = "위치확인중..";
-        
-        if (!navigator.geolocation) { 
-            outTempEl.placeholder = "직접입력"; 
-            outHumEl.placeholder = "직접입력"; 
-            return; 
-        }
+        outTempEl.placeholder = "위치확인중.."; outHumEl.placeholder = "위치확인중..";
+        if (!navigator.geolocation) { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; return; }
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const lat = position.coords.latitude;
@@ -402,15 +396,9 @@
                         outTempEl.value = data.current.temperature_2m;
                         outHumEl.value = data.current.relative_humidity_2m;
                     }
-                } catch (e) { 
-                    outTempEl.placeholder = "직접입력"; 
-                    outHumEl.placeholder = "직접입력"; 
-                }
+                } catch (e) { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
             },
-            () => { 
-                outTempEl.placeholder = "직접입력"; 
-                outHumEl.placeholder = "직접입력"; 
-            }
+            () => { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
         );
     }
 
@@ -507,21 +495,21 @@
 
                 [정밀 분석 가이드]
                 1. **VAP/MIX 분석 (ASHRAE 겨울철 기준 적용)**:
-                   - **ASHRAE Winter Comfort Guideline**: 겨울철 권장 실내 습도 30~50%, **MIX(혼합비) 5~8 g/kg**.
-                   - 현재 MIX 값이 8.0 g/kg를 초과하면 **"과습(High Humidity Load)"**으로, 환기 부족 가능성 시사.
+                   - ASHRAE Winter Guideline: 겨울철 권장 실내 습도 30~50%, MIX 5~8 g/kg.
+                   - MIX 8.0 g/kg 초과 시 '과습(High Humidity Load)'으로 환기 부족 가능성.
                    - VAP 1.2~1.3 kPa 초과 시 내부 결로 위험 경고.
 
                 2. **열화상 분석 (미서기 창호 특성 고려)**:
-                   - 미서기(Sliding) 창호는 구조적으로 레일과 문짝 사이에 유격이 존재하므로, 상/하부 및 측면의 **미세한 온도 저하는 창호의 구조적 특성**일 수 있음.
-                   - 이를 무조건적인 '단열 불량'으로 단정하지 말고, 현저한 온도 저하가 있을 때만 지적할 것.
+                   - 미서기 창호 구조상 레일/문짝 유격에 의한 미세 온도 저하는 특성으로 간주.
+                   - 현저한 냉점 패턴이 보일 때만 단열 불량 의심.
 
                 3. **초음파 기밀 진단 (주의 요함)**:
-                   - 누기 탐지 지점은 **"외풍 유입 및 결로 발생 가능성이 있어 주의 및 관리가 필요한 지점(Attention Required)"**으로 설명.
-                   - 솔루션: 미서기 창호의 경우, 단순 실리콘 코킹보다는 **'노후된 모헤어(Weather Strip) 교체'**와 **'풍지판 설치'**를 우선적인 해결책으로 제시할 것.
+                   - 누기 지점은 "외풍 유입 및 결로 발생 가능성 주의 구간"으로 표현.
+                   - 솔루션: 미서기 창호는 모헤어 교체 및 풍지판 설치 권장.
 
                 4. **종합 결론 및 솔루션**:
-                   - 귀책 사유 판정: MIX가 높으면 '환기 부족', 장비 데이터상 명확한 하자가 보이면 '시공 개선 필요'.
-                   - 솔루션: VAP/MIX가 높을 경우 **제습기 가동 및 하루 2회 10분 맞통풍 환기**를 강력히 권고.
+                   - 귀책 사유 판정: MIX가 높으면 '환기 부족', 장비 하자가 명확하면 '시공 개선'.
+                   - 솔루션: VAP/MIX 높을 시 제습기 및 하루 2회 환기 강력 권고.
 
                 [출력 형식]
                 - 전문적이고 객관적인 어조.
@@ -608,28 +596,95 @@
         });
     }
 
-    function saveExcel() {
-        const dong = document.getElementById('dongInput').value;
-        const ho = document.getElementById('hoInput').value;
+    // [ExcelJS] 이미지 포함 엑셀 저장 함수
+    async function saveExcelWithImages() {
+        const dong = document.getElementById('dongInput').value || "000";
+        const ho = document.getElementById('hoInput').value || "0000";
         const loc = document.getElementById('locInput').value || "현장";
         const date = document.getElementById('dateInput').value;
-        const resultText = document.getElementById('result').innerText; 
+        const resultText = document.getElementById('result').innerText;
 
-        const data = [
-            ["제일건설 결로 진단 리포트"],
-            ["대상 세대", `${dong}동 ${ho}호`],
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('진단리포트');
+
+        // 스타일 정의
+        sheet.getColumn(1).width = 15; // 라벨 열
+        sheet.getColumn(2).width = 50; // 내용 열 (이미지 들어갈 곳)
+
+        // 1. 헤더 (브랜드 컬러)
+        const titleRow = sheet.addRow([`제일건설 결로 진단 리포트 (${dong}동 ${ho}호)`]);
+        sheet.mergeCells(`A${titleRow.number}:B${titleRow.number}`);
+        titleRow.getCell(1).font = { size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+        titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF003057' } };
+        titleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+        sheet.getRow(1).height = 40;
+
+        // 2. 기본 정보
+        const infoData = [
             ["진단 일자", date],
             ["진단 장소", loc],
-            [""],
-            ["[진단 결과 상세]"],
-            [resultText] 
+            ["실내 환경", `${document.getElementById('inTemp').value}°C / ${document.getElementById('inHum').value}%`],
+            ["이슬점", document.getElementById('dewPoint').value]
         ];
 
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "진단결과");
+        infoData.forEach(info => {
+            const row = sheet.addRow(info);
+            row.getCell(1).font = { bold: true };
+            row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE3F2FD' } };
+            row.getCell(2).alignment = { horizontal: 'left' };
+        });
 
-        XLSX.writeFile(wb, `${dong}동_${ho}호_제일건설_결로진단.xlsx`);
+        // 3. 사진 삽입 (비동기 처리)
+        let currentRow = sheet.lastRow.number + 2;
+        const photoLabels = [
+            "1. 결로/곰팡이 메인", "2. 근접 상세 사진", 
+            "3. FLIR MR 277 (VAP/MIX)", "4. FLIR MR12 볼 프로브", 
+            "5. 열화상 카메라", "6. 초음파 진단 1", "7. 초음파 진단 2"
+        ];
+
+        for (let i = 1; i <= 7; i++) {
+            const fileInput = document.getElementById('file' + i);
+            if (fileInput.files && fileInput.files[0]) {
+                // 라벨 추가
+                const labelRow = sheet.getRow(currentRow);
+                labelRow.getCell(1).value = photoLabels[i-1];
+                labelRow.getCell(1).font = { bold: true, color: { argb: 'FF00695C' } };
+                
+                // 이미지 추가
+                const arrayBuffer = await fileInput.files[0].arrayBuffer();
+                const imageId = workbook.addImage({
+                    buffer: arrayBuffer,
+                    extension: 'jpeg',
+                });
+
+                // 이미지 위치 설정 (B열 해당 행에 배치)
+                // 높이 확보 (약 300px -> 엑셀 행 높이 225 정도)
+                sheet.getRow(currentRow).height = 200; 
+                sheet.addImage(imageId, {
+                    tl: { col: 1, row: currentRow - 1 }, // 0-indexed column (B is 1)
+                    br: { col: 2, row: currentRow }
+                });
+
+                currentRow++;
+            }
+        }
+
+        // 4. 진단 결과 텍스트
+        currentRow++;
+        const resTitleRow = sheet.getRow(currentRow);
+        resTitleRow.getCell(1).value = "[AI 정밀 진단 결과]";
+        resTitleRow.getCell(1).font = { size: 14, bold: true, color: { argb: 'FF003057' } };
+        sheet.mergeCells(`A${currentRow}:B${currentRow}`);
+        
+        currentRow++;
+        const resTextRow = sheet.getRow(currentRow);
+        resTextRow.getCell(1).value = resultText;
+        resTextRow.getCell(1).alignment = { wrapText: true, vertical: 'top' };
+        sheet.mergeCells(`A${currentRow}:B${currentRow + 10}`); // 텍스트 공간 확보
+
+        // 파일 저장
+        const buffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([buffer]), `${dong}동_${ho}호_제일건설_결로진단.xlsx`);
     }
 </script>
 
