@@ -13,6 +13,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     
@@ -62,6 +63,7 @@
 
         .content { padding: 20px; flex: 1; }
         
+        /* 4분할 한 줄 입력창 */
         .info-row {
             display: flex; gap: 5px; margin-bottom: 20px; padding: 10px 8px;
             border: 1px solid #cfd8dc; border-radius: 12px; background: #fdfdfd;
@@ -198,7 +200,7 @@
         <div class="header-subtitle">
             제일건설 품질관리팀 정밀 분석 시스템 
         </div>
-        <span class="version-badge">Ver 3.10</span>
+        <span class="version-badge">Ver 4.0</span>
     </div>
 
     <div class="content">
@@ -352,7 +354,8 @@
 </div>
 
 <script>
-    var md = window.markdownit();
+    // [중요] markdown-it에서 HTML 태그 허용 설정 (색상 적용을 위해)
+    var md = window.markdownit({ html: true, breaks: true });
 
     window.onload = function() {
         const now = new Date();
@@ -360,6 +363,17 @@
         renderHistory();
         getWeather(); 
     };
+
+    // VAP 상태 판정 (붉은 글씨용)
+    function calcVapStatus(temp, hum) {
+        if (!temp || !hum) return "";
+        // ASHRAE 등 기준: 대략 1.3 kPa 이상이면 주의/심각
+        // 계산식 간소화: 이슬점 계산 후 수증기압 역산 (근사치)
+        // 여기서는 편의상 입력값 기준 평가 로직 삽입 필요하나, 
+        // 사용자에게 보여줄 땐 AI가 판단하게 하거나 단순 수치 비교.
+        // 프롬프트에 로직을 태우는 것이 가장 정확함.
+        return ""; 
+    }
 
     function calcDewPoint() {
         const temp = parseFloat(document.getElementById('inTemp').value);
@@ -382,8 +396,14 @@
     function getWeather() {
         const outTempEl = document.getElementById('outTemp');
         const outHumEl = document.getElementById('outHum');
-        outTempEl.placeholder = "위치확인중.."; outHumEl.placeholder = "위치확인중..";
-        if (!navigator.geolocation) { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; return; }
+        outTempEl.placeholder = "위치확인중.."; 
+        outHumEl.placeholder = "위치확인중..";
+        
+        if (!navigator.geolocation) { 
+            outTempEl.placeholder = "직접입력"; 
+            outHumEl.placeholder = "직접입력"; 
+            return; 
+        }
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const lat = position.coords.latitude;
@@ -395,9 +415,15 @@
                         outTempEl.value = data.current.temperature_2m;
                         outHumEl.value = data.current.relative_humidity_2m;
                     }
-                } catch (e) { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
+                } catch (e) { 
+                    outTempEl.placeholder = "직접입력"; 
+                    outHumEl.placeholder = "직접입력"; 
+                }
             },
-            () => { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
+            () => { 
+                outTempEl.placeholder = "직접입력"; 
+                outHumEl.placeholder = "직접입력"; 
+            }
         );
     }
 
@@ -423,8 +449,6 @@
     }
 
     function toggleSidebar() { document.getElementById('historySidebar').classList.toggle('open'); }
-    
-    // [수정] 진단 기록 저장 함수 (동/호수/장소/날짜 포함)
     function saveHistory(dong, ho, loc, resultText) {
         let history = JSON.parse(localStorage.getItem('jeil_dew_history') || '[]');
         const title = `${dong}동 ${ho}호 ${loc}`;
@@ -438,8 +462,6 @@
         localStorage.setItem('jeil_dew_history', JSON.stringify(history));
         renderHistory();
     }
-
-    // [수정] 기록 목록 렌더링
     function renderHistory() {
         const listEl = document.getElementById('historyList');
         const history = JSON.parse(localStorage.getItem('jeil_dew_history') || '[]');
@@ -447,7 +469,6 @@
             history.map(h => `<div style="padding:15px; border-bottom:1px solid #eee; cursor:pointer;" onclick="loadHistory(${h.id})"><div style="font-size:0.8rem; color:#eee;">${h.date}</div><div style="font-weight:bold; color:white;">${h.title}</div></div>`).join('');
     }
     
-    // [수정] 기록 불러오기 (입력칸 복구)
     function loadHistory(id) {
         const item = JSON.parse(localStorage.getItem('jeil_dew_history')).find(h => h.id === id);
         if(item) { 
@@ -455,7 +476,6 @@
             document.getElementById('hoInput').value = item.ho || "";
             document.getElementById('locInput').value = item.loc || "";
             document.getElementById('dateInput').value = item.date;
-            
             document.getElementById('result').innerHTML = md.render(item.result); 
             document.getElementById('result-box').style.display = 'block'; 
             toggleSidebar(); 
@@ -471,7 +491,7 @@
         
         const dong = document.getElementById('dongInput').value || "OO";
         const ho = document.getElementById('hoInput').value || "OO";
-        const loc = document.getElementById('locInput').value || "미지정";
+        const loc = document.getElementById('locInput').value;
         const dateVal = document.getElementById('dateInput').value;
         const inTemp = document.getElementById('inTemp').value;
         const inHum = document.getElementById('inHum').value;
@@ -484,6 +504,10 @@
             return;
         }
 
+        // [층수 분석]
+        let floor = parseInt(ho) > 999 ? parseInt(ho.substring(0, ho.length - 2)) : parseInt(ho.substring(0, 1));
+        let isLowFloor = (!isNaN(floor) && floor <= 2) ? true : false;
+
         const part_A = "AIzaSyB0FtOib_"; 
         const part_B = "U0nqU3N7ECCXopWbw3QZqScn0";
         const API_KEY = part_A + part_B; 
@@ -495,12 +519,13 @@
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
+            // [Ver 4.0 Expert Logic]
             let promptText = `
                 당신은 '제일건설 풍경채' 품질관리팀의 결로 및 하자 진단 최고 전문가입니다. 
                 제출된 7장의 사진(일반 2장 + 계측 5장) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
 
                 [입력 데이터]
-                - 대상 세대: ${dong}동 ${ho}호
+                - 대상 세대: ${dong}동 ${ho}호 (${isLowFloor ? '저층부' : '일반층'})
                 - 진단 일자: ${dateVal}
                 - 장소: ${loc}
                 - 발생 부위: ${checks.join(', ')}
@@ -508,27 +533,33 @@
                 - 실외 환경: 온도 ${outTemp}°C, 습도 ${outHum}%
                 - **계산된 이슬점: ${dewPoint}**
 
-                [정밀 분석 가이드]
-                1. **VAP/MIX 분석 (ASHRAE 겨울철 기준 적용)**:
-                   - **ASHRAE Winter Comfort Guideline**: 겨울철 권장 실내 습도 30~50%, **MIX(혼합비) 5~8 g/kg**.
-                   - 현재 MIX 값이 8.0 g/kg를 초과하면 **"과습(High Humidity Load)"**으로, 환기 부족 가능성 시사.
-                   - VAP 1.2~1.3 kPa 초과 시 내부 결로 위험 경고.
+                [정밀 분석 가이드 - 전문가 모드]
+                1. **VAP/MIX 상태 판정 (중요)**:
+                   - 리포트에 수치를 언급할 때, 기준치(MIX 8.0g/kg, VAP 1.3kPa)를 초과하면 수치 뒤에 반드시 **<span style='color:red'>(주의)</span>** 또는 **<span style='color:red'>(심각)</span>**이라고 붉은색으로 표기할 것.
+                   - ASHRAE 겨울철 기준(습도 30~50%, MIX 5~8g/kg)을 근거로 환기 부족 여부를 강력히 판단할 것.
 
-                2. **열화상 분석 (미서기 창호 특성 고려)**:
-                   - 미서기(Sliding) 창호는 구조적으로 레일과 문짝 사이에 유격이 존재하므로, 상/하부 및 측면의 **미세한 온도 저하는 창호의 구조적 특성**일 수 있음.
-                   - 이를 무조건적인 '단열 불량'으로 단정하지 말고, 현저한 온도 저하가 있을 때만 지적할 것.
+                2. **방화문(Turning Door) 특화 분석**:
+                   - 사진 속 대상이 금속 방화문일 경우: 미서기가 아닌 **여닫이(Turning) 방식**임을 인지하고 설명할 것.
+                   - 누기 원인: 가스켓(Gasket) 기밀성 부족, 핀틀 밀폐력 저하, 문틀 사춤(폼 충진) 불량 등을 지적.
+                   - **저층부(${dong}동 ${ho}호) 특성**: 1~2층 세대라면 공동현관 출입구의 빈번한 개폐로 인한 냉기 유입이 현관 방화문 결로의 주원인일 수 있음을 명시.
+                   - **비단열 구간**: 실외기실/다용도실 방화문은 단열재가 없는 구간(Buffer Zone)에 설치된 열전도율 높은 금속체이므로 태생적 취약함이 있음을 설명.
 
-                3. **초음파 기밀 진단 (주의 요함)**:
-                   - 누기 탐지 지점은 **"외풍 유입 및 결로 발생 가능성이 있어 주의 및 관리가 필요한 지점(Attention Required)"**으로 설명.
-                   - 솔루션: 미서기 창호의 경우, 단순 실리콘 코킹보다는 **'노후된 모헤어(Weather Strip) 교체'**와 **'풍지판 설치'**를 우선적인 해결책으로 제시할 것. (실리콘 언급 자제)
+                3. **콘크리트 양생 (신축 아파트 특성)**:
+                   - "본 아파트는 콘크리트 양생 과정이 진행 중입니다."라는 멘트를 포함할 것.
+                   - 골조의 수분이 완전히 빠져나가는 데는 약 2년이 소요되며, 이 기간 동안은 자연적으로 실내 습도가 높을 수 있음을 입주민에게 안내하는 내용을 포함.
 
-                4. **종합 결론 및 솔루션**:
-                   - 귀책 사유 판정: MIX가 높으면 '환기 부족', 장비 데이터상 명확한 하자가 보이면 '시공 개선 필요'.
-                   - 솔루션: VAP/MIX가 높을 경우 **제습기 가동 및 하루 2회 10분 맞통풍 환기**를 강력히 권고.
+                4. **열화상 및 초음파 분석**:
+                   - 미서기 창호: 구조적 유격 인정.
+                   - 방화문: 가스켓/문틀 주변 누기 집중 분석.
+                   - 초음파 누기 지점은 "외풍 유입 및 결로 주의 구간"으로 정의.
+
+                5. **종합 결론 및 솔루션**:
+                   - VAP/MIX 과다 시 제습기 가동 필수.
+                   - 방화문 결로 시 가스켓 교체 및 도어 클로저 압력 조절 권장.
 
                 [출력 형식]
                 - 전문적이고 객관적인 어조.
-                - 그래프 없이 텍스트로 상세 설명.
+                - 중요 상태값(주의/심각)은 반드시 붉은색 강조.
             `;
 
             let parts = [{ text: promptText }];
@@ -578,11 +609,12 @@
                 </div>
             `;
 
+            // [중요] AI가 생성한 텍스트에 HTML 태그(색상)가 포함될 수 있으므로 md.render 사용
             const finalHtml = headerHtml + md.render(aiResult) + footerHtml;
 
             resultDiv.innerHTML = finalHtml;
             resultBox.style.display = 'block'; 
-            saveHistory(dong, ho, loc, aiResult); // [수정] 동/호 정보 포함 저장
+            saveHistory(dong, ho, loc, aiResult); 
 
         } catch (e) {
             alert("오류 발생: " + e.message);
@@ -621,7 +653,6 @@
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('진단리포트');
 
-        // 스타일 정의
         sheet.getColumn(1).width = 20; 
         sheet.getColumn(2).width = 60; 
 
@@ -646,7 +677,6 @@
             row.getCell(2).alignment = { horizontal: 'left' };
         });
 
-        // 사진 삽입
         let currentRow = sheet.lastRow.number + 2;
         const photoLabels = [
             "1. 결로/곰팡이 메인", "2. 근접 상세 사진", 
