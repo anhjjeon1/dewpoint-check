@@ -56,23 +56,39 @@
 
         .content { padding: 20px; flex: 1; }
         
-        .location-date-box {
-            display: flex; gap: 10px; margin-bottom: 20px; padding: 15px;
+        /* [수정] 한 줄 입력창 스타일 (동/호/장소/일자) */
+        .info-row {
+            display: flex; gap: 5px; margin-bottom: 20px; padding: 10px 8px;
             border: 1px solid #cfd8dc; border-radius: 12px; background: #fdfdfd;
+            align-items: center;
         }
-        .half-box { flex: 1; }
+        .info-group { display: flex; flex-direction: column; justify-content: center; }
+        .info-group label { 
+            font-size: 0.75rem; color: #546E7A; margin-bottom: 4px; text-align: center; font-weight: bold; white-space: nowrap;
+        }
+        .info-group input {
+            width: 100%; padding: 8px 4px; border: 1px solid #CFD8DC; border-radius: 6px; 
+            font-size: 0.9rem; text-align: center; box-sizing: border-box;
+        }
+        .info-group input:focus { border-color: var(--brand-primary); outline: none; }
+        
+        /* 비율 조정 (Flex) */
+        .col-dong { flex: 0.8; } /* 동 */
+        .col-ho { flex: 0.8; }   /* 호 */
+        .col-loc { flex: 2; }    /* 장소 */
+        .col-date { flex: 1.5; } /* 일자 */
+
         .env-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .box { margin-bottom: 20px; padding: 15px; border: 1px solid #cfd8dc; border-radius: 12px; background: #ffffff; }
         .env-box { background: #E3F2FD; border: 1px solid #BBDEFB; }
         
         .section-title { font-weight: bold; color: var(--brand-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; }
         
-        label { display: block; margin-bottom: 6px; color: #455A64; font-size: 0.9rem; font-weight: bold; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid #CFD8DC; border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: border 0.2s; }
-        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--brand-primary); outline: none; }
+        /* 일반 입력창 스타일 (환경데이터 등) */
+        .env-grid label { display: block; margin-bottom: 6px; color: #455A64; font-size: 0.9rem; font-weight: bold; }
+        .env-grid input { width: 100%; padding: 12px; border: 1px solid #CFD8DC; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
         
-        input[readonly] { background: #ECEFF1; color: #546E7A; text-align: center; font-weight: bold; }
-        #dateInput { background: #ECEFF1; color: #546E7A; text-align: center; pointer-events: none; }
+        input[readonly] { background: #ECEFF1; color: #546E7A; font-weight: bold; }
 
         .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .check-item { 
@@ -84,24 +100,14 @@
         .check-item input { margin-right: 8px; transform: scale(1.2); accent-color: var(--brand-primary); }
 
         .preview-area { 
-            width: 100%; 
-            aspect-ratio: 4 / 3; 
-            background-color: #f5f5f5; 
-            border: 2px dashed #b0bec5; 
-            border-radius: 10px;
+            width: 100%; aspect-ratio: 4 / 3; background-color: #f5f5f5; 
+            border: 2px dashed #b0bec5; border-radius: 10px;
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            margin-bottom: 12px; 
-            overflow: hidden;
-            cursor: pointer;
-            position: relative;
+            margin-bottom: 12px; overflow: hidden; cursor: pointer; position: relative;
             transition: border-color 0.2s;
         }
         .preview-area:hover { border-color: var(--brand-primary); }
-
-        .preview-area img { 
-            width: 100%; height: 100%; object-fit: contain; display: none; 
-            z-index: 10; background: #f5f5f5; pointer-events: none;
-        }
+        .preview-area img { width: 100%; height: 100%; object-fit: contain; display: none; z-index: 10; background: #f5f5f5; pointer-events: none; }
         .upload-icon { font-size: 2rem; margin-bottom: 8px; color: #90a4ae; pointer-events: none; }
         .upload-text { font-size: 0.85rem; color: #78909c; font-weight: bold; pointer-events: none; }
         
@@ -112,7 +118,6 @@
         button.main-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         button.main-btn:hover { background: #002147; }
 
-        /* 하단 버튼 (PDF + 엑셀) */
         .footer-buttons { display: flex; gap: 10px; margin-top: 25px; margin-bottom: 25px; }
         button.sub-btn { 
             flex: 1; padding: 16px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1.0rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
@@ -125,10 +130,7 @@
         input[type="file"] { display: none; }
         
         .business-info {
-            background: #263238; color: #cfd8dc; 
-            padding: 15px 20px; 
-            text-align: center; font-size: 0.75rem; line-height: 1.5; 
-            border-top: 3px solid var(--brand-accent);
+            background: #263238; color: #cfd8dc; padding: 15px 20px; text-align: center; font-size: 0.75rem; line-height: 1.5; border-top: 3px solid var(--brand-accent);
         }
         .business-info strong { color: white; font-size: 0.9rem; }
 
@@ -144,30 +146,19 @@
         #result-box { display: none; } 
 
         #result {
-            min-height: 60px;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #333;
-            text-align: left; 
+            min-height: 60px; font-size: 0.95rem; line-height: 1.6; color: #333; text-align: left; 
         }
-
         #result h1, #result h2, #result h3 { color: var(--brand-primary); margin-top: 15px; margin-bottom: 10px; }
         #result strong { color: #d32f2f; }
         #result ul { padding-left: 20px; margin-bottom: 10px; }
         #result li { margin-bottom: 5px; }
 
         .result-footer-box {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: #E3F2FD;
-            border-radius: 10px;
-            text-align: center; 
-            border: 1px solid #90CAF9;
+            margin-top: 25px; padding: 20px; background-color: #E3F2FD; border-radius: 10px; text-align: center; border: 1px solid #90CAF9;
         }
         
         body.pdf-mode .container { 
-            box-shadow: none; max-width: 100%; width: 100%; margin: 0; padding: 0;
-            overflow: visible !important; height: auto !important;
+            box-shadow: none; max-width: 100%; width: 100%; margin: 0; padding: 0; overflow: visible !important; height: auto !important;
         }
         body.pdf-mode button, body.pdf-mode #historyToggleBtn { display: none !important; }
         body.pdf-mode .header { justify-content: space-between; } 
@@ -199,21 +190,28 @@
         <div class="header-top-row">
             <div class="header-title">제일건설 결로진단 AI</div>
         </div>
-        
         <div class="header-subtitle">
             제일건설 품질관리팀 정밀 분석 시스템 
-            <span class="version-text">Ver 3.5</span>
+            <span class="version-text">Ver 3.6</span>
         </div>
     </div>
 
     <div class="content">
-        <div class="location-date-box">
-            <div class="half-box">
-                <label>🏠 진단 장소</label>
-                <input type="text" id="locInput" placeholder="예: 거실 창호">
+        <div class="info-row">
+            <div class="info-group col-dong">
+                <label>동</label>
+                <input type="number" id="dongInput" placeholder="000">
             </div>
-            <div class="half-box">
-                <label>📅 진단일자</label>
+            <div class="info-group col-ho">
+                <label>호</label>
+                <input type="number" id="hoInput" placeholder="0000">
+            </div>
+            <div class="info-group col-loc">
+                <label>진단 장소</label>
+                <input type="text" id="locInput" placeholder="예: 거실">
+            </div>
+            <div class="info-group col-date">
+                <label>진단 일자</label>
                 <input type="text" id="dateInput" readonly>
             </div>
         </div>
@@ -238,11 +236,11 @@
 
                 <div>
                     <label>실외온도 (°C)</label>
-                    <input type="text" id="outTemp" placeholder="위치확인중.. (터치하여 수정)">
+                    <input type="text" id="outTemp" placeholder="위치확인중..">
                 </div>
                 <div>
                     <label>실외습도 (%)</label>
-                    <input type="text" id="outHum" placeholder="위치확인중.. (터치하여 수정)">
+                    <input type="text" id="outHum" placeholder="위치확인중..">
                 </div>
             </div>
         </div>
@@ -327,8 +325,7 @@
         <div class="box" id="result-box" style="margin-top:20px; border:2px solid var(--brand-primary);">
             <div class="section-title" style="color:var(--brand-primary);"><i class="fas fa-file-contract"></i> 진단 결과 리포트</div>
             
-            <div id="result">
-                </div>
+            <div id="result"></div>
             
             <div class="footer-buttons">
                 <button class="sub-btn pdf" onclick="savePDFWithGuide()">
@@ -352,6 +349,7 @@
 
     window.onload = function() {
         const now = new Date();
+        // [수정] 날짜만 표시 (YYYY. M. D.)
         document.getElementById('dateInput').value = `${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()}.`;
         renderHistory();
         getWeather(); 
@@ -363,40 +361,22 @@
         const dpField = document.getElementById('dewPoint');
 
         if (!isNaN(temp) && !isNaN(hum)) {
-            const a = 17.27;
-            const b = 237.7;
+            const a = 17.27; const b = 237.7;
             const alpha = ((a * temp) / (b + temp)) + Math.log(hum / 100.0);
             const dewPoint = (b * alpha) / (a - alpha);
-            
             dpField.value = dewPoint.toFixed(1) + "°C";
-            
-            if (temp - dewPoint < 3) {
-                dpField.style.backgroundColor = "#ffcdd2"; 
-                dpField.style.color = "#b71c1c";
-            } else if (temp - dewPoint < 6) {
-                dpField.style.backgroundColor = "#fff9c4"; 
-                dpField.style.color = "#f57f17";
-            } else {
-                dpField.style.backgroundColor = "#e8f5e9"; 
-                dpField.style.color = "#2e7d32";
-            }
+            if(dewPoint > temp - 3) { dpField.style.backgroundColor = "#ffcdd2"; dpField.style.color = "#b71c1c"; }
+            else { dpField.style.backgroundColor = "#e8f5e9"; dpField.style.color = "#2e7d32"; }
         } else {
-            dpField.value = "";
-            dpField.style.backgroundColor = "#ffebee";
+            dpField.value = ""; dpField.style.backgroundColor = "#ffebee";
         }
     }
 
     function getWeather() {
         const outTempEl = document.getElementById('outTemp');
         const outHumEl = document.getElementById('outHum');
-        outTempEl.placeholder = "위치확인중.."; 
-        outHumEl.placeholder = "위치확인중..";
-        
-        if (!navigator.geolocation) { 
-            outTempEl.placeholder = "직접입력"; 
-            outHumEl.placeholder = "직접입력"; 
-            return; 
-        }
+        outTempEl.placeholder = "위치확인중.."; outHumEl.placeholder = "위치확인중..";
+        if (!navigator.geolocation) { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; return; }
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const lat = position.coords.latitude;
@@ -408,15 +388,9 @@
                         outTempEl.value = data.current.temperature_2m;
                         outHumEl.value = data.current.relative_humidity_2m;
                     }
-                } catch (e) { 
-                    outTempEl.placeholder = "직접입력"; 
-                    outHumEl.placeholder = "직접입력"; 
-                }
+                } catch (e) { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
             },
-            () => { 
-                outTempEl.placeholder = "직접입력"; 
-                outHumEl.placeholder = "직접입력"; 
-            }
+            () => { outTempEl.placeholder = "직접입력"; outHumEl.placeholder = "직접입력"; }
         );
     }
 
@@ -472,6 +446,8 @@
         const resultDiv = document.getElementById('result');
         const resultBox = document.getElementById('result-box');
         
+        const dong = document.getElementById('dongInput').value || "OO";
+        const ho = document.getElementById('hoInput').value || "OO";
         const loc = document.getElementById('locInput').value;
         const dateVal = document.getElementById('dateInput').value;
         const inTemp = document.getElementById('inTemp').value;
@@ -496,12 +472,12 @@
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
-            // [수정] 전문가 프롬프트 업데이트 (미서기 창호 특성, 초음파 해석, 모헤어 솔루션)
             let promptText = `
                 당신은 '제일건설 풍경채' 품질관리팀의 결로 및 하자 진단 최고 전문가입니다. 
                 제출된 7장의 사진(일반 2장 + 계측 5장) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
 
                 [입력 데이터]
+                - 대상 세대: ${dong}동 ${ho}호
                 - 진단 일자: ${dateVal}
                 - 장소: ${loc}
                 - 발생 부위: ${checks.join(', ')}
@@ -521,7 +497,7 @@
 
                 3. **초음파 기밀 진단 (주의 요함)**:
                    - 누기 탐지 지점은 **"외풍 유입 및 결로 발생 가능성이 있어 주의 및 관리가 필요한 지점(Attention Required)"**으로 설명.
-                   - 솔루션: 미서기 창호의 경우, 단순 실리콘 코킹보다는 **'노후된 모헤어(Weather Strip) 교체'**와 **'풍지판 설치'**를 우선적인 해결책으로 제시할 것. (실리콘 언급 자제)
+                   - 솔루션: 미서기 창호의 경우, 단순 실리콘 코킹보다는 **'노후된 모헤어(Weather Strip) 교체'**와 **'풍지판 설치'**를 우선적인 해결책으로 제시할 것.
 
                 4. **종합 결론 및 솔루션**:
                    - 귀책 사유 판정: MIX가 높으면 '환기 부족', 장비 데이터상 명확한 하자가 보이면 '시공 개선 필요'.
@@ -563,6 +539,10 @@
             const jsonData = JSON.parse(textData);
             const aiResult = jsonData.candidates[0].content.parts[0].text;
             
+            const headerHtml = `<div style="text-align:center; margin-bottom:15px; border-bottom:1px solid #ddd; padding-bottom:10px;">
+                                    <h2 style="color:var(--brand-primary); margin:0;">📍 대상 세대: ${dong}동 ${ho}호</h2>
+                                </div>`;
+
             const footerHtml = `
                 <div class="result-footer-box" style="background-color: #E3F2FD; padding: 25px 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-top: 30px; border: 1px solid #90CAF9;">
                     <h3 style="color:#003057; margin: 0 0 15px 0; font-size: 1.1rem; text-align: center;">
@@ -575,7 +555,7 @@
                 </div>
             `;
 
-            const finalHtml = md.render(aiResult) + footerHtml;
+            const finalHtml = headerHtml + md.render(aiResult) + footerHtml;
 
             resultDiv.innerHTML = finalHtml;
             resultBox.style.display = 'block'; 
@@ -590,11 +570,15 @@
 
     function savePDFWithGuide() {
         const element = document.getElementById('pdfArea');
+        const dong = document.getElementById('dongInput').value || "000";
+        const ho = document.getElementById('hoInput').value || "0000";
+        const loc = document.getElementById('locInput').value || "현장";
+
         document.body.classList.add('pdf-mode');
         
         const opt = {
             margin: 0,
-            filename: '제일건설_정밀진단_보고서.pdf',
+            filename: `${dong}동_${ho}호_제일건설_결로진단.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -606,12 +590,15 @@
     }
 
     function saveExcel() {
+        const dong = document.getElementById('dongInput').value;
+        const ho = document.getElementById('hoInput').value;
         const loc = document.getElementById('locInput').value || "현장";
         const date = document.getElementById('dateInput').value;
         const resultText = document.getElementById('result').innerText; 
 
         const data = [
             ["제일건설 결로 진단 리포트"],
+            ["대상 세대", `${dong}동 ${ho}호`],
             ["진단 일자", date],
             ["진단 장소", loc],
             [""],
@@ -623,7 +610,7 @@
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "진단결과");
 
-        XLSX.writeFile(wb, `제일건설_결로진단_${loc}.xlsx`);
+        XLSX.writeFile(wb, `${dong}동_${ho}호_제일건설_결로진단.xlsx`);
     }
 </script>
 
