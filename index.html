@@ -24,7 +24,7 @@
             --equip-blue: #1565C0;
             --thermal-red: #D84315;
             --sonic-purple: #6A1B9A;
-            --normal-gray: #546E7A; /* 일반 사진용 색상 */
+            --normal-gray: #546E7A; 
         }
 
         body { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; margin: 0; padding: 0; background: var(--bg-color); overflow-x: hidden; }
@@ -83,7 +83,6 @@
         .check-item:hover { background: #E3F2FD; }
         .check-item input { margin-right: 8px; transform: scale(1.2); accent-color: var(--brand-primary); }
 
-        /* 사진 입력칸 스타일 (4:3) */
         .preview-area { 
             width: 100%; 
             aspect-ratio: 4 / 3; 
@@ -113,19 +112,18 @@
         button.main-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         button.main-btn:hover { background: #002147; }
 
-        /* [수정] 하단 버튼 (PDF + 엑셀) */
+        /* 하단 버튼 (PDF + 엑셀) */
         .footer-buttons { display: flex; gap: 10px; margin-top: 25px; margin-bottom: 25px; }
         button.sub-btn { 
             flex: 1; padding: 16px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1.0rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
             display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s;
         }
         button.sub-btn:active { transform: translateY(2px); }
-        button.sub-btn.pdf { background: #D32F2F; } /* 빨강 */
-        button.sub-btn.excel { background: #2E7D32; } /* 초록 */
+        button.sub-btn.pdf { background: #D32F2F; } 
+        button.sub-btn.excel { background: #2E7D32; } 
 
         input[type="file"] { display: none; }
         
-        /* [수정] 하단 정보 슬림화 */
         .business-info {
             background: #263238; color: #cfd8dc; 
             padding: 15px 20px; 
@@ -142,6 +140,8 @@
         #historyToggleBtn {
             position: fixed; top: 20px; right: 20px; z-index: 999; color: white; font-size: 1.5rem; cursor: pointer; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 50%;
         }
+
+        #result-box { display: none; } /* 처음엔 숨김 */
 
         #result {
             min-height: 60px;
@@ -202,7 +202,7 @@
         
         <div class="header-subtitle">
             제일건설 품질관리팀 정밀 분석 시스템 
-            <span class="version-text">Ver 3.2</span>
+            <span class="version-text">Ver 3.3</span>
         </div>
     </div>
 
@@ -258,7 +258,7 @@
         </div>
 
         <div class="box">
-            <div class="section-title"><i class="fas fa-microscope"></i> 현장 증거 및 정밀 계측 데이터</div>
+            <div class="section-title"><i class="fas fa-microscope"></i> 현장 및 정밀 계측 데이터 입력</div>
             
             <label style="color:var(--normal-gray);">1. 결로/곰팡이 메인 (필수)</label>
             <div class="preview-area" onclick="triggerInput('file1')" style="border-color: #b0bec5;">
@@ -324,26 +324,20 @@
             <i class="fas fa-spinner fa-spin"></i> 제일건설 AI가 데이터를 분석 중입니다...
         </div>
 
-        <div class="box" style="margin-top:20px; border:2px solid var(--brand-primary);">
+        <div class="box" id="result-box" style="margin-top:20px; border:2px solid var(--brand-primary);">
             <div class="section-title" style="color:var(--brand-primary);"><i class="fas fa-file-contract"></i> 진단 결과 리포트</div>
             
             <div id="result">
-                <div style="text-align: center; padding: 20px 0; color: #555;">
-                    데이터를 입력하고<br>
-                    <strong style="color:var(--brand-primary);">[정밀 진단 시작]</strong> 버튼을 눌러주세요.<br><br>
-                    입주민을 위한 맞춤형<br>
-                    관리 솔루션이 제공됩니다.
                 </div>
+            
+            <div class="footer-buttons">
+                <button class="sub-btn pdf" onclick="savePDFWithGuide()">
+                    <i class="fas fa-file-pdf"></i> PDF 저장
+                </button>
+                <button class="sub-btn excel" onclick="saveExcel()">
+                    <i class="fas fa-file-excel"></i> 엑셀 저장
+                </button>
             </div>
-        </div>
-
-        <div class="footer-buttons">
-            <button class="sub-btn pdf" id="saveBtn" onclick="savePDFWithGuide()">
-                <i class="fas fa-file-pdf"></i> PDF 저장
-            </button>
-            <button class="sub-btn excel" onclick="saveExcel()">
-                <i class="fas fa-file-excel"></i> 엑셀 저장
-            </button>
         </div>
     </div>
 
@@ -358,7 +352,6 @@
 
     window.onload = function() {
         const now = new Date();
-        // [수정] 날짜 포맷 변경 (YYYY. M. D.)
         document.getElementById('dateInput').value = `${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()}.`;
         renderHistory();
         getWeather(); 
@@ -455,6 +448,7 @@
         if(item) { 
             document.getElementById('locInput').value = item.location; 
             document.getElementById('result').innerHTML = md.render(item.result); 
+            document.getElementById('result-box').style.display = 'block'; // [수정] 기록 로드 시 결과창 보이기
             toggleSidebar(); 
         }
     }
@@ -464,6 +458,7 @@
         const btn = document.getElementById('btnRun');
         const status = document.getElementById('status');
         const resultDiv = document.getElementById('result');
+        const resultBox = document.getElementById('result-box');
         
         const loc = document.getElementById('locInput').value;
         const dateVal = document.getElementById('dateInput').value;
@@ -484,15 +479,16 @@
         const API_KEY = part_A + part_B; 
 
         btn.disabled = true; status.style.display = 'block';
-        resultDiv.innerHTML = "<div style='text-align:center;'>제일건설 AI가 현장 데이터를 정밀 분석 중입니다...</div>";
+        resultBox.style.display = 'none'; // 분석 중엔 숨김
 
         try {
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
+            // [제일건설 전용 전문가 프롬프트]
             let promptText = `
-                당신은 '제일건설 풍경채' 품질관리팀의 결로 및 누수 진단 최고 전문가입니다. 
-                제출된 현장 사진(2장)과 정밀 계측 장비(MR277, MR12, 열화상, 초음파) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
+                당신은 '제일건설 풍경채' 품질관리팀의 결로 및 하자 진단 최고 전문가입니다. 
+                제출된 7장의 사진(일반 현장 2장 + 정밀 계측 5장: MR277, MR12, 열화상, 초음파) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
 
                 [입력 데이터]
                 - 진단 일자: ${dateVal}
@@ -504,23 +500,28 @@
 
                 [분석 요청 사항]
                 1. **헤더**: "제일건설 품질관리팀 정밀 진단 보고서" 명시.
-                2. **현장 시각 분석**: 1, 2번 일반 사진을 통해 곰팡이/결로의 표면적 상태 분석.
-                3. **계측 데이터 분석**:
-                   - MR277 (VAP/MIX): 수증기압과 혼합비를 분석하여 환기 부족 여부 판단.
-                   - MR12 (볼 프로브): 벽체 내부 수분 함량을 통해 누수 여부 판단.
-                   - 열화상: 단열 결손(열교) 구간 확인.
-                   - 초음파: 기밀 불량(누기) 구간 확인.
-                4. **종합 결론**: 위 데이터를 근거로 결로의 원인이 '사용자 관리 소홀'인지 '시공 하자'인지 명확히 판정.
-                5. **솔루션**: 데이터에 기반한 구체적인 해결 방안 제시.
+                2. **VAP/MIX 분석 (MR277)**:
+                   - MIX(혼합비) 기준: 겨울철 9.0g/kg 이상이면 '과습(환기 부족)'으로 판단.
+                   - VAP(수증기압): 실내 수증기압이 높으면 벽체 침투 가능성 경고.
+                   - 이 데이터를 근거로 거주자의 환기 습관을 과학적으로 평가할 것.
+                3. **마감재 수분 분석 (MR12)**:
+                   - 벽체 내부 수분 함량이 높으면 누수 또는 단열 결손에 의한 내부 결로 의심.
+                4. **단열/기밀 분석 (열화상/초음파)**:
+                   - 열화상 냉점(Cold Spot)과 초음파 누기 지점이 일치하는지 확인.
+                   - 일치할 경우 시공 하자(단열/기밀 불량)로 판정.
+                   - 물리적 하자가 발견되지 않고 MIX만 높다면 거주자 과실로 판정.
+                5. **종합 결론 및 솔루션**:
+                   - 귀책 사유(거주자 vs 시공사)를 객관적으로 명시.
+                   - VAP/MIX가 높을 경우 제습기 사용 및 올바른 환기법(하루 2회 10분 맞통풍) 등 구체적 관리법 제시.
 
                 [출력 형식]
-                - 전문적이고 객관적인 어조.
-                - 핵심 결론 두괄식 배치.
+                - 건설사 입장에서 방어할 부분은 방어하고, 인정할 하자는 인정하는 객관적이고 신뢰감 있는 톤.
+                - 그래프 없이 텍스트로 상세 설명.
             `;
 
             let parts = [{ text: promptText }];
             
-            // [수정] 7개의 사진 파일 순회
+            // 7개의 사진 파일 순회
             for(let i=1; i<=7; i++) {
                 const file = document.getElementById('file'+i).files[0];
                 if(file) {
@@ -557,7 +558,7 @@
                     </h3>
                     <div style="font-size: 0.95rem; color: #333; line-height: 1.7; text-align: left;">
                         <p>본 결과는 첨단 장비 데이터를 기반으로 한 AI 정밀 진단 결과입니다.</p>
-                        <p>진단 결과에 따라 <strong>적절한 환기 및 온습도 관리</strong> 또는 <strong>하자 보수 신청</strong>을 진행해 주시기 바랍니다.</p>
+                        <p><strong>VAP/MIX 수치가 높게 측정된 경우</strong>, 구조적 결함보다는 생활 습관(환기 부족)이 주원인일 가능성이 높습니다. 제습기 가동 및 적극적인 환기를 권장합니다.</p>
                     </div>
                 </div>
             `;
@@ -565,79 +566,53 @@
             const finalHtml = md.render(aiResult) + footerHtml;
 
             resultDiv.innerHTML = finalHtml;
+            resultBox.style.display = 'block'; // [수정] 결과가 나오면 박스 표시
             saveHistory(loc, aiResult); 
 
         } catch (e) {
             alert("오류 발생: " + e.message);
-            resultDiv.innerHTML = "분석 실패: " + e.message;
         } finally {
             btn.disabled = false; status.style.display = 'none';
         }
     }
 
     function savePDFWithGuide() {
-        const btn = document.getElementById('saveBtn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = "저장중..."; btn.disabled = true;
+        const element = document.getElementById('pdfArea');
+        document.body.classList.add('pdf-mode');
         
-        setTimeout(() => {
-            document.body.classList.add('pdf-mode');
-            window.scrollTo(0, 0); 
+        const opt = {
+            margin: 0,
+            filename: '제일건설_정밀진단_보고서.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
 
-            const element = document.getElementById('pdfArea');
-            
-            const opt = {
-                margin: 0,
-                filename: '제일건설_정밀진단_보고서.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: document.documentElement.offsetWidth },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).save()
-                .then(() => {
-                    document.body.classList.remove('pdf-mode');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                })
-                .catch((e) => {
-                    alert("PDF 저장 중 오류가 발생했습니다.");
-                    console.error(e);
-                    document.body.classList.remove('pdf-mode');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                });
-        }, 500);
+        html2pdf().set(opt).from(element).save().then(() => {
+            document.body.classList.remove('pdf-mode');
+        });
     }
 
     function saveExcel() {
-        // 간단한 엑셀(CSV) 저장 기능 구현
-        let loc = document.getElementById('locInput').value || "장소미정";
-        let date = document.getElementById('dateInput').value;
-        let inTemp = document.getElementById('inTemp').value;
-        let inHum = document.getElementById('inHum').value;
-        let dew = document.getElementById('dewPoint').value;
-        
-        // 결과 텍스트 가져오기 (HTML 태그 제거)
-        let resultText = document.getElementById('result').innerText.replace(/\n/g, " ");
+        const loc = document.getElementById('locInput').value || "현장";
+        const date = document.getElementById('dateInput').value;
+        const resultText = document.getElementById('result').innerText; // AI 결과 텍스트만 추출
 
-        // 데이터 배열 생성
+        // 엑셀 데이터 구성
         const data = [
-            ["항목", "내용"],
+            ["제일건설 결로 진단 리포트"],
             ["진단 일자", date],
             ["진단 장소", loc],
-            ["실내 온도", inTemp + "°C"],
-            ["실내 습도", inHum + "%"],
-            ["이슬점", dew],
-            ["진단 결과", resultText.substring(0, 500) + "..."] // 엑셀 셀 제한 고려하여 일부만
+            [""],
+            ["[진단 결과 상세]"],
+            [resultText] // 전체 텍스트를 하나의 셀에 넣음 (필요시 파싱 가능)
         ];
 
-        // 워크시트 생성
         const ws = XLSX.utils.aoa_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "진단결과");
 
-        // 파일 다운로드
+        // 파일명 생성 및 다운로드
         XLSX.writeFile(wb, `제일건설_결로진단_${loc}.xlsx`);
     }
 </script>
