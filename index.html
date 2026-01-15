@@ -202,7 +202,7 @@
         
         <div class="header-subtitle">
             제일건설 품질관리팀 정밀 분석 시스템 
-            <span class="version-text">Ver 3.3</span>
+            <span class="version-text">Ver 3.4</span>
         </div>
     </div>
 
@@ -468,7 +468,6 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
-        // 최소한 첫 번째 사진(일반 현장 사진)은 있어야 함
         if(!document.getElementById('file1').files[0]) {
             alert("정확한 분석을 위해 '1. 결로/곰팡이 메인' 사진은 필수입니다.");
             return;
@@ -479,16 +478,16 @@
         const API_KEY = part_A + part_B; 
 
         btn.disabled = true; status.style.display = 'block';
-        resultBox.style.display = 'none'; // 분석 중엔 숨김
+        resultBox.style.display = 'none';
 
         try {
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
-            // [제일건설 전용 전문가 프롬프트]
+            // [수정] 전문가 프롬프트: ASHRAE 기준, 미서기 창호 특성, 초음파 해석 주의 등 반영
             let promptText = `
                 당신은 '제일건설 풍경채' 품질관리팀의 결로 및 하자 진단 최고 전문가입니다. 
-                제출된 7장의 사진(일반 현장 2장 + 정밀 계측 5장: MR277, MR12, 열화상, 초음파) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
+                제출된 7장의 사진(일반 2장 + 계측 5장) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
 
                 [입력 데이터]
                 - 진단 일자: ${dateVal}
@@ -498,30 +497,32 @@
                 - 실외 환경: 온도 ${outTemp}°C, 습도 ${outHum}%
                 - **계산된 이슬점: ${dewPoint}**
 
-                [분석 요청 사항]
-                1. **헤더**: "제일건설 품질관리팀 정밀 진단 보고서" 명시.
-                2. **VAP/MIX 분석 (MR277)**:
-                   - MIX(혼합비) 기준: 겨울철 9.0g/kg 이상이면 '과습(환기 부족)'으로 판단.
-                   - VAP(수증기압): 실내 수증기압이 높으면 벽체 침투 가능성 경고.
-                   - 이 데이터를 근거로 거주자의 환기 습관을 과학적으로 평가할 것.
-                3. **마감재 수분 분석 (MR12)**:
-                   - 벽체 내부 수분 함량이 높으면 누수 또는 단열 결손에 의한 내부 결로 의심.
-                4. **단열/기밀 분석 (열화상/초음파)**:
-                   - 열화상 냉점(Cold Spot)과 초음파 누기 지점이 일치하는지 확인.
-                   - 일치할 경우 시공 하자(단열/기밀 불량)로 판정.
-                   - 물리적 하자가 발견되지 않고 MIX만 높다면 거주자 과실로 판정.
-                5. **종합 결론 및 솔루션**:
-                   - 귀책 사유(거주자 vs 시공사)를 객관적으로 명시.
-                   - VAP/MIX가 높을 경우 제습기 사용 및 올바른 환기법(하루 2회 10분 맞통풍) 등 구체적 관리법 제시.
+                [정밀 분석 가이드]
+                1. **VAP/MIX 분석 (ASHRAE 겨울철 기준 적용)**:
+                   - **ASHRAE Winter Comfort Guideline**: 겨울철 결로 예방을 위한 권장 실내 습도는 **30~50%**이며, **MIX(혼합비)는 5~8 g/kg** 수준이 안전합니다.
+                   - **현재 측정값 분석**: MR277의 MIX 값을 확인하고, 8.0 g/kg를 초과하면 **"과습(High Humidity Load)"**으로, 이는 거주자의 환기 부족 가능성을 시사합니다.
+                   - **VAP(수증기압)**: 1.2~1.3 kPa를 초과하면 습기의 침투압이 높아 내부 결로 위험이 있습니다.
+
+                2. **열화상 분석 (미서기 창호 특성 고려)**:
+                   - 미서기(Sliding) 창호는 구조적으로 레일과 문짝 사이에 유격(Gap)이 존재합니다.
+                   - 따라서 상/하부 및 측면에서 **약간의 온도 저하(파란색 라인)가 나타나는 것은 창호의 구조적 특성**일 수 있으므로, 이를 무조건적인 '단열 불량'으로 단정하지 마십시오.
+                   - 단, 주변 벽체보다 현저히 낮은 온도나 비정상적인 냉점 패턴이 보일 경우에만 '단열 성능 저하 의심'으로 소견을 작성하세요.
+
+                3. **초음파 기밀 진단 (주의 요함)**:
+                   - 초음파 누기 탐지 지점은 공기가 통하는 '기밀 취약 부위'를 의미합니다.
+                   - "무조건적인 시공 하자"라고 단정하기보다는, **"외풍 유입 및 결로 발생 가능성이 있어 주의 및 관리가 필요한 지점(Attention Required)"**으로 설명하세요.
+
+                4. **종합 결론 및 솔루션**:
+                   - 귀책 사유 판정: MIX가 높으면 '환기 부족', 장비 데이터상 명확한 하자가 보이면 '시공 개선 필요'.
+                   - 솔루션: VAP/MIX가 높을 경우 **제습기 가동 및 하루 2회 10분 맞통풍 환기**를 강력히 권고하세요.
 
                 [출력 형식]
-                - 건설사 입장에서 방어할 부분은 방어하고, 인정할 하자는 인정하는 객관적이고 신뢰감 있는 톤.
+                - 전문적이고 객관적인 어조.
                 - 그래프 없이 텍스트로 상세 설명.
             `;
 
             let parts = [{ text: promptText }];
             
-            // 7개의 사진 파일 순회
             for(let i=1; i<=7; i++) {
                 const file = document.getElementById('file'+i).files[0];
                 if(file) {
@@ -566,7 +567,7 @@
             const finalHtml = md.render(aiResult) + footerHtml;
 
             resultDiv.innerHTML = finalHtml;
-            resultBox.style.display = 'block'; // [수정] 결과가 나오면 박스 표시
+            resultBox.style.display = 'block'; 
             saveHistory(loc, aiResult); 
 
         } catch (e) {
@@ -596,23 +597,21 @@
     function saveExcel() {
         const loc = document.getElementById('locInput').value || "현장";
         const date = document.getElementById('dateInput').value;
-        const resultText = document.getElementById('result').innerText; // AI 결과 텍스트만 추출
+        const resultText = document.getElementById('result').innerText; 
 
-        // 엑셀 데이터 구성
         const data = [
             ["제일건설 결로 진단 리포트"],
             ["진단 일자", date],
             ["진단 장소", loc],
             [""],
             ["[진단 결과 상세]"],
-            [resultText] // 전체 텍스트를 하나의 셀에 넣음 (필요시 파싱 가능)
+            [resultText] 
         ];
 
         const ws = XLSX.utils.aoa_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "진단결과");
 
-        // 파일명 생성 및 다운로드
         XLSX.writeFile(wb, `제일건설_결로진단_${loc}.xlsx`);
     }
 </script>
