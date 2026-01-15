@@ -15,12 +15,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        /* 제일건설 브랜드 컬러 (네이비/그린 계열 추정 - 고급스러운 톤으로 조정) */
         :root {
-            --brand-primary: #003057; /* 짙은 네이비 (신뢰감) */
-            --brand-secondary: #00695C; /* 짙은 그린 (친환경/조경) */
-            --brand-accent: #C69C6D; /* 골드/베이지 (고급스러움) */
+            --brand-primary: #003057; 
+            --brand-secondary: #00695C; 
+            --brand-accent: #C69C6D; 
             --bg-color: #f4f6f8;
+            --equip-blue: #1565C0; /* 계측장비용 블루 */
+            --thermal-red: #D84315; /* 열화상용 레드 */
+            --sonic-purple: #6A1B9A; /* 초음파용 퍼플 */
         }
 
         body { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; margin: 0; padding: 0; background: var(--bg-color); overflow-x: hidden; }
@@ -37,14 +39,7 @@
             box-sizing: border-box; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative;
         }
         .header-top-row {
-            display: flex; align-items: center; justify-content: center; height: 50px; margin-bottom: 5px; position: relative;
-        }
-        /* 풍경채 로고 스타일 (이미지 대신 텍스트 로고 사용 시) */
-        .logo-text {
-            font-family: 'Gungsuh', serif; /* 궁서체 느낌으로 고급스럽게 */
-            font-size: 1.8rem; font-weight: bold; color: white; 
-            letter-spacing: 2px;
-            margin-right: 10px;
+            display: flex; align-items: center; justify-content: center; height: 40px; margin-bottom: 5px; position: relative;
         }
         .header-title {
             font-size: 1.3rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
@@ -66,7 +61,7 @@
         .half-box { flex: 1; }
         .env-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .box { margin-bottom: 20px; padding: 15px; border: 1px solid #cfd8dc; border-radius: 12px; background: #ffffff; }
-        .env-box { background: #E3F2FD; border: 1px solid #BBDEFB; } /* 환경 데이터 박스 색상 변경 */
+        .env-box { background: #E3F2FD; border: 1px solid #BBDEFB; }
         
         .section-title { font-weight: bold; color: var(--brand-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; }
         
@@ -86,20 +81,21 @@
         .check-item:hover { background: #E3F2FD; }
         .check-item input { margin-right: 8px; transform: scale(1.2); accent-color: var(--brand-primary); }
 
+        /* [수정] 사진 입력칸 스타일 (4:3 비율 유지) */
         .preview-area { 
             width: 100%; 
             aspect-ratio: 4 / 3; 
             background-color: #f5f5f5; 
             border: 2px dashed #b0bec5; 
             border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
             margin-bottom: 12px; 
             overflow: hidden;
-            background-image: url('https://via.placeholder.com/60x60/b0bec5/ffffff?text=IMG');
-            background-repeat: no-repeat; background-position: center; background-size: 60px; 
             cursor: pointer;
             position: relative;
+            transition: border-color 0.2s;
         }
+        .preview-area:hover { border-color: var(--brand-primary); }
 
         .preview-area img { 
             width: 100%; 
@@ -110,7 +106,9 @@
             background: #f5f5f5;
             pointer-events: none;
         }
-        .preview-area span { pointer-events: none; }
+        
+        .upload-icon { font-size: 2rem; margin-bottom: 8px; color: #90a4ae; pointer-events: none; }
+        .upload-text { font-size: 0.85rem; color: #78909c; font-weight: bold; pointer-events: none; }
         
         button.main-btn { 
             width: 100%; padding: 16px; background: var(--brand-primary); color: white; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px;
@@ -119,31 +117,25 @@
         button.main-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         button.main-btn:hover { background: #002147; }
 
-        /* [수정] 하단 버튼: 상담 버튼 삭제하고 저장 버튼만 남김 */
         .footer-buttons { margin-top: 25px; margin-bottom: 25px; }
         button.sub-btn { 
             width: 100%; padding: 16px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1.1rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
             display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s;
         }
         button.sub-btn:active { transform: translateY(2px); }
-        
-        /* PDF 저장 버튼 스타일 강화 */
         button.sub-btn.save { background: var(--brand-secondary); }
 
-        .custom-file-upload {
-            display: inline-block; padding: 8px 20px; cursor: pointer; background: #546e7a; color: white; border-radius: 20px;
-            font-size: 0.85rem; border: none; font-weight: bold; float: left; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
+        .custom-file-upload { display: none; } /* 기존 라벨 숨김 */
         input[type="file"] { display: none; }
         
-        /* [수정] 하단 정보: 제일건설 풍경채 스타일 */
+        /* [수정] 하단 정보: 제일건설 정보 슬림화 */
         .business-info {
-            background: #263238; color: #cfd8dc; padding: 25px 20px; text-align: center; font-size: 0.75rem; line-height: 1.6; border-top: 3px solid var(--brand-accent);
+            background: #263238; color: #cfd8dc; 
+            padding: 15px 20px; /* 패딩 축소 */
+            text-align: center; font-size: 0.75rem; line-height: 1.5; 
+            border-top: 3px solid var(--brand-accent);
         }
-        /* 풍경채 로고 텍스트 (하단용) */
-        .footer-logo {
-            font-family: 'Gungsuh', serif; font-size: 1.5rem; font-weight: bold; color: white; display: block; margin-bottom: 10px; letter-spacing: 2px;
-        }
+        .business-info strong { color: white; font-size: 0.9rem; }
 
         #historySidebar {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.2);
@@ -186,9 +178,7 @@
             height: auto !important;
         }
         body.pdf-mode button, 
-        body.pdf-mode #historyToggleBtn, 
-        body.pdf-mode .custom-file-upload, 
-        body.pdf-mode .file-input-container { 
+        body.pdf-mode #historyToggleBtn { 
             display: none !important; 
         }
         body.pdf-mode .header { justify-content: space-between; } 
@@ -218,13 +208,12 @@
 <div class="container" id="pdfArea">
     <div class="header">
         <div class="header-top-row">
-            <span class="logo-text">풍경채</span>
             <div class="header-title">제일건설 결로진단 AI</div>
         </div>
         
         <div class="header-subtitle">
             제일건설 품질관리팀 정밀 분석 시스템 
-            <span class="version-text">Ver 3.0</span>
+            <span class="version-text">Ver 3.1</span>
         </div>
     </div>
 
@@ -254,11 +243,8 @@
                 
                 <div style="grid-column: span 2;">
                     <label style="color:#d32f2f; text-align:center;">🔥 결로 이슬점 (Dew Point)</label>
-                    <input type="text" id="dewPoint" placeholder="온도/습도 입력시 자동계산" readonly 
+                    <input type="text" id="dewPoint" placeholder="자동계산" readonly 
                            style="background-color:#ffebee; color:#b71c1c; font-weight:bold; text-align:center; font-size:1.1rem; border:1px solid #ffcdd2;">
-                    <div style="text-align:center; font-size:0.75rem; color:#b71c1c; margin-top:4px;">
-                        * 표면 온도가 이보다 낮으면 결로가 발생합니다.
-                    </div>
                 </div>
 
                 <div>
@@ -283,27 +269,47 @@
         </div>
 
         <div class="box">
-            <div class="section-title"><i class="fas fa-camera"></i> 1. 결로/곰팡이 사진(필수)</div>
-            <div class="preview-area" onclick="triggerInput('file1')">
+            <div class="section-title"><i class="fas fa-microscope"></i> 정밀 계측 데이터 입력</div>
+            
+            <label style="color:var(--equip-blue);">■ FLIR MR 277 (VAP/MIX)</label>
+            <div class="preview-area" onclick="triggerInput('file1')" style="border-color: var(--equip-blue);">
+                <i class="fas fa-ruler-combined upload-icon" style="color:var(--equip-blue);"></i>
+                <span class="upload-text">계측기 화면 촬영</span>
                 <img id="img1">
-                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(터치하여 촬영/선택)</span>
             </div>
-            <div style="overflow:hidden;">
-                <label for="file1" class="custom-file-upload">사진 등록</label>
-                <input type="file" id="file1" accept="image/*" onchange="preview(1)">
-            </div>
-        </div>
-        
-        <div class="box">
-            <div class="section-title" style="color:#78909c;"><i class="fas fa-plus-circle"></i> 추가 사진 (선택)</div>
-            <div class="preview-area" onclick="triggerInput('file2')">
+            <input type="file" id="file1" accept="image/*" onchange="preview(1)">
+
+            <label style="color:var(--equip-blue); margin-top:15px;">■ FLIR MR12 볼 프로브 (비파괴)</label>
+            <div class="preview-area" onclick="triggerInput('file2')" style="border-color: var(--equip-blue);">
+                <i class="fas fa-bullseye upload-icon" style="color:var(--equip-blue);"></i>
+                <span class="upload-text">볼 프로브 측정 사진</span>
                 <img id="img2">
-                <span style="color:#aaa; font-size:0.8rem; position:absolute;">(선택 사항)</span>
             </div>
-            <div style="overflow:hidden;">
-                <label for="file2" class="custom-file-upload" style="background-color:#78909c;">사진 등록</label>
-                <input type="file" id="file2" accept="image/*" onchange="preview(2)">
+            <input type="file" id="file2" accept="image/*" onchange="preview(2)">
+
+            <label style="color:var(--thermal-red); margin-top:15px;">■ 열화상 카메라 (단열/열교)</label>
+            <div class="preview-area" onclick="triggerInput('file3')" style="border-color: var(--thermal-red); background-color:#fffbe6;">
+                <i class="fas fa-temperature-high upload-icon" style="color:var(--thermal-red);"></i>
+                <span class="upload-text">열화상 이미지</span>
+                <img id="img3">
             </div>
+            <input type="file" id="file3" accept="image/*" onchange="preview(3)">
+
+            <label style="color:var(--sonic-purple); margin-top:15px;">■ 초음파(Ultrasonic) 기밀 진단 1</label>
+            <div class="preview-area" onclick="triggerInput('file4')" style="border-color: var(--sonic-purple); background-color:#f3e5f5;">
+                <i class="fas fa-wave-square upload-icon" style="color:var(--sonic-purple);"></i>
+                <span class="upload-text">초음파 이미지 1</span>
+                <img id="img4">
+            </div>
+            <input type="file" id="file4" accept="image/*" onchange="preview(4)">
+
+            <label style="color:var(--sonic-purple); margin-top:15px;">■ 초음파(Ultrasonic) 기밀 진단 2 (추가)</label>
+            <div class="preview-area" onclick="triggerInput('file5')" style="border-color: var(--sonic-purple); background-color:#f3e5f5;">
+                <i class="fas fa-plus-circle upload-icon" style="color:var(--sonic-purple);"></i>
+                <span class="upload-text">초음파 이미지 2</span>
+                <img id="img5">
+            </div>
+            <input type="file" id="file5" accept="image/*" onchange="preview(5)">
         </div>
 
         <button class="main-btn" id="btnRun" onclick="runAI()">
@@ -334,10 +340,8 @@
     </div>
 
     <div class="business-info">
-        <span class="footer-logo">풍경채</span><br>
         <strong>제일건설(주)</strong><br>
-        광주광역시 북구 무등로 255 (중흥동)<br>
-        고객센터 1588-7100 | COPYRIGHT ⓒ JEIL E&C. All Rights Reserved.
+        광주광역시 북구 무등로 255 (중흥동) | 고객센터 1588-7100
     </div>
 </div>
 
@@ -405,13 +409,21 @@
     function triggerInput(id) { document.getElementById(id).click(); }
 
     function preview(num) {
-        const fileBox = document.getElementById('file'+num);
+        const fileBox = document.getElementById('file'+num).parentNode.previousElementSibling; // preview-area 찾기
         const imgTag = document.getElementById('img'+num);
-        const spanText = imgTag.parentElement.querySelector('span');
-        if (fileBox.files && fileBox.files[0]) {
+        const spanText = fileBox.querySelector('.upload-text');
+        const icon = fileBox.querySelector('.upload-icon');
+        const fileInput = document.getElementById('file'+num);
+
+        if (fileInput.files && fileInput.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) { imgTag.src = e.target.result; imgTag.style.display = 'block'; if(spanText) spanText.style.display='none'; };
-            reader.readAsDataURL(fileBox.files[0]);
+            reader.onload = function(e) { 
+                imgTag.src = e.target.result; 
+                imgTag.style.display = 'block'; 
+                if(spanText) spanText.style.display='none'; 
+                if(icon) icon.style.display='none';
+            };
+            reader.readAsDataURL(fileInput.files[0]);
         }
     }
 
@@ -452,12 +464,12 @@
         const outTemp = document.getElementById('outTemp').value;
         const outHum = document.getElementById('outHum').value;
         
+        // 최소한 첫 번째 사진(MR277)은 있어야 함
         if(!document.getElementById('file1').files[0]) {
-            alert("정확한 분석을 위해 첫 번째 사진은 필수입니다.");
+            alert("정확한 분석을 위해 'FLIR MR 277' 데이터 사진은 필수입니다.");
             return;
         }
 
-        // [API KEY]
         const part_A = "AIzaSyB0FtOib_"; 
         const part_B = "U0nqU3N7ECCXopWbw3QZqScn0";
         const API_KEY = part_A + part_B; 
@@ -469,10 +481,9 @@
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
-            // [제일건설 전용 프롬프트]
             let promptText = `
-                당신은 '제일건설 풍경채' 아파트의 결로 및 하자 진단 전문가입니다. 
-                입주민이 제출한 사진과 환경 데이터를 바탕으로 정확한 원인 분석과 해결책을 제시해 주세요.
+                당신은 '제일건설 풍경채' 품질관리팀의 결로 및 누수 진단 최고 전문가입니다. 
+                제출된 정밀 계측 장비(FLIR MR277, MR12, 열화상, 초음파) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
 
                 [입력 데이터]
                 - 진단 일자: ${dateVal}
@@ -483,19 +494,24 @@
                 - **계산된 이슬점: ${dewPoint}**
 
                 [분석 요청 사항]
-                1. **헤더**: 보고서 상단에 "제일건설 품질관리팀 진단 보고서"라고 명시하세요.
-                2. **환경 진단**: 현재 실내 온습도가 결로 발생에 미치는 영향을 설명하세요. (이슬점 기준)
-                3. **사진 분석**: 곰팡이/물방울의 위치와 패턴을 분석하여, 이것이 단순 환기 부족인지 단열 미흡인지 판단하세요.
-                4. **솔루션**: 입주민이 실천할 수 있는 올바른 환기법과 관리 요령을 친절하게 안내하세요.
+                1. **헤더**: "제일건설 품질관리팀 정밀 진단 보고서" 명시.
+                2. **계측 데이터 분석**:
+                   - MR277 (VAP/MIX): 수증기압과 혼합비를 분석하여 환기 부족 여부 판단.
+                   - MR12 (볼 프로브): 벽체 내부 수분 함량을 통해 누수 여부 판단.
+                   - 열화상: 단열 결손(열교) 구간 확인.
+                   - 초음파: 기밀 불량(누기) 구간 확인.
+                3. **종합 결론**: 위 데이터를 근거로 결로의 원인이 '사용자 관리 소홀'인지 '시공 하자'인지 명확히 판정.
+                4. **솔루션**: 데이터에 기반한 구체적인 해결 방안 제시.
 
                 [출력 형식]
-                - 신뢰감 있고 전문적인 어조 사용.
-                - 핵심 내용을 명확하게 전달 (두괄식).
+                - 전문적이고 객관적인 어조.
+                - 핵심 결론 두괄식 배치.
             `;
 
             let parts = [{ text: promptText }];
             
-            for(let i=1; i<=2; i++) {
+            // 5개의 사진 파일 순회
+            for(let i=1; i<=5; i++) {
                 const file = document.getElementById('file'+i).files[0];
                 if(file) {
                     const base64 = await new Promise(resolve => {
@@ -524,26 +540,14 @@
             const jsonData = JSON.parse(textData);
             const aiResult = jsonData.candidates[0].content.parts[0].text;
             
-            // [제일건설 전용 하단 안내문]
             const footerHtml = `
                 <div class="result-footer-box" style="background-color: #E3F2FD; padding: 25px 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-top: 30px; border: 1px solid #90CAF9;">
                     <h3 style="color:#003057; margin: 0 0 15px 0; font-size: 1.1rem; text-align: center;">
-                        🏡 쾌적한 풍경채를 위한 제안
+                        🏡 제일건설 품질관리팀 제안
                     </h3>
-                    
                     <div style="font-size: 0.95rem; color: #333; line-height: 1.7; text-align: left;">
-                        <p style="margin-bottom: 12px; word-break: keep-all;">
-                            본 결과는 AI 분석에 의한 1차 진단입니다.
-                        </p>
-                        
-                        <p style="margin-bottom: 12px; word-break: keep-all;">
-                            결로는 생활 습관(환기, 빨래 건조 등)과 밀접한 관련이 있습니다. 
-                            <strong>하루 2회 이상, 10분씩 맞통풍 환기</strong>를 통해 실내 습도를 관리해 주세요.
-                        </p>
-                        
-                        <p style="margin: 0; word-break: keep-all;">
-                            지속적인 문제가 발생할 경우, 관리사무소 또는 AS센터를 통해 정밀 점검을 신청해 주시기 바랍니다.
-                        </p>
+                        <p>본 결과는 첨단 장비 데이터를 기반으로 한 AI 정밀 진단 결과입니다.</p>
+                        <p>진단 결과에 따라 <strong>적절한 환기 및 온습도 관리</strong> 또는 <strong>하자 보수 신청</strong>을 진행해 주시기 바랍니다.</p>
                     </div>
                 </div>
             `;
@@ -574,7 +578,7 @@
             
             const opt = {
                 margin: 0,
-                filename: '제일건설_결로진단_보고서.pdf',
+                filename: '제일건설_정밀진단_보고서.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
                     scale: 2, 
