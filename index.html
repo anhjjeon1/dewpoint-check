@@ -112,6 +112,7 @@
         button.main-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         button.main-btn:hover { background: #002147; }
 
+        /* 하단 버튼 (PDF + 엑셀) */
         .footer-buttons { display: flex; gap: 10px; margin-top: 25px; margin-bottom: 25px; }
         button.sub-btn { 
             flex: 1; padding: 16px 0; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 1.0rem; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
@@ -388,7 +389,6 @@
     function getWeather() {
         const outTempEl = document.getElementById('outTemp');
         const outHumEl = document.getElementById('outHum');
-        // [수정] 안내 메시지 변경
         outTempEl.placeholder = "위치확인중.."; 
         outHumEl.placeholder = "위치확인중..";
         
@@ -496,6 +496,7 @@
             let checks = [];
             for(let i=1; i<=6; i++) { if(document.getElementById('chk'+i).checked) checks.push(document.getElementById('chk'+i).parentNode.innerText); }
             
+            // [수정] 전문가 프롬프트 업데이트 (미서기 창호 특성, 초음파 해석, 모헤어 솔루션)
             let promptText = `
                 당신은 '제일건설 풍경채' 품질관리팀의 결로 및 하자 진단 최고 전문가입니다. 
                 제출된 7장의 사진(일반 2장 + 계측 5장) 데이터를 종합 분석하여 기술 소견서를 작성하세요.
@@ -510,22 +511,21 @@
 
                 [정밀 분석 가이드]
                 1. **VAP/MIX 분석 (ASHRAE 겨울철 기준 적용)**:
-                   - **ASHRAE Winter Comfort Guideline**: 겨울철 결로 예방을 위한 권장 실내 습도는 **30~50%**이며, **MIX(혼합비)는 5~8 g/kg** 수준이 안전합니다.
-                   - **현재 측정값 분석**: MR277의 MIX 값을 확인하고, 8.0 g/kg를 초과하면 **"과습(High Humidity Load)"**으로, 이는 거주자의 환기 부족 가능성을 시사합니다.
-                   - **VAP(수증기압)**: 1.2~1.3 kPa를 초과하면 습기의 침투압이 높아 내부 결로 위험이 있습니다.
+                   - **ASHRAE Winter Comfort Guideline**: 겨울철 권장 실내 습도 30~50%, **MIX(혼합비) 5~8 g/kg**.
+                   - 현재 MIX 값이 8.0 g/kg를 초과하면 **"과습(High Humidity Load)"**으로, 환기 부족 가능성 시사.
+                   - VAP 1.2~1.3 kPa 초과 시 내부 결로 위험 경고.
 
                 2. **열화상 분석 (미서기 창호 특성 고려)**:
-                   - 미서기(Sliding) 창호는 구조적으로 레일과 문짝 사이에 유격(Gap)이 존재합니다.
-                   - 따라서 상/하부 및 측면에서 **약간의 온도 저하(파란색 라인)가 나타나는 것은 창호의 구조적 특성**일 수 있으므로, 이를 무조건적인 '단열 불량'으로 단정하지 마십시오.
-                   - 단, 주변 벽체보다 현저히 낮은 온도나 비정상적인 냉점 패턴이 보일 경우에만 '단열 성능 저하 의심'으로 소견을 작성하세요.
+                   - 미서기(Sliding) 창호는 구조적으로 레일과 문짝 사이에 유격이 존재하므로, 상/하부 및 측면의 **미세한 온도 저하는 창호의 구조적 특성**일 수 있음.
+                   - 이를 무조건적인 '단열 불량'으로 단정하지 말고, 현저한 온도 저하가 있을 때만 지적할 것.
 
                 3. **초음파 기밀 진단 (주의 요함)**:
-                   - 초음파 누기 탐지 지점은 공기가 통하는 '기밀 취약 부위'를 의미합니다.
-                   - "무조건적인 시공 하자"라고 단정하기보다는, **"외풍 유입 및 결로 발생 가능성이 있어 주의 및 관리가 필요한 지점(Attention Required)"**으로 설명하세요.
+                   - 누기 탐지 지점은 **"외풍 유입 및 결로 발생 가능성이 있어 주의 및 관리가 필요한 지점(Attention Required)"**으로 설명.
+                   - 솔루션: 미서기 창호의 경우, 단순 실리콘 코킹보다는 **'노후된 모헤어(Weather Strip) 교체'**와 **'풍지판 설치'**를 우선적인 해결책으로 제시할 것. (실리콘 언급 자제)
 
                 4. **종합 결론 및 솔루션**:
                    - 귀책 사유 판정: MIX가 높으면 '환기 부족', 장비 데이터상 명확한 하자가 보이면 '시공 개선 필요'.
-                   - 솔루션: VAP/MIX가 높을 경우 **제습기 가동 및 하루 2회 10분 맞통풍 환기**를 강력히 권고하세요.
+                   - 솔루션: VAP/MIX가 높을 경우 **제습기 가동 및 하루 2회 10분 맞통풍 환기**를 강력히 권고.
 
                 [출력 형식]
                 - 전문적이고 객관적인 어조.
@@ -629,4 +629,3 @@
 
 </body>
 </html>
-
