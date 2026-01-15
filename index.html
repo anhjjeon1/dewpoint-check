@@ -56,7 +56,7 @@
 
         .content { padding: 20px; flex: 1; }
         
-        /* [수정] 한 줄 입력창 스타일 (동/호/장소/일자) */
+        /* 한 줄 입력창 스타일 (4분할 Flex) */
         .info-row {
             display: flex; gap: 5px; margin-bottom: 20px; padding: 10px 8px;
             border: 1px solid #cfd8dc; border-radius: 12px; background: #fdfdfd;
@@ -72,11 +72,10 @@
         }
         .info-group input:focus { border-color: var(--brand-primary); outline: none; }
         
-        /* 비율 조정 (Flex) */
-        .col-dong { flex: 0.8; } /* 동 */
-        .col-ho { flex: 0.8; }   /* 호 */
-        .col-loc { flex: 2; }    /* 장소 */
-        .col-date { flex: 1.5; } /* 일자 */
+        .col-dong { flex: 0.8; } 
+        .col-ho { flex: 0.8; }   
+        .col-loc { flex: 2; }    
+        .col-date { flex: 1.5; } 
 
         .env-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .box { margin-bottom: 20px; padding: 15px; border: 1px solid #cfd8dc; border-radius: 12px; background: #ffffff; }
@@ -84,11 +83,18 @@
         
         .section-title { font-weight: bold; color: var(--brand-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; }
         
-        /* 일반 입력창 스타일 (환경데이터 등) */
         .env-grid label { display: block; margin-bottom: 6px; color: #455A64; font-size: 0.9rem; font-weight: bold; }
         .env-grid input { width: 100%; padding: 12px; border: 1px solid #CFD8DC; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
         
         input[readonly] { background: #ECEFF1; color: #546E7A; font-weight: bold; }
+        
+        /* [수정] 날짜 입력칸 스타일 변경 (수정 가능하도록 흰색 배경) */
+        #dateInput { 
+            background: #fafafa; 
+            color: #2c3e50; 
+            text-align: center; 
+            cursor: text; 
+        }
 
         .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .check-item { 
@@ -192,7 +198,7 @@
         </div>
         <div class="header-subtitle">
             제일건설 품질관리팀 정밀 분석 시스템 
-            <span class="version-text">Ver 3.6</span>
+            <span class="version-text">Ver 3.7</span>
         </div>
     </div>
 
@@ -212,7 +218,7 @@
             </div>
             <div class="info-group col-date">
                 <label>진단 일자</label>
-                <input type="text" id="dateInput" readonly>
+                <input type="text" id="dateInput" placeholder="YYYY. M. D.">
             </div>
         </div>
 
@@ -325,7 +331,8 @@
         <div class="box" id="result-box" style="margin-top:20px; border:2px solid var(--brand-primary);">
             <div class="section-title" style="color:var(--brand-primary);"><i class="fas fa-file-contract"></i> 진단 결과 리포트</div>
             
-            <div id="result"></div>
+            <div id="result">
+                </div>
             
             <div class="footer-buttons">
                 <button class="sub-btn pdf" onclick="savePDFWithGuide()">
@@ -349,7 +356,6 @@
 
     window.onload = function() {
         const now = new Date();
-        // [수정] 날짜만 표시 (YYYY. M. D.)
         document.getElementById('dateInput').value = `${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()}.`;
         renderHistory();
         getWeather(); 
@@ -361,7 +367,8 @@
         const dpField = document.getElementById('dewPoint');
 
         if (!isNaN(temp) && !isNaN(hum)) {
-            const a = 17.27; const b = 237.7;
+            const a = 17.27;
+            const b = 237.7;
             const alpha = ((a * temp) / (b + temp)) + Math.log(hum / 100.0);
             const dewPoint = (b * alpha) / (a - alpha);
             dpField.value = dewPoint.toFixed(1) + "°C";
@@ -497,7 +504,7 @@
 
                 3. **초음파 기밀 진단 (주의 요함)**:
                    - 누기 탐지 지점은 **"외풍 유입 및 결로 발생 가능성이 있어 주의 및 관리가 필요한 지점(Attention Required)"**으로 설명.
-                   - 솔루션: 미서기 창호의 경우, 단순 실리콘 코킹보다는 **'노후된 모헤어(Weather Strip) 교체'**와 **'풍지판 설치'**를 우선적인 해결책으로 제시할 것.
+                   - 솔루션: 미서기 창호의 경우, 단순 실리콘 코킹보다는 **'노후된 모헤어(Weather Strip) 교체'**와 **'풍지판 설치'**를 우선적인 해결책으로 제시할 것. (실리콘 언급 자제)
 
                 4. **종합 결론 및 솔루션**:
                    - 귀책 사유 판정: MIX가 높으면 '환기 부족', 장비 데이터상 명확한 하자가 보이면 '시공 개선 필요'.
@@ -572,8 +579,7 @@
         const element = document.getElementById('pdfArea');
         const dong = document.getElementById('dongInput').value || "000";
         const ho = document.getElementById('hoInput').value || "0000";
-        const loc = document.getElementById('locInput').value || "현장";
-
+        
         document.body.classList.add('pdf-mode');
         
         const opt = {
